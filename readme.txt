@@ -22,15 +22,7 @@ Stack : FARM
  DevOps - tbd
  Server / Hosting - tbd
 
-Game : Ship a fullstack marketplace web application using as much Github Open 
-Source to create the best quality code possible.
-
-=========================== Sources ========================================
-Step by Step Planning - https://medium.com/@ericwindmill/step-by-step-planning-a-web-application-ddaa010a8353
-React Social Media App - https://www.youtube.com/watch?v=FweHcYHkt9A
-React JS with Tailwind - https://www.youtube.com/watch?v=_oO4Qi5aVZs
-React JS 4 apps (tinder, uber, signal, deliveroo) - https://www.youtube.com/watch?v=AkEnidfZnCU
-
+Game : Ship a fullstack social app using Django, React, & Postgres.
 
 =========================== Project Plan ===================================
 1. Who's going to be using the app? * How tech-savvy are the people using 
@@ -65,13 +57,7 @@ be using the page, how can you lay it out in a way that your target user will
   out like Instagram, but make it faster people will use this instead because
   it's faster and the familiar. 
   How will 
-  
-Doodle a layout. Use a 5" by 12" for designing. A basic outline.
 
-Next, wireframe the layout using figma. Set artboard to 1200 x 750pxs. No color,
-no typography.
-
-Now, functionality.
 The Minimum Viable Product (MVP) - Focus on building the core features, not 
 things that would "enhance" the experience, example being comments. 
 Do your users have accounts and will you need authentication? What should your 
@@ -83,21 +69,3 @@ MVPs :
  3. Users can see people profile's, without auth.
  4. Users can message in the app, if authenticated.
  5. Users can search for profiles.
-
-Now, DB Schema. 
-
-First DB question: What tables will your database have?
-// account table
- id: uid
- email: str
- fname: str
- lname: str
- age: int
- grad_year: int
- sex: str
- instagram: str
- snapchat: str
- interests: list[str]
- bio: str
- pics: ...
-
