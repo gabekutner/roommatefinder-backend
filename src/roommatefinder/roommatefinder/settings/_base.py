@@ -51,9 +51,9 @@ ALLOWED_HOSTS = [
   "0.0.0.0",
 ]
 
+AUTH_USER_MODEL = "api.Profile"
 
 # Application definition
-
 INSTALLED_APPS = [
     # contributed
     'django.contrib.admin',
@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # third-party
-    # ..
+    "rest_framework",
+    "multiselectfield",
     # local
     "roommatefinder.apps.api"
 ]
