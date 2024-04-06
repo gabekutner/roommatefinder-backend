@@ -4,10 +4,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-# jwt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -54,19 +52,20 @@ class ProfileViewSet(ModelViewSet):
     repeated_password = data["repeated_password"]
 
     if password != repeated_password:
-      message = {"detail": "Your password does not match."}
-      return Response(message, status=status.HTTP_400_BAD_REQUEST)
+      return Response(
+        {"detail": "Your password does not match."}, status=status.HTTP_400_BAD_REQUEST
+      )
     
     try:
-      # create a new user data model
       user = models.Profile.objects.create(
         email=data["email"], password=make_password(data["password"])
       )
       serializer = serializers.ProfileSerializer(user, many=False)
       return Response(serializer.data)
     except:
-      message = {"detail": "User with this email already exist."}
-      return Response(message, status=status.HTTP_400_BAD_REQUEST)
+      return Response(
+        {"detail": "User with this email already exist."}, status=status.HTTP_400_BAD_REQUEST
+      )
     
   def retrieve(self, request, pk=None):
     """ Get a Profile by id. """
@@ -78,7 +77,6 @@ class ProfileViewSet(ModelViewSet):
       )
 
     exec.only_admin_and_user(profile.id, request)
-
     serializer = serializers.ProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
@@ -135,12 +133,15 @@ class ProfileViewSet(ModelViewSet):
     fields_serializer.is_valid(raise_exception=True)
 
     profile.name = fields_serializer.validated_data["name"]
-    profile.instagram = fields_serializer.validated_data["instagram"]
-    profile.snapchat = fields_serializer.validated_data["snapchat"]
-    profile.description = fields_serializer.validated_data["description"]
+    profile.age = fields_serializer.validated_data["age"]
     profile.sex = fields_serializer.validated_data["sex"]
     profile.show_me = fields_serializer.validated_data["show_me"]
-    profile.age = fields_serializer.validated_data["age"]
+
+    profile.instagram = fields_serializer.validated_data["instagram"]
+    profile.snapchat = fields_serializer.validated_data["snapchat"]
+    profile.interests = fields_serializer.validated_data["interests"]
+    profile.description = fields_serializer.validated_data["description"]
+    
     profile.has_account = True
 
     profile.save()
@@ -195,7 +196,7 @@ class ProfileViewSet(ModelViewSet):
       )
 
     return Response(
-      {"detail": "Your passwords does not match"}, status=status.HTTP_400_BAD_REQUEST,
+      {"detail": "Your passwords do not match."}, status=status.HTTP_400_BAD_REQUEST,
     )
   
 
@@ -222,7 +223,7 @@ class PhotoViewSet(ModelViewSet):
 
     if len(profile_photos) >= 5:
       return Response(
-        {"detail": "Profile cannot have more than 5 images"}, status=status.HTTP_400_BAD_REQUEST,
+        {"detail": "Profile cannot have more than 5 images."}, status=status.HTTP_400_BAD_REQUEST,
       )
 
     photo = models.Photo.objects.create(
@@ -244,4 +245,4 @@ class PhotoViewSet(ModelViewSet):
   def destroy(self, request, pk):
     photo = models.Photo.objects.get(pk=pk)
     photo.delete()
-    return Response({"detail": "Photo deleted"}, status=status.HTTP_200_OK)
+    return Response({"detail": "Photo deleted."}, status=status.HTTP_200_OK)

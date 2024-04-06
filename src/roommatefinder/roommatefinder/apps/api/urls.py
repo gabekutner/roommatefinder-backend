@@ -1,3 +1,4 @@
+""" roommatefinder/apps/api/urls.py """
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -20,10 +21,12 @@ router.register(
   basename="photo",
 )
 
-
 urlpatterns = [
   # internal admin actions - profiles
   path("internal/profiles/", internal_profiles.list_profiles, name="list_profiles"),
+  path("internal/profiles/delete/<pk>/",
+       internal_profiles.delete_profile,
+       name="delete_profile"),
 
   # authentication
   path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
@@ -32,6 +35,7 @@ urlpatterns = [
     profile_views.MyTokenObtainPairView.as_view(),
     name="login",
   ),
+
   # ModelViewSets
   path("", include(router.urls)),
 ]

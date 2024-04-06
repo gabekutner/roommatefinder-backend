@@ -74,21 +74,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 class CreateProfileSerializer(serializers.Serializer):
   name = serializers.CharField(required=True, allow_null=False)
   age = serializers.IntegerField(required=True, allow_null=False)
-  description = serializers.CharField(required=False, allow_null=True)
+  instagram = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  snapchat = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
   sex = ChoicesField(
     choices=models.Profile.SEX_CHOICES,
-    required=False,
+    required=True,
     allow_null=False,
   )
   show_me = ChoicesField(
     choices=models.Profile.SHOW_ME_CHOICES,
     required=False,
-    allow_null=False,
+    allow_null=True,
   )
   interests = fields.MultipleChoiceField(
     choices=INTEREST_CHOICES,
-    required=True,
-    allow_null=False,
+    required=False,
+    allow_null=True,
   )
 
 
@@ -99,15 +101,15 @@ class UpdateProfileSerializer(serializers.Serializer):
   sex = ChoicesField(
     choices=models.Profile.SEX_CHOICES,
     required=False,
-    allow_null=False,
+    allow_null=True,
   )
   show_me = ChoicesField(
     choices=models.Profile.SHOW_ME_CHOICES,
     required=False,
-    allow_null=False,
+    allow_null=True,
   )
   interests = fields.MultipleChoiceField(
     choices=INTEREST_CHOICES,
     required=False,
-    allow_null=False,
+    allow_null=True,
   )

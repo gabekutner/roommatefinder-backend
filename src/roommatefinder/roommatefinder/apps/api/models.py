@@ -76,11 +76,10 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
     super().delete()
 
 
-class Photo(models.Model):
+class Photo(CreationModificationDateBase):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   image = models.ImageField(null=True, blank=True)
-  created_at = models.DateTimeField(default=timezone.now)
 
   def delete(self):
     self.image.delete(save=False)

@@ -206,18 +206,29 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale'),]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+  os.path.join(BASE_DIR, 'roommatefinder', 'site_static'),
+]
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+timestamp = get_git_changeset_timestamp(BASE_DIR)
+STATIC_URL = f'/static/{timestamp}/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 INTEREST_CHOICES = (('1', 'interest 1'),
                     ('2', 'interest 2'),
                     ('3', 'interest 3'),
                     ('4', 'interest 4'),
                     ('5', 'interest 5'),)
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 # EMAIL_HOST = get_secret("EMAIL_HOST")
 # EMAIL_PORT = get_secret("EMAIL_PORT")
