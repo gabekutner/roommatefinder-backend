@@ -162,3 +162,4 @@ cython_debug/
 
 # RoommateFinder specific
 sample_secrets.json
+plan.txt
