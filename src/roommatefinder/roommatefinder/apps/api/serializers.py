@@ -3,7 +3,7 @@ from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import models
-from roommatefinder.settings._base import INTEREST_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
 
 
 class ChoicesField(serializers.Field):
@@ -25,9 +25,7 @@ class ChoicesField(serializers.Field):
 
 class PhotoSerializer(serializers.ModelSerializer):
   """ models.Photo Serializer """
-  image = serializers.ImageField(
-    required=True, allow_null=False, max_length=None, use_url=True
-  )
+  image = serializers.ImageField(required=True, allow_null=False, max_length=None, use_url=True, )
 
   class Meta:
     model = models.Photo
@@ -39,14 +37,7 @@ class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
 
-  # transform the sex and show me into text "Male"
-  sex = serializers.CharField(
-    source="get_sex_display", required=True, allow_null=False
-  )
-  show_me = serializers.CharField(
-    source="get_show_me_display", required=True, allow_null=False
-  )
-
+  sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False, )
   photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
 
   class Meta:
@@ -72,44 +63,31 @@ class ProfileSerializer(serializers.ModelSerializer):
   
 
 class CreateProfileSerializer(serializers.Serializer):
-  name = serializers.CharField(required=True, allow_null=False)
-  age = serializers.IntegerField(required=True, allow_null=False)
+  """ Create Profile """
+  # 1st
+  name = serializers.CharField(required=True, allow_null=False) # required
+  age = serializers.IntegerField(required=True, allow_null=False) # required
+  sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False, ) # required
+
+  # 2nd
+  major = serializers.CharField(required=True, allow_null=False) # required
+  city = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  state = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
+  # 3rd
   instagram = serializers.CharField(required=False, allow_null=True, allow_blank=True)
   snapchat = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  sex = ChoicesField(
-    choices=models.Profile.SEX_CHOICES,
-    required=True,
-    allow_null=False,
-  )
-  show_me = ChoicesField(
-    choices=models.Profile.SHOW_ME_CHOICES,
-    required=False,
-    allow_null=True,
-  )
-  interests = fields.MultipleChoiceField(
-    choices=INTEREST_CHOICES,
-    required=False,
-    allow_null=True,
-  )
+
+  # 4th
+  interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False, )
 
 
 class UpdateProfileSerializer(serializers.Serializer):
-  instagram = serializers.CharField(required=False, allow_null=True)
-  snapchat = serializers.CharField(required=False, allow_null=True)
-  description = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  sex = ChoicesField(
-    choices=models.Profile.SEX_CHOICES,
-    required=False,
-    allow_null=True,
-  )
-  show_me = ChoicesField(
-    choices=models.Profile.SHOW_ME_CHOICES,
-    required=False,
-    allow_null=True,
-  )
-  interests = fields.MultipleChoiceField(
-    choices=INTEREST_CHOICES,
-    required=False,
-    allow_null=True,
-  )
+  instagram = serializers.CharField(required=False, allow_null=True, )
+  snapchat = serializers.CharField(required=False, allow_null=True, )
+  major = serializers.CharField(required=False, allow_null=True, ) # required, placeholder -> Undecided
+  minor = serializers.CharField(required=False, allow_null=True, allow_blank=True, ) 
+  description = serializers.CharField(required=False, allow_null=True, allow_blank=True, )
+  sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=False, allow_null=True, )
+  dorm_building = ChoicesField(choices=DORM_CHOICES, required=False, allow_null=True, )
+  interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True, )

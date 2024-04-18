@@ -41,9 +41,17 @@ class ProfileViewSet(ModelViewSet):
     return [permission() for permission in self.permission_classes]
 
   def list(self, request):
+    """ test for now... """
+    profiles = models.Profile.objects.all()
+    serializer = serializers.ProfileSerializer(profiles, many=True)
     return Response(
-      {"detail": "Not authorized."}, status=status.HTTP_401_UNAUTHORIZED
+      {"count": len(serializer.data), "results": serializer.data}, status=status.HTTP_200_OK,
     )
+  ### testing purposes...
+    # return Response(
+    #   {"detail": "Not authorized."}, status=status.HTTP_401_UNAUTHORIZED
+    # )
+    
   
   def create(self, request):
     """ Register / Sign Up for an account.  """
@@ -57,14 +65,12 @@ class ProfileViewSet(ModelViewSet):
       )
     
     try:
-      user = models.Profile.objects.create(
-        email=data["email"], password=make_password(data["password"])
-      )
+      user = models.Profile.objects.create(email=data["email"], password=make_password(data["password"]), )
       serializer = serializers.ProfileSerializer(user, many=False)
       return Response(serializer.data)
     except:
       return Response(
-        {"detail": "User with this email already exist."}, status=status.HTTP_400_BAD_REQUEST
+        {"detail": "User with this email already exists."}, status=status.HTTP_400_BAD_REQUEST
       )
     
   def retrieve(self, request, pk=None):
@@ -94,16 +100,20 @@ class ProfileViewSet(ModelViewSet):
 
     exec.only_admin_and_user(profile.id, request)
 
-    if "sex" in request.data:
-      profile.sex = fields_serializer.validated_data["sex"]
-    if "show_me" in request.data:
-      profile.show_me = fields_serializer.validated_data["show_me"]
     if "instagram" in request.data:
       profile.instagram = fields_serializer.validated_data["instagram"]
     if "snapchat" in request.data:
       profile.snapchat = fields_serializer.validated_data["snapchat"]
+    if "major" in request.data:
+      profile.major = fields_serializer.validated_data["major"]
+    if "minor" in request.data:
+      profile.minor = fields_serializer.validated_data["minor"]
     if "description" in request.data:
       profile.description = fields_serializer.validated_data["description"]
+    if "sex" in request.data:
+      profile.sex = fields_serializer.validated_data["sex"]
+    if "dorm_building" in request.data:
+      profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     if "interests" in request.data:
       profile.interests = fields_serializer.validated_data["interests"]
   
@@ -135,13 +145,17 @@ class ProfileViewSet(ModelViewSet):
     profile.name = fields_serializer.validated_data["name"]
     profile.age = fields_serializer.validated_data["age"]
     profile.sex = fields_serializer.validated_data["sex"]
-    profile.show_me = fields_serializer.validated_data["show_me"]
-
     profile.instagram = fields_serializer.validated_data["instagram"]
     profile.snapchat = fields_serializer.validated_data["snapchat"]
+
+    # profile.description = fields_serializer.validated_data["description"]
+    profile.city = fields_serializer.validated_data["city"]
+    profile.state = fields_serializer.validated_data["state"]
+    profile.major = fields_serializer.validated_data["major"]
+    # profile.minor = fields_serializer.validated_data["minor"]
+    # profile.dorm_building = fields_serializer.validated_data["dorm_building"]
+
     profile.interests = fields_serializer.validated_data["interests"]
-    profile.description = fields_serializer.validated_data["description"]
-    
     profile.has_account = True
 
     profile.save()

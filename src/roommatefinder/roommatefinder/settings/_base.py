@@ -46,6 +46,10 @@ def get_secret(setting, secrets=secrets):
 CORS_ALLOW_CREDENTIALS = True
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
+CORS_ALLOWED_ORIGINS = [
+  "http://127.0.0.1:3000"
+]
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secret("DJANGO_SECRET_KEY")
 
@@ -76,6 +80,7 @@ INSTALLED_APPS = [
   "rest_framework_simplejwt",
   "rest_framework_simplejwt.token_blacklist",
   "multiselectfield",
+  "django_extensions",
   # local
   "roommatefinder.apps.api"
 ]
@@ -165,8 +170,8 @@ DATABASES = {
     'NAME': get_secret('DATABASE_NAME'),
     'USER': get_secret('DATABASE_USER'),
     'PASSWORD': get_secret('DATABASE_PASSWORD'),
-    'HOST': 'localhost',
-    'PORT': '5432',
+    'HOST': get_secret('DATABASE_HOST'),
+    'PORT': get_secret('DATABASE_PORT'),
   }
 }
 
@@ -218,11 +223,137 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-INTEREST_CHOICES = (('1', 'interest 1'),
-                    ('2', 'interest 2'),
-                    ('3', 'interest 3'),
-                    ('4', 'interest 4'),
-                    ('5', 'interest 5'),)
+INTEREST_CHOICES = (('1', 'Road Trips'), ('2', 'Second-hand apparel'), ('3', 'Country Music'),
+                    ('4', 'Football'), ('5', 'Snowboarding'), ('6', 'Skiing'),
+                    ('7', 'Festivals'), ('8', 'Crossfit'), ('9', 'K-Pop'),
+                    ('10', 'Reading'), ('11', 'Sports'), ('12', 'Photography'),
+                    ('13', 'Shopping'), ('14', 'Collecting'), ('15', 'Clubbing'),
+                    ('16', 'Cars'), ('17', 'Boba Tea'), ('18', 'Rugby'),
+                    ('19', 'Boxing'), ('20', 'Self Care'), ('21', 'Meditation'),
+                    ('22', 'Sneakers'), ('23', 'Movies'), ('24', 'Home Workout'),
+                    ('25', 'Basketball'), ('26', 'Running'), ('27', 'Hockey'),
+                    ('28', 'Gym'), ('29', 'Skincare'), ('30', 'Skateboarding'),
+                    ('31', 'Singing'), ('32', 'Stand up Comedy'), ('33', 'Coffee'),
+                    ('34', 'Fortnite'), ('35', 'Poetry'), ('36', 'Karaoke'),
+                    ('37', 'Jiu-jitsu'), ('38', 'Investing'), ('39', 'Ice Skating'),
+                    ('40', 'Pilates'), ('41', 'Cheerleading'), ('42', 'Content Creation'),
+                    ('43', 'E-Sports'), ('44', 'Binge-Watching TV shows'), ('45', 'Cosplay'),
+                    ('46', 'Motor Sports'), ('47', 'Bicycle Racing'), ('48', 'Surfing'),
+                    ('49', 'Bowling'), ('50', 'Painting'), ('51', 'Songwriter'),
+                    ('52', 'Motorcycles'), ('53', 'Astrology'), ('54', 'Cooking'),
+                    ('55', 'Soccer'), ('56', 'Dancing'), ('57', 'Gardening'),
+                    ('58', 'Politics'), ('59', 'Art'), ('60', 'Real Estate'),
+                    ('61', 'Podcasts'), ('62', 'Volunteering'), ('63', 'Board Games'),
+                    ('64', 'Drummer'), ('65', 'Drawing'), ('66', 'Electronic Music'),
+                    ('67', 'Writing'), ('68', 'Martial Arts'), ('69', 'Marvel'),
+                    ('70', 'Volleyball'), ('71', 'Band'), ('72', 'Ballet'),
+                    ('73', 'Baseball'), ('74', 'Sailing'), ('75', 'Mountains'),
+                    ('76', 'Hiking'), ('77', 'Concerts'), ('78', 'Climbing'),
+                    ('79', 'Fishing'), ('80', 'Backpacking'), ('81', 'Camping'),
+                    ('82', 'Baking'), ('83', 'Cycling'), ('84', 'Fashion'),
+                    ('85', 'Blogging'), ('86', 'Active Lifestyle'), ('87', 'Outdoors'),
+                    ('88', 'Anime'), ('89', 'Stocks'), ('90', 'Comedy'),
+                    ('91', 'Triathlon'), ('92', 'Swimming'), ('93', 'Music'),
+                    ('94', 'Yoga'), ('95', 'Gymnastics'), ('96', 'Freelance'),
+                    ('97', 'Guitarist'), ('98', 'Gospel'), ('99', 'House Parties'),
+                    ('100', 'Heavy Metal'), ('101', 'Live Music'), ('102', 'Frat'),
+                    ('103', 'Sorority'), ) 
+
+TEST_CHOICES = (# activities
+                ('1', 'Shopping'), ('2', 'Partying'), ('3', 'Travel'),
+                ('4', 'Cooking'), ('5', 'Photography'), ('6', 'Volunteering'),
+                ('7', 'Entrepreneurship'), ('8', 'Coding'), ('9', 'Buy/Sell'),
+                ('10', 'On-campus Events'), ('11', 'Greek Life'),
+                # entertainment
+                ('12', 'Concerts'), ('13', 'Festivals'), ('14', 'Music'),
+                ('15', 'Movies'), ('16', 'TV/Streaming'), ('17', 'Video Games'),
+                ('18', 'UFC'), ('19', 'Fortnite'), ('20', 'NFL'),
+                ('21', 'NCAA Football'), ('22', 'NBA'), ('23', 'MLB'),
+                ('24', 'NHL'), ('25', 'Call of Duty'),
+                # lifestyle
+                ('26', 'Fitness'), ('27', 'Food'), ('28', 'Playing Music'), 
+                ('29', 'Memes'), ('30', 'Bargain Hunting'), ('31', 'Activism'),
+                ('32', 'Beauty/Makeup'), ('33', 'Republican'), ('34', 'Fashion'),
+                ('35', 'Democrat'), ('36', 'Streetwear'),
+                # Outdoors
+                ('37', 'Hiking'), ('38', 'Biking'), ('39', 'Camping'),
+                ('40', 'Jogging'), ('41', 'Skiing/Snowboarding'), ('42', 'Surfing'),
+                ('43', 'Hunting/Fishing'),
+                # Sports
+                ('44', 'Basketball'), ('45', 'Golf'), ('46', 'Tennis'),
+                ('47', 'Soccer'), ('48', 'Baseball/Softball'), ('49', 'Volleyball'),
+                ('50', 'Hockey'), ('51', 'Ultimate Frisbee'),)
+
+CHOICES = (('1', 'Fraternity'), ('2', 'Sorority'), ('3', 'Travel'),
+           ('4', 'Biking'), ('5', 'Skiing'), ('6', 'Snowboarding'),
+           ('7', 'Camping'), ('8', 'Partying'), ('9', 'House Parties'),
+           ('10', 'Staying in'), ('11', 'Staying out'), ('12', 'Movies'),
+           ('13', 'Rock Climbing'), ('14', 'Greek Life'), ('15', 'Shopping'),
+           ('16', 'Concerts'), ('17', 'Festivals'), ('18', 'NCAA Sports'),
+           ('19', 'Food'), ('20', 'Politics'), ('21', 'On-campus Events'),
+           ('22', 'Surfing'), ('23', 'Reading'), ('24', 'Photography'),
+           ('25', 'DJ'), ('26', 'Comedy'), ('27', 'Band'),
+           ('28', 'Drawing'), ('29', 'Cooking'), ('30', 'Baseball'),
+           ('31', 'Lacrosse'), ('32', 'Football'), ('33', 'Golf'),
+           ('34', 'Softball'), ('35', 'Soccer'), ('36', 'Volleyball'),
+           ('37', 'Ultimate Frisbee'), ('38', 'Tennis'), ('39', 'Boxing'),
+           ('40', 'Martial Arts'), ('41', 'Memes'), ('42', 'Fortnite'),
+           ('43', 'Call of Duty'),)
+
+
+POPULAR_CHOICES = ( # sample size, uofu28, 27 specific
+                   ('1', 'Hanging out with friends'),
+                   ('2', 'Shopping'),
+                   ('3', 'Road Trips'),
+                   ('4', 'Rushing'),
+                   ('5', 'Reading'),
+                   ('6', 'Concerts'),
+                   ('7', 'Staying in'),
+                   ('8', 'Going out'),
+                   ('9', 'Being outside'),
+                   ('10', 'Thrifting'),
+                   ('11', 'Photography'),
+                   ('12', 'Snowboarding'),
+                   ('13', 'Skiing'),
+                   ('14', 'Working out'),
+                   ('15', 'Anything outdoors'),
+                   ('16', 'Hiking'),
+                   ('17', 'Surfing'),
+                   ('18', 'Music'),
+                   ('19', 'Dogs'),
+                   ('20', 'Cats'),
+                   ('21', 'Fishing'),
+                   ('22', 'Basketball'),
+                   ('23', 'Cliff Jumping'),
+                   ('24', 'Church'),
+                   ('25', 'Camping'),
+                   ('26', 'Soccer'),
+                   ('27', 'Lacrosse'),
+                   ('28', 'Dirt Biking'),
+                   ('29', 'Chill'),
+                   ('30', 'Travel'),
+                   ('31', 'Going on runs'),
+                   # sports
+                   ('32', 'Track and Field'), ('33', 'Football'), ('34', 'Baseball'), ('35', 'Cheer'),
+                   ('36', 'Figure Skating'), ('37', 'Cross Country'),
+                   ('38', 'Napping'),
+                   ('39', 'Business Scholars'), ('40', 'Honors College'), ('41', 'ROTC'),
+                   ('42', 'Rocket League'), ('43', 'Fortnite'), ('44', 'COD'),
+                   # funny (transparent)
+                   ('45', 'Drinking'), ('46', 'Smoking'), ('47', 'LGBTQ+'),
+                   ('48', 'Mountain Biking'), ('49', 'Rock Climbing'), ('50', 'Nature'),
+                   )
+
+DORM_CHOICES = (('1', 'Chapel Glen'), 
+                ('2', 'Gateway Heights'),
+                ('3', 'Impact and Prosperity Epicenter'),
+                ('4', 'Kahlert Village'),
+                ('5', 'Lassonde Studios'),
+                ('6', 'Officers Circle'),
+                ('7', 'Sage Point'),
+                ('8', 'Marriott Honors Community'),
+                ('9', 'Guest House'),
+                ('10', 'Off Campus'), )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

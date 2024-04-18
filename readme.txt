@@ -1,5 +1,5 @@
 =========================== Basic Details ==================================
-Application Name: roommatefinder.com
+Application Name: roommatefinder.com (backend)
 Developer: Gabe Kutner
 Status: Development
 
