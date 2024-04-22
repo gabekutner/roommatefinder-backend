@@ -4,4 +4,4 @@ Developer: Gabe Kutner
 Status: Development
 
 =========================== Description ====================================
-A web app for finding college dorm roommates.
+A native app for finding college dorm roommates.
