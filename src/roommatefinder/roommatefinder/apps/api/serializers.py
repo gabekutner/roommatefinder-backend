@@ -66,17 +66,18 @@ class CreateProfileSerializer(serializers.Serializer):
   """ Create Profile """
   # 1st
   name = serializers.CharField(required=True, allow_null=False) # required
-  age = serializers.IntegerField(required=True, allow_null=False) # required
+  birthday = serializers.DateField(required=True, allow_null=False) # required
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False, ) # required
 
   # 2nd
   major = serializers.CharField(required=True, allow_null=False) # required
-  city = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  state = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  dorm_building = serializers.CharField(required=True, allow_null=False)
+  # city = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  # state = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
   # 3rd
-  instagram = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  snapchat = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  # instagram = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+  # snapchat = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
   # 4th
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False, )
@@ -91,3 +92,31 @@ class UpdateProfileSerializer(serializers.Serializer):
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=False, allow_null=True, )
   dorm_building = ChoicesField(choices=DORM_CHOICES, required=False, allow_null=True, )
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True, )
+
+
+class SwipeProfileSerializer(serializers.ModelSerializer):
+    sex = serializers.CharField(
+      source="get_sex_display", required=True, allow_null=False
+    )
+
+    photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+
+    class Meta:
+      model = models.Profile
+      fields = [
+        "id",
+        "email",
+        "name",
+        "birthday",
+        "age",
+        "sex",
+        "city",
+        "state",
+        "major",
+        "minor",
+        "dorm_building",
+        "description",
+        "photos",
+        "instagram",
+        "snapchat",
+      ]

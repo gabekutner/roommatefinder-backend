@@ -143,15 +143,16 @@ class ProfileViewSet(ModelViewSet):
     fields_serializer.is_valid(raise_exception=True)
 
     profile.name = fields_serializer.validated_data["name"]
-    profile.age = fields_serializer.validated_data["age"]
+    profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
-    profile.instagram = fields_serializer.validated_data["instagram"]
-    profile.snapchat = fields_serializer.validated_data["snapchat"]
+    # profile.instagram = fields_serializer.validated_data["instagram"]
+    # profile.snapchat = fields_serializer.validated_data["snapchat"]
 
     # profile.description = fields_serializer.validated_data["description"]
-    profile.city = fields_serializer.validated_data["city"]
-    profile.state = fields_serializer.validated_data["state"]
+    # profile.city = fields_serializer.validated_data["city"]
+    # profile.state = fields_serializer.validated_data["state"]
     profile.major = fields_serializer.validated_data["major"]
+    profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     # profile.minor = fields_serializer.validated_data["minor"]
     # profile.dorm_building = fields_serializer.validated_data["dorm_building"]
 

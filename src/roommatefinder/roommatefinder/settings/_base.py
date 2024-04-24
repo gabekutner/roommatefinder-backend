@@ -9,6 +9,9 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+# how to run local postgres instance in docker
+# https://www.sqlshack.com/getting-started-with-postgresql-on-docker/
+
 import os
 import sys
 import json
@@ -86,6 +89,7 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
+  "DATE_INPUT_FORMATS": ["%m-%d-%Y"],
   "DEFAULT_PERMISSION_CLASSES": [
     "rest_framework.permissions.AllowAny",
   ],
@@ -346,14 +350,14 @@ POPULAR_CHOICES = ( # sample size, uofu28, 27 specific
 
 DORM_CHOICES = (('1', 'Chapel Glen'), 
                 ('2', 'Gateway Heights'),
-                ('3', 'Impact and Prosperity Epicenter'),
+                ('3' ,'Impact and Prosperity Epicenter'),
                 ('4', 'Kahlert Village'),
                 ('5', 'Lassonde Studios'),
                 ('6', 'Officers Circle'),
                 ('7', 'Sage Point'),
                 ('8', 'Marriott Honors Community'),
-                ('9', 'Guest House'),
-                ('10', 'Off Campus'), )
+                ('9' 'Guest House'),
+                ('10' "I don't know"), )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

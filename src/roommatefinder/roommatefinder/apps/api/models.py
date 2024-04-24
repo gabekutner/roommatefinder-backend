@@ -1,5 +1,6 @@
 """ roommatefinder/apps/api/models.py """
 import uuid
+import datetime
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -9,20 +10,33 @@ from model_utils import Choices
 
 from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
-from roommatefinder.settings._base import INTEREST_CHOICES, CHOICES, POPULAR_CHOICES, DORM_CHOICES
+from roommatefinder.settings._base import INTEREST_CHOICES, CHOICES, POPULAR_CHOICES
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   """ Profile Model """
   SEX_CHOICES = Choices(("M", "Male"),
                         ("F", "Female"),)
+  
+  DORM_CHOICES = Choices(('1', 'Chapel Glen'), 
+                ('2', 'Gateway Heights'),
+                ('3' ,'Impact and Prosperity Epicenter'),
+                ('4', 'Kahlert Village'),
+                ('5', 'Lassonde Studios'),
+                ('6', 'Officers Circle'),
+                ('7', 'Sage Point'),
+                ('8', 'Marriott Honors Community'),
+                ('9', 'Guest House'),
+                ('10', "I don't know"), )
 
   # base
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   email = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
-  age = models.PositiveIntegerField(null=True)
+
+  birthday = models.DateField(null=True)
+  # age = models.PositiveIntegerField(null=True)
   description = models.TextField(max_length=500, null=True)
   instagram = models.TextField(max_length=15, null=True)
   snapchat = models.TextField(max_length=15, null=True)
@@ -57,6 +71,11 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   REQUIRED_FIELDS = []
 
   objects = CustomUserManager()
+
+  @property
+  def age(self):
+    if self.birthday:
+      return int((datetime.date.today() - self.birthday).days / 365.25)
 
   def block_profile(self, blocked_profile):
     """ Block a profile. """
