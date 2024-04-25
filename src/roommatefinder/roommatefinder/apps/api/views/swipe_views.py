@@ -1,16 +1,11 @@
 """ roommatefinder/apps/api/views/swipe_views.py """
 from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.gis.measure import D
-from django.db.models import Q
-from itertools import chain
 
 from .. import models, serializers
-
+from ..handlers.rank import rank_profiles
 
 
 class SwipeModelViewSet(ModelViewSet):
@@ -19,7 +14,7 @@ class SwipeModelViewSet(ModelViewSet):
   def list(self, request): 
     """ list home page cards """
     current_profile = request.user
-    profiles = models.Profile.objects.all().filter(has_account=True)
+    profiles = models.Profile.objects.all().filter(has_account=True).exclude(id=current_profile.id)
 
     if not current_profile.age:
       return Response(
@@ -27,12 +22,19 @@ class SwipeModelViewSet(ModelViewSet):
         status=status.HTTP_401_UNAUTHORIZED,
       )
     
-    profiles_serializer = serializers.SwipeProfileSerializer(profiles, many=True)
-    print(profiles_serializer)
+    # filters go here
+    show_profiles = rank_profiles(current_profile, profiles)
+
+    profiles_serializer = serializers.SwipeProfileSerializer(show_profiles, many=True)
     return Response(
       {
-        "count": len(profiles),
-        "profile_count": profiles.count(),
+        "count": len(show_profiles),
+        "profile_count": show_profiles.count(),
         "results": profiles_serializer.data,
       }
     )
+  
+  def retrieve(self, request, pk=None):
+    profile = models.Profile.objects.get(pk=pk)
+    serializer = serializers.SwipeProfileSerializer(profile, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)

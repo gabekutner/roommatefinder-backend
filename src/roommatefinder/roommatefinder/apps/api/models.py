@@ -6,11 +6,10 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from multiselectfield import MultiSelectField
 from model_utils import Choices
-# from django.utils import timezone
 
 from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
-from roommatefinder.settings._base import INTEREST_CHOICES, CHOICES, POPULAR_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
@@ -36,7 +35,6 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   password = models.CharField(max_length=200)
 
   birthday = models.DateField(null=True)
-  # age = models.PositiveIntegerField(null=True)
   description = models.TextField(max_length=500, null=True)
   instagram = models.TextField(max_length=15, null=True)
   snapchat = models.TextField(max_length=15, null=True)
@@ -44,8 +42,8 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   # extra
   city = models.CharField(max_length=25, null=True)
   state = models.CharField(max_length=25, null=True)
-  major = models.CharField(max_length=50, null=True, default="Undecided")
-  minor = models.CharField(max_length=50, null=True)
+  major = models.CharField(max_length=25, null=True, default="Undecided")
+  minor = models.CharField(max_length=25, null=True)  # delete this
   graduation_year = models.PositiveIntegerField(null=True)
   dorm_building = models.CharField(choices=DORM_CHOICES, max_length=2, null=True)
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)

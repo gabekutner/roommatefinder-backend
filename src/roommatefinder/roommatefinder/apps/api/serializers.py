@@ -95,28 +95,29 @@ class UpdateProfileSerializer(serializers.Serializer):
 
 
 class SwipeProfileSerializer(serializers.ModelSerializer):
-    sex = serializers.CharField(
-      source="get_sex_display", required=True, allow_null=False
-    )
+  sex = serializers.CharField(
+    source="get_sex_display", required=True, allow_null=False
+  )
 
-    photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
 
-    class Meta:
-      model = models.Profile
-      fields = [
-        "id",
-        "email",
-        "name",
-        "birthday",
-        "age",
-        "sex",
-        "city",
-        "state",
-        "major",
-        "minor",
-        "dorm_building",
-        "description",
-        "photos",
-        "instagram",
-        "snapchat",
-      ]
+  class Meta:
+    model = models.Profile
+    fields = [
+      "id",
+      "email",
+      "name",
+      "birthday",
+      "age",
+      "sex",
+      "city",
+      "state",
+      "major",
+      "minor",
+      "dorm_building",
+      "description",
+      "photos",
+      "instagram",
+      "snapchat",
+      "interests",
+    ]
