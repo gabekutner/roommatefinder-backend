@@ -8,6 +8,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .. import serializers, models
 from ..utils import exec
@@ -145,17 +146,8 @@ class ProfileViewSet(ModelViewSet):
     profile.name = fields_serializer.validated_data["name"]
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
-    # profile.instagram = fields_serializer.validated_data["instagram"]
-    # profile.snapchat = fields_serializer.validated_data["snapchat"]
-
-    # profile.description = fields_serializer.validated_data["description"]
-    # profile.city = fields_serializer.validated_data["city"]
-    # profile.state = fields_serializer.validated_data["state"]
     profile.major = fields_serializer.validated_data["major"]
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]
-    # profile.minor = fields_serializer.validated_data["minor"]
-    # profile.dorm_building = fields_serializer.validated_data["dorm_building"]
-
     profile.interests = fields_serializer.validated_data["interests"]
     profile.has_account = True
 
@@ -192,8 +184,8 @@ class ProfileViewSet(ModelViewSet):
     """ Get all blocked profiles. """
     current_profile = request.user
     blocked_profiles = current_profile.blocked_profiles.all()
-    # serializer = serializers.SwipeProfileSerializer(blocked_profiles, many=True)
-    return Response({"count": blocked_profiles.count(), "results": blocked_profiles})
+    serializer = serializers.SwipeProfileSerializer(blocked_profiles, many=True)
+    return Response({"count": blocked_profiles.count(), "results": serializer.data})
 
   @action(detail=False, methods=["post"], url_path=r"actions/reset-password")
   def reset_password(self, request):
@@ -218,6 +210,14 @@ class ProfileViewSet(ModelViewSet):
 class PhotoViewSet(ModelViewSet):
   serializer_class = serializers.PhotoSerializer
   permission_classes = [IsAuthenticated]
+  parser_classes = (MultiPartParser, FormParser,)
+
+  def get_serializer(self, *args, **kwargs):
+    # add many=True if the data is of type list
+    if isinstance(kwargs.get("data", {}), list):
+      kwargs["many"] = True
+
+    return super(PhotoViewSet, self).get_serializer(*args, **kwargs)
 
   def list(self, request):
     profile = request.user
@@ -231,6 +231,7 @@ class PhotoViewSet(ModelViewSet):
     return Response(serializer.data)
 
   def create(self, request):
+    # print(request.data)
     profile = request.user
     profile_photos = models.Photo.objects.filter(profile=profile.id)
     fields_serializer = serializers.PhotoSerializer(data=request.data)
@@ -241,10 +242,16 @@ class PhotoViewSet(ModelViewSet):
         {"detail": "Profile cannot have more than 5 images."}, status=status.HTTP_400_BAD_REQUEST,
       )
 
-    photo = models.Photo.objects.create(
-      profile=profile, image=fields_serializer._validated_data["image"]
-    )
-    serializer = serializers.PhotoSerializer(photo, many=False)
+    image = fields_serializer._validated_data.pop("image")
+    photos = list()
+    for img in image:
+      print(img)
+      photo = models.Photo.objects.create(
+        profile=profile, image=img
+      )
+      photos.append(photo)
+
+    serializer = serializers.PhotoReturnSerializer(photos, many=True)
     return Response(serializer.data)
 
   def update(self, request, pk=None, *args, **kwargs):

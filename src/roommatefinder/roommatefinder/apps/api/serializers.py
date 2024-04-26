@@ -3,7 +3,7 @@ from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from . import models
-from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES
 
 
 class ChoicesField(serializers.Field):
@@ -25,7 +25,26 @@ class ChoicesField(serializers.Field):
 
 class PhotoSerializer(serializers.ModelSerializer):
   """ models.Photo Serializer """
-  image = serializers.ImageField(required=True, allow_null=False, max_length=None, use_url=True, )
+  def __init__(self, *args, **kwargs):
+    many = kwargs.pop('many', True)
+    super(PhotoSerializer, self).__init__(many=many, *args, **kwargs)
+
+  image = serializers.ListField(child=serializers.ImageField(
+    required=True, allow_null=False, max_length=None, use_url=True))
+
+  class Meta:
+    model = models.Photo
+    fields = ["id", "image", "profile"]
+
+  # request format, form-data
+  # [
+  #   {image},
+  #   {image}
+  # ]
+  
+
+class PhotoReturnSerializer(serializers.ModelSerializer):
+  image = serializers.ImageField(required=True, allow_null=False, max_length=None, use_url=True)
 
   class Meta:
     model = models.Photo
@@ -36,7 +55,6 @@ class ProfileSerializer(serializers.ModelSerializer):
   """ Profile Serializer """
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
-
   sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False, )
   photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
 
@@ -64,32 +82,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class CreateProfileSerializer(serializers.Serializer):
   """ Create Profile """
-  # 1st
   name = serializers.CharField(required=True, allow_null=False) # required
   birthday = serializers.DateField(required=True, allow_null=False) # required
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False, ) # required
-
-  # 2nd
   major = serializers.CharField(required=True, allow_null=False) # required
   dorm_building = serializers.CharField(required=True, allow_null=False)
-  # city = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  # state = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-
-  # 3rd
-  # instagram = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-  # snapchat = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-
-  # 4th
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False, )
 
 
 class UpdateProfileSerializer(serializers.Serializer):
   instagram = serializers.CharField(required=False, allow_null=True, )
   snapchat = serializers.CharField(required=False, allow_null=True, )
-  major = serializers.CharField(required=False, allow_null=True, ) # required, placeholder -> Undecided
+  major = serializers.CharField(required=False, allow_null=True, )
+  city = serializers.CharField(required=False, allow_null=True, )
+  state = serializers.CharField(required=False, allow_null=True, )
   description = serializers.CharField(required=False, allow_null=True, allow_blank=True, )
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=False, allow_null=True, )
-  dorm_building = ChoicesField(choices=DORM_CHOICES, required=False, allow_null=True, )
+  dorm_building = ChoicesField(choices=models.Profile.DORM_CHOICES, required=False, allow_null=True, )
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True, )
 
 

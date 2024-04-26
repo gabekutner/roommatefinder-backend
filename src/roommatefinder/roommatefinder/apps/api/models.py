@@ -18,32 +18,29 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
                         ("F", "Female"),)
   
   DORM_CHOICES = Choices(('1', 'Chapel Glen'), 
-                ('2', 'Gateway Heights'),
-                ('3' ,'Impact and Prosperity Epicenter'),
-                ('4', 'Kahlert Village'),
-                ('5', 'Lassonde Studios'),
-                ('6', 'Officers Circle'),
-                ('7', 'Sage Point'),
-                ('8', 'Marriott Honors Community'),
-                ('9', 'Guest House'),
-                ('10', "I don't know"), )
+                         ('2', 'Gateway Heights'),
+                         ('3' ,'Impact and Prosperity Epicenter'),
+                         ('4', 'Kahlert Village'),
+                         ('5', 'Lassonde Studios'),
+                         ('6', 'Officers Circle'),
+                         ('7', 'Sage Point'),
+                         ('8', 'Marriott Honors Community'),
+                         ('9', 'Guest House'),
+                         ('10', "I don't know"), )
   
-  # base
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   email = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
 
   birthday = models.DateField(null=True)
-  description = models.TextField(max_length=500, null=True)
-  instagram = models.CharField(max_length=15, null=True)
-  snapchat = models.CharField(max_length=15, null=True)
-
-  # extra
-  city = models.CharField(max_length=25, null=True)
-  state = models.CharField(max_length=25, null=True)
+  description = models.TextField(max_length=500, null=True, blank=True)
+  instagram = models.CharField(max_length=15, null=True, blank=True)
+  snapchat = models.CharField(max_length=15, null=True, blank=True)
+  city = models.CharField(max_length=25, null=True, blank=True)
+  state = models.CharField(max_length=25, null=True, blank=True)
   major = models.CharField(max_length=25, null=True, default="Undecided")
-  graduation_year = models.PositiveIntegerField(null=True)
+  graduation_year = models.PositiveIntegerField(null=True, blank=True)
   dorm_building = models.CharField(choices=DORM_CHOICES, max_length=2, null=True)
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)
 
@@ -65,7 +62,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   )
 
   USERNAME_FIELD = "email"
-  # requred for creating user
+  # required for creating user
   REQUIRED_FIELDS = []
 
   objects = CustomUserManager()
@@ -104,8 +101,7 @@ class Prompt(CreationModificationDateBase):
                            ('2', 'Fill this in later'),
                            ('3', 'Fill this in later'),
                            ('4', 'Fill this in later'),
-                           ('5', 'Fill this in later'),
-                          )
+                           ('5', 'Fill this in later'), )
 
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
