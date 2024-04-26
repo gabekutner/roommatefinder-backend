@@ -27,7 +27,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
                 ('8', 'Marriott Honors Community'),
                 ('9', 'Guest House'),
                 ('10', "I don't know"), )
-
+  
   # base
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   email = models.CharField(max_length=200, unique=True)
@@ -36,14 +36,13 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
   birthday = models.DateField(null=True)
   description = models.TextField(max_length=500, null=True)
-  instagram = models.TextField(max_length=15, null=True)
-  snapchat = models.TextField(max_length=15, null=True)
+  instagram = models.CharField(max_length=15, null=True)
+  snapchat = models.CharField(max_length=15, null=True)
 
   # extra
   city = models.CharField(max_length=25, null=True)
   state = models.CharField(max_length=25, null=True)
   major = models.CharField(max_length=25, null=True, default="Undecided")
-  minor = models.CharField(max_length=25, null=True)  # delete this
   graduation_year = models.PositiveIntegerField(null=True)
   dorm_building = models.CharField(choices=DORM_CHOICES, max_length=2, null=True)
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)
@@ -52,6 +51,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   is_staff = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
   has_account = models.BooleanField(default=False)
+  seen_tutorial = models.BooleanField(default=False)
   
   sex = models.CharField(
     choices=SEX_CHOICES,
@@ -92,6 +92,25 @@ class Photo(CreationModificationDateBase):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   image = models.ImageField(null=True, blank=True)
+
+  def delete(self):
+    self.image.delete(save=False)
+    super().delete()
+
+
+class Prompt(CreationModificationDateBase):
+  """ Prompts model """
+  PROMPT_CHOICES = Choices(('1', 'When it comes to studying, noise should be'),
+                           ('2', 'Fill this in later'),
+                           ('3', 'Fill this in later'),
+                           ('4', 'Fill this in later'),
+                           ('5', 'Fill this in later'),
+                          )
+
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+  prompt = models.CharField(choices=PROMPT_CHOICES, max_length=1, null=False)
+  answer = models.CharField(max_length=100, null=False)
 
   def delete(self):
     self.image.delete(save=False)

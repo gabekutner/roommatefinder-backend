@@ -87,7 +87,6 @@ class UpdateProfileSerializer(serializers.Serializer):
   instagram = serializers.CharField(required=False, allow_null=True, )
   snapchat = serializers.CharField(required=False, allow_null=True, )
   major = serializers.CharField(required=False, allow_null=True, ) # required, placeholder -> Undecided
-  minor = serializers.CharField(required=False, allow_null=True, allow_blank=True, ) 
   description = serializers.CharField(required=False, allow_null=True, allow_blank=True, )
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=False, allow_null=True, )
   dorm_building = ChoicesField(choices=DORM_CHOICES, required=False, allow_null=True, )
@@ -113,7 +112,6 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "city",
       "state",
       "major",
-      "minor",
       "dorm_building",
       "description",
       "photos",
