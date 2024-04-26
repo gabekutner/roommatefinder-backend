@@ -56,7 +56,7 @@ class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
   sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False, )
-  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  photos = PhotoReturnSerializer(source="photo_set", many=True, read_only=True)
 
   class Meta:
     model = models.Profile
@@ -107,7 +107,7 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     source="get_sex_display", required=True, allow_null=False
   )
 
-  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  photos = PhotoReturnSerializer(source="photo_set", many=True, read_only=True)
 
   class Meta:
     model = models.Profile
