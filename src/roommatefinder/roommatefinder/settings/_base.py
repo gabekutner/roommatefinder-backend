@@ -70,6 +70,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 INSTALLED_APPS = [
+  'daphne',
   # contributed
   'django.contrib.admin',
   'django.contrib.auth',
@@ -99,6 +100,14 @@ REST_FRAMEWORK = {
 }
 
 # redis channels here ...
+CHANNEL_LAYERS = {
+  'default': {
+    'BACKEND': 'channels_redis.core.RedisChannelLayer',
+    'CONFIG': {
+      'hosts': [('127.0.0.1', 6379)]
+    }
+  }
+}
 
 # SIMPLE JWT TO CREATE JSON ACCESS TOKENS
 SIMPLE_JWT = {
@@ -162,7 +171,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'roommatefinder.wsgi.application'
-# ASGI_APPLICATION = "roommatefinder.asgi.application"
+# daphne
+ASGI_APPLICATION = "roommatefinder.asgi.application"
 
 
 # Database

@@ -35,12 +35,6 @@ class PhotoSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Photo
     fields = ["id", "image", "profile"]
-
-  # request format, form-data
-  # [
-  #   {image},
-  #   {image}
-  # ]
   
 
 class PhotoReturnSerializer(serializers.ModelSerializer):
@@ -82,10 +76,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class CreateProfileSerializer(serializers.Serializer):
   """ Create Profile """
-  name = serializers.CharField(required=True, allow_null=False) # required
   birthday = serializers.DateField(required=True, allow_null=False) # required
   sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False, ) # required
-  major = serializers.CharField(required=True, allow_null=False) # required
   dorm_building = serializers.CharField(required=True, allow_null=False)
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False, )
 

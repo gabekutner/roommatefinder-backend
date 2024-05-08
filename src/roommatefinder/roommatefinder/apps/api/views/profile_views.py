@@ -48,7 +48,7 @@ class ProfileViewSet(ModelViewSet):
     return Response(
       {"count": len(serializer.data), "results": serializer.data}, status=status.HTTP_200_OK,
     )
-  ### testing purposes...
+  ### testing ...
     # return Response(
     #   {"detail": "Not authorized."}, status=status.HTTP_401_UNAUTHORIZED
     # )
@@ -66,7 +66,7 @@ class ProfileViewSet(ModelViewSet):
       )
     
     try:
-      user = models.Profile.objects.create(email=data["email"], password=make_password(data["password"]), )
+      user = models.Profile.objects.create(email=data["email"], password=make_password(data["password"]), name=data["name"])
       serializer = serializers.ProfileSerializer(user, many=False)
       return Response(serializer.data)
     except:
@@ -143,10 +143,8 @@ class ProfileViewSet(ModelViewSet):
     fields_serializer = serializers.CreateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
 
-    profile.name = fields_serializer.validated_data["name"]
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
-    profile.major = fields_serializer.validated_data["major"]
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     profile.interests = fields_serializer.validated_data["interests"]
     profile.has_account = True
