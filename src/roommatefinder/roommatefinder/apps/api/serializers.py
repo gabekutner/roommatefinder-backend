@@ -120,3 +120,14 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "snapchat",
       "interests",
     ]
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = models.Profile
+		fields = [
+			# 'username',
+			'name',
+			'thumbnail'
+    ]
