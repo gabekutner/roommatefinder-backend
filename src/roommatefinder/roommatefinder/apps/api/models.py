@@ -11,6 +11,15 @@ from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
 from roommatefinder.settings._base import POPULAR_CHOICES
 
+
+
+def upload_thumbnail(instance, filename):
+	path = f'thumbnails/{instance.email}'
+	extension = filename.split('.')[-1]
+	if extension:
+		path = path + '.' + extension
+	return path
+
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   """ Profile Model """
@@ -56,6 +65,12 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
     null=False,
     blank=False,
   )
+
+  thumbnail = models.ImageField(
+		upload_to=upload_thumbnail,
+		null=True,
+		blank=True
+	)
 
   blocked_profiles = models.ManyToManyField(
     "self", symmetrical=False, related_name="blocked_by", blank=True
