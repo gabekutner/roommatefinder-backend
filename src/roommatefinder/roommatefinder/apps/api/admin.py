@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Photo, Prompt
+from .models import Profile, Photo, Prompt, Connection
 
 # Register your models here.
 @admin.register(Profile)
@@ -13,3 +13,9 @@ class PhotoAdmin(admin.ModelAdmin):
 @admin.register(Prompt)
 class PromptAdmin(admin.ModelAdmin):
   list_display = ["profile", "prompt", "answer"]
+
+
+# Chat
+@admin.register(Connection)
+class ConnectionAdmin(admin.ModelAdmin):
+  list_display = ["sender", "receiver"]

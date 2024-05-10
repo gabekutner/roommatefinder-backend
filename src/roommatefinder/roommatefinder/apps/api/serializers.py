@@ -123,11 +123,49 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
 
 
 
+"""
+Chat
+"""
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Profile
 		fields = [
-			# 'username',
 			'name',
 			'thumbnail'
     ]
+
+
+class SearchSerializer(UserSerializer):
+  status = serializers.SerializerMethodField()
+
+  class Meta:
+    model = models.Profile
+    fields = [
+      'id',
+      'name',
+			'thumbnail',
+      'status'
+    ]
+
+  def get_status(self, obj):
+    if obj.pending_them:
+      return 'pending-them'
+    elif obj.pending_me:
+      return 'pending-me'
+    elif obj.connected:
+      return 'connected'
+    return 'no-connection'
+    
+  
+class RequestSerializer(serializers.ModelSerializer):
+	sender = UserSerializer()
+	receiver = UserSerializer()
+
+	class Meta:
+		model = models.Connection
+		fields = [
+			'id',
+			'sender',
+			'receiver',
+			'created'
+		]
