@@ -130,6 +130,7 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Profile
 		fields = [
+      'id',
 			'name',
 			'thumbnail'
     ]

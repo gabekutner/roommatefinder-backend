@@ -11,22 +11,20 @@ from . import models
 from . import serializers
 
 
-class ChatConsumer(WebsocketConsumer):
+class APIConsumer(WebsocketConsumer):
 
   def connect(self):
     user = self.scope['user']
-    print(user, user.is_authenticated)
+    # print(user, user.is_authenticated)
     if not user.is_authenticated:
       return
 
-    self._id = user.id
-    self.id = str(user.email).split('@')[0]
-    # join this user to a group by their email
+    self.id, self._id = str(user.id), user.id
+    # Join this user to a group by their email
     async_to_sync(self.channel_layer.group_add)(
 			self.id, self.channel_name
 		)
     self.accept()
-
 
   def disconnect(self, close_code):
 		# Leave room/group
@@ -39,7 +37,7 @@ class ChatConsumer(WebsocketConsumer):
 	#   Handle Requests
 	#----------------------
   def receive(self, text_data):
-    # receive message from websocket
+    # Receive message from websocket
     data = json.loads(text_data)
     data_source = data.get('source')
 
@@ -61,13 +59,14 @@ class ChatConsumer(WebsocketConsumer):
     elif data_source == 'request.list':
       self.receive_request_list(data)
 
-    # thumbnail upload
+    # Upload thumbnail
     elif data_source == 'thumbnail':
       self.receive_thumbnail(data)
 
 
   def receive_request_accept(self, data):
     id = data.get('id')
+    print(f'data: {data}')
     # Fetch connection object
     try:
       connection = models.Connection.objects.get(
@@ -83,9 +82,9 @@ class ChatConsumer(WebsocketConsumer):
 
     serialized = serializers.RequestSerializer(connection)
     # Send accepted request to sender
-    self.send_group(connection.sender.id, 'request.accept', serialized.data)
+    self.send_group(str(connection.sender.id), 'request.accept', serialized.data)
     # Send accepted request to receiver
-    self.send_group(connection.receiver.id, 'request.accept', serialized.data)
+    self.send_group(str(connection.receiver.id), 'request.accept', serialized.data)
 
   
   def receive_request_list(self, data):
@@ -116,10 +115,10 @@ class ChatConsumer(WebsocketConsumer):
     )
     # Serialized connection
     serialized = serializers.RequestSerializer(connection)
-    # Send results back
-    self.send_group(self.id, 'request.connect', serialized.data)
+    # Send results back to sender
+    self.send_group(str(connection.sender.id), 'request.connect', serialized.data)
     # Send results back to receiver
-    self.send_group(self.id, 'request.connect', serialized.data)
+    self.send_group(str(connection.receiver.id), 'request.connect', serialized.data)
 
 
   def receive_search(self, data):
@@ -153,9 +152,9 @@ class ChatConsumer(WebsocketConsumer):
 				)
 			),
     )
-    # serializer results
+    # Serialized results
     serialized = serializers.SearchSerializer(profiles, many=True)
-    # send results back to user
+     # Send results back to user
     self.send_group(self.id, 'search', serialized.data) 
 
 
