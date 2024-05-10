@@ -50,6 +50,17 @@ class APIConsumer(WebsocketConsumer):
     # Get friend list
     elif data_source == 'friend.list':
       self.receive_friend_list(data)
+    
+    elif data_source == 'message.list':
+      self.receive_message_list(data)
+
+		# Message has been sent
+    elif data_source == 'message.send':
+      self.receive_message_send(data)
+
+		# User is typing message
+    elif data_source == 'message.type':
+      self.receive_message_type(data)
 
     # Make friend request
     elif data_source == 'request.connect':
@@ -68,6 +79,111 @@ class APIConsumer(WebsocketConsumer):
       self.receive_thumbnail(data)
 
 
+  def receive_message_list(self, data):
+    user = self.scope['user']
+    connectionId = data.get('connectionId')
+    page = data.get('page')
+    page_size = 15
+    try:
+      connection = models.Connection.objects.get(id=connectionId)
+    except models.Connection.DoesNotExist:
+      print("Error: couldn't find connection")
+      return
+    # Get messages
+    messages = models.Message.objects.filter(
+      connection=connection
+    ).order_by('-created')[page * page_size:(page + 1) * page_size]
+    # Serialized message
+    serialized_messages = serializers.MessageSerializer(
+      messages,
+      context={ 
+        'user': user 
+      }, 
+      many=True
+    )
+    # Get recipient friend
+    recipient = connection.sender
+    if connection.sender == user:
+      recipient = connection.receiver
+
+    # Serialize friend
+    serialized_friend = serializers.UserSerializer(recipient)
+
+    # Count the total number of messages for this connection
+    messages_count = models.Message.objects.filter(
+      connection=connection
+    ).count()
+
+    next_page = page + 1 if messages_count > (page + 1 ) * page_size else None
+
+    data = {
+      'messages': serialized_messages.data,
+      'next': next_page,
+      'friend': serialized_friend.data
+    }
+    # Send back to the requestor
+    self.send_group(str(user.id), 'message.list', data)
+
+
+  def receive_message_send(self, data):
+    user = self.scope['user']
+    connectionId = data.get('connectionId')
+    message_text = data.get('message')
+    try:
+      connection = models.Connection.objects.get(id=connectionId)
+    except models.Connection.DoesNotExist:
+      print('Error: couldnt find connection')
+      return
+
+    message = models.Message.objects.create(
+      connection=connection,
+      user=user,
+      text=message_text
+    )
+
+    # Get recipient friend
+    recipient = connection.sender
+    if connection.sender == user:
+      recipient = connection.receiver
+
+    # Send new message back to sender
+    serialized_message = serializers.MessageSerializer(
+      message,
+      context={
+        'user': user
+      }
+    )
+    serialized_friend = serializers.UserSerializer(recipient)
+    data = {
+      'message': serialized_message.data,
+      'friend': serialized_friend.data
+    }
+    self.send_group(str(user.id), 'message.send', data)
+
+    # Send new message to receiver
+    serialized_message = serializers.MessageSerializer(
+      message,
+      context={
+        'user': recipient
+      }
+    )
+    serialized_friend = serializers.UserSerializer(user)
+    data = {
+      'message': serialized_message.data,
+      'friend': serialized_friend.data
+    }
+    self.send_group(str(recipient.id), 'message.send', data)
+
+
+  def receive_message_type(self, data):
+    user = self.scope['user']
+    recipient_id = data.get('id')
+    data = {
+      'id': str(recipient_id)
+    }
+    self.send_group(str(recipient_id), 'message.type', data)
+
+
   def receive_friend_list(self, data):
     user = self.scope['user']
     # Get connections for user
@@ -75,7 +191,6 @@ class APIConsumer(WebsocketConsumer):
       Q(sender=user) | Q(receiver=user),
       accepted=True,
     )
-    print('OOUOUUIII: ', connections)
     serialized = serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
     # Send data back to user
     self.send_group(str(user.id), 'friend.list', serialized.data)

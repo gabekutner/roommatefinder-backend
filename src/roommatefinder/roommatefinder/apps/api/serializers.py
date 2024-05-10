@@ -208,3 +208,18 @@ class FriendSerializer(serializers.ModelSerializer):
 		else:
 			date = obj.latest_created or obj.updated
 		return date.isoformat()
+
+class MessageSerializer(serializers.ModelSerializer):
+	is_me = serializers.SerializerMethodField()
+
+	class Meta:
+		model = models.Message
+		fields = [
+			'id',
+			'is_me',
+			'text',
+			'created',
+		]
+
+	def get_is_me(self, obj):
+		return self.context['user'] == obj.user

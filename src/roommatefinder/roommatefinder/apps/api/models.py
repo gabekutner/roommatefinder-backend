@@ -151,3 +151,21 @@ class Connection(models.Model):
 
 	def __str__(self):
 		return str(self.sender.id) + ' -> ' + str(self.receiver.id)
+
+
+class Message(models.Model):
+	connection = models.ForeignKey(
+		Connection,
+		related_name='messages',
+		on_delete=models.CASCADE
+	)
+	user = models.ForeignKey(
+		Profile,
+		related_name='my_messages',
+		on_delete=models.CASCADE
+	)
+	text = models.TextField()
+	created = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return str(self.user.id) + ': ' + self.text

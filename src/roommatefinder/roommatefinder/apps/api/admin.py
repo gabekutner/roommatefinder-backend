@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Photo, Prompt, Connection
+from .models import Profile, Photo, Prompt, Connection, Message
 
 # Register your models here.
 @admin.register(Profile)
@@ -19,3 +19,7 @@ class PromptAdmin(admin.ModelAdmin):
 @admin.register(Connection)
 class ConnectionAdmin(admin.ModelAdmin):
   list_display = ["sender", "receiver"]
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+  list_display = ["connection"]
