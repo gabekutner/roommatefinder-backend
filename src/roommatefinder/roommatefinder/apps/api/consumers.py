@@ -47,6 +47,10 @@ class APIConsumer(WebsocketConsumer):
     if data_source == 'search':
       self.receive_search(data)
 
+    # Get friend list
+    elif data_source == 'friend.list':
+      self.receive_friend_list(data)
+
     # Make friend request
     elif data_source == 'request.connect':
       self.receive_request_connect(data)
@@ -62,6 +66,19 @@ class APIConsumer(WebsocketConsumer):
     # Upload thumbnail
     elif data_source == 'thumbnail':
       self.receive_thumbnail(data)
+
+
+  def receive_friend_list(self, data):
+    user = self.scope['user']
+    # Get connections for user
+    connections = models.Connection.objects.filter(
+      Q(sender=user) | Q(receiver=user),
+      accepted=True,
+    )
+    print('OOUOUUIII: ', connections)
+    serialized = serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
+    # Send data back to user
+    self.send_group(str(user.id), 'friend.list', serialized.data)
 
 
   def receive_request_accept(self, data):

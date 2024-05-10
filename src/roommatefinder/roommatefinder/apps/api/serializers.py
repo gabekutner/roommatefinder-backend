@@ -170,3 +170,41 @@ class RequestSerializer(serializers.ModelSerializer):
 			'receiver',
 			'created'
 		]
+      
+      
+class FriendSerializer(serializers.ModelSerializer):
+	friend = serializers.SerializerMethodField()
+	preview = serializers.SerializerMethodField()
+	updated = serializers.SerializerMethodField()
+	
+	class Meta:
+		model = models.Connection
+		fields = [
+			'id',
+			'friend',
+			'preview',
+			'updated',
+		]
+
+	def get_friend(self, obj):
+		# If Im the sender
+		if self.context['user'] == obj.sender:
+			return UserSerializer(obj.receiver).data
+		# If Im the receiver
+		elif self.context['user'] == obj.receiver:
+			return UserSerializer(obj.sender).data
+		else:
+			print('Error: No user found in friendserializer')
+
+	def get_preview(self, obj):
+		default = 'New connection'
+		if not hasattr(obj, 'latest_text'):
+			return default
+		return obj.latest_text or default
+
+	def get_updated(self, obj):
+		if not hasattr(obj, 'latest_created'):
+			date = obj.updated
+		else:
+			date = obj.latest_created or obj.updated
+		return date.isoformat()
