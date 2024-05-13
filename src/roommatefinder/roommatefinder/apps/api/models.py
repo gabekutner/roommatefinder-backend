@@ -3,6 +3,7 @@ import uuid
 import datetime
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from multiselectfield import MultiSelectField
 from model_utils import Choices
@@ -42,15 +43,16 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   password = models.CharField(max_length=200)
 
   birthday = models.DateField(null=True)
-  description = models.TextField(max_length=500, null=True, blank=True)
+  
   instagram = models.CharField(max_length=15, null=True, blank=True)
   snapchat = models.CharField(max_length=15, null=True, blank=True)
+  major = models.CharField(max_length=25, null=True, default="Undecided")
   city = models.CharField(max_length=25, null=True, blank=True)
   state = models.CharField(max_length=25, null=True, blank=True)
-  major = models.CharField(max_length=25, null=True, default="Undecided")
-  graduation_year = models.PositiveIntegerField(null=True, blank=True)
+  description = models.TextField(max_length=500, null=True, blank=True)
   dorm_building = models.CharField(choices=DORM_CHOICES, max_length=2, null=True)
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)
+  graduation_year = models.PositiveIntegerField(null=True, blank=True)
 
   # background
   is_staff = models.BooleanField(default=False)
@@ -87,14 +89,31 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
       return int((datetime.date.today() - self.birthday).days / 365.25)
 
   def block_profile(self, blocked_profile):
-    """ Block a profile. """
-    # remove connection
-    # remove messages
+    """ block a profile """
+    # try:
+    #   connection = Connection.objects.get(
+    #     Q(sender=self.id, receiver=blocked_profile.id) | Q(sender=blocked_profile.id, receiver=self.id),
+    #     accepted=True,
+    #   )
+    #   print(connection)
+    #   messages = Message.objects.get(connection=connection)
+    #   print(messages)
+    # except Connection.DoesNotExist:
+    #   print({"detail": f"no connection between {self.id} and {blocked_profile.id}"})
+    
+    # connection.delete()
+
+    # try:
+    #   print(connection)
+      
+
+    # except Message.DoesNotExist:
+    #   print({"detail": f"no messages between {self.id} and {blocked_profile.id}"})
+
     self.blocked_profiles.add(blocked_profile)
 
   def delete(self):
-    """ Delete your profile. """
-    # delete conversations
+    """ delete profile """
     super().delete()
 
 

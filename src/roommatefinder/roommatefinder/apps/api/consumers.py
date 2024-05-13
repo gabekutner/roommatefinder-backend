@@ -1,5 +1,4 @@
 import json
-import uuid
 import base64
 from asgiref.sync import async_to_sync
 
@@ -15,19 +14,18 @@ class APIConsumer(WebsocketConsumer):
 
   def connect(self):
     user = self.scope['user']
-    # print(user, user.is_authenticated)
     if not user.is_authenticated:
       return
 
     self.id, self._id = str(user.id), user.id
-    # Join this user to a group by their email
+    # join this user to a group by their id
     async_to_sync(self.channel_layer.group_add)(
 			self.id, self.channel_name
 		)
     self.accept()
 
   def disconnect(self, close_code):
-		# Leave room/group
+		# leave room/group
     async_to_sync(self.channel_layer.group_discard)(
 			self.id, self.channel_name
 		)
@@ -37,44 +35,43 @@ class APIConsumer(WebsocketConsumer):
 	#   Handle Requests
 	#----------------------
   def receive(self, text_data):
-    # Receive message from websocket
+    # receive message from websocket
     data = json.loads(text_data)
     data_source = data.get('source')
 
-    print('receive ', json.dumps(data, indent=2))
-
-    # Search / filter users
+    # gearch / filter users
     if data_source == 'search':
       self.receive_search(data)
 
-    # Get friend list
+    # get friend list
     elif data_source == 'friend.list':
       self.receive_friend_list(data)
     
+    # get message list
     elif data_source == 'message.list':
       self.receive_message_list(data)
 
-		# Message has been sent
+		# message has been sent
     elif data_source == 'message.send':
       self.receive_message_send(data)
 
-		# User is typing message
+		# user is typing message
     elif data_source == 'message.type':
       self.receive_message_type(data)
 
-    # Make friend request
+    # make friend request
     elif data_source == 'request.connect':
       self.receive_request_connect(data)
 
-    # Accept friend request
+    # accept friend request
     elif data_source == 'request.accept':
       self.receive_request_accept(data)
 
-    # Get request list
+    # get request list
     elif data_source == 'request.list':
       self.receive_request_list(data)
 
-    # Upload thumbnail
+    # upload thumbnail
     elif data_source == 'thumbnail':
       self.receive_thumbnail(data)
 
@@ -87,29 +84,28 @@ class APIConsumer(WebsocketConsumer):
     try:
       connection = models.Connection.objects.get(id=connectionId)
     except models.Connection.DoesNotExist:
-      print("Error: couldn't find connection")
+      print({"detail": "couldn't find connection"})
       return
-    # Get messages
+    
+    # get messages
     messages = models.Message.objects.filter(
       connection=connection
     ).order_by('-created')[page * page_size:(page + 1) * page_size]
-    # Serialized message
+    # serialized message
     serialized_messages = serializers.MessageSerializer(
       messages,
-      context={ 
-        'user': user 
-      }, 
+      context={'user': user}, 
       many=True
     )
-    # Get recipient friend
+    # get recipient friend
     recipient = connection.sender
     if connection.sender == user:
       recipient = connection.receiver
 
-    # Serialize friend
+    # serialize friend
     serialized_friend = serializers.UserSerializer(recipient)
 
-    # Count the total number of messages for this connection
+    # count the total number of messages for this connection
     messages_count = models.Message.objects.filter(
       connection=connection
     ).count()
@@ -121,7 +117,7 @@ class APIConsumer(WebsocketConsumer):
       'next': next_page,
       'friend': serialized_friend.data
     }
-    # Send back to the requestor
+    # send back to the requestor
     self.send_group(str(user.id), 'message.list', data)
 
 
@@ -132,7 +128,7 @@ class APIConsumer(WebsocketConsumer):
     try:
       connection = models.Connection.objects.get(id=connectionId)
     except models.Connection.DoesNotExist:
-      print('Error: couldnt find connection')
+      print({"detail": "couldn't find connection"})
       return
 
     message = models.Message.objects.create(
@@ -141,17 +137,15 @@ class APIConsumer(WebsocketConsumer):
       text=message_text
     )
 
-    # Get recipient friend
+    # get recipient friend
     recipient = connection.sender
     if connection.sender == user:
       recipient = connection.receiver
 
-    # Send new message back to sender
+    # send new message back to sender
     serialized_message = serializers.MessageSerializer(
       message,
-      context={
-        'user': user
-      }
+      context={'user': user}
     )
     serialized_friend = serializers.UserSerializer(recipient)
     data = {
@@ -160,12 +154,10 @@ class APIConsumer(WebsocketConsumer):
     }
     self.send_group(str(user.id), 'message.send', data)
 
-    # Send new message to receiver
+    # send new message to receiver
     serialized_message = serializers.MessageSerializer(
       message,
-      context={
-        'user': recipient
-      }
+      context={'user': recipient}
     )
     serialized_friend = serializers.UserSerializer(user)
     data = {
@@ -178,84 +170,81 @@ class APIConsumer(WebsocketConsumer):
   def receive_message_type(self, data):
     user = self.scope['user']
     recipient_id = data.get('id')
-    data = {
-      'id': str(recipient_id)
-    }
+    data = {'id': str(recipient_id)}
     self.send_group(str(recipient_id), 'message.type', data)
 
 
   def receive_friend_list(self, data):
     user = self.scope['user']
-    # Get connections for user
+    # get connections for user
     connections = models.Connection.objects.filter(
       Q(sender=user) | Q(receiver=user),
       accepted=True,
     )
     serialized = serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
-    # Send data back to user
+    # send data back to user
     self.send_group(str(user.id), 'friend.list', serialized.data)
 
 
   def receive_request_accept(self, data):
     id = data.get('id')
-    print(f'data: {data}')
-    # Fetch connection object
+    # fetch connection object
     try:
       connection = models.Connection.objects.get(
         sender__id=id,
         receiver=self.scope['user']
       )
     except models.Connection.DoesNotExist:
-      print('Error: connection does not exist')
+      print({"detail": "connection does not exist"})
       return
-    # Update connection
+    # update connection
     connection.accepted = True
     connection.save()
 
     serialized = serializers.RequestSerializer(connection)
-    # Send accepted request to sender
+    # send accepted request to sender
     self.send_group(str(connection.sender.id), 'request.accept', serialized.data)
-    # Send accepted request to receiver
+    # send accepted request to receiver
     self.send_group(str(connection.receiver.id), 'request.accept', serialized.data)
 
   
   def receive_request_list(self, data):
     user = self.scope['user']
-    # Get connections made to this user
+    # get connections made to this user
     connections = models.Connection.objects.filter(
       receiver=user,
       accepted=False,
     )
     serialized = serializers.RequestSerializer(connections, many=True)
-    # Send request list back to user
+    # send request list back to user
     return self.send_group(self.id, 'request.list', serialized.data)
 
 
   def receive_request_connect(self, data):
     id = data.get('id')
-    # Attempt to fetch the receiving user
+    # attempt to fetch the receiving user
     try:
       receiver = models.Profile.objects.get(id=id)
     except models.Profile.DoesNotExist:
-      print('Error: User not found')
+      print({'detail': 'user not found'})
       return
  
-    # Create connection
+    # create connection
     connection, _ = models.Connection.objects.get_or_create(
       sender=self.scope['user'],
       receiver=receiver,
     )
-    # Serialized connection
+    # serialized connection
     serialized = serializers.RequestSerializer(connection)
-    # Send results back to sender
+    # send results back to sender
     self.send_group(str(connection.sender.id), 'request.connect', serialized.data)
-    # Send results back to receiver
+    # send results back to receiver
     self.send_group(str(connection.receiver.id), 'request.connect', serialized.data)
 
 
   def receive_search(self, data):
     query = data.get('query')
-    # Get profiles from query search term
+    # get profiles from query search term
     profiles = models.Profile.objects.filter(
       Q(name__istartswith=query) |
       Q(email__istartswith=query)
@@ -284,23 +273,23 @@ class APIConsumer(WebsocketConsumer):
 				)
 			),
     )
-    # Serialized results
+    # serialized results
     serialized = serializers.SearchSerializer(profiles, many=True)
-     # Send results back to user
+     # send results back to user
     self.send_group(self.id, 'search', serialized.data) 
 
 
   def receive_thumbnail(self, data):
     user = self.scope['user']
-    # Convert base64 data  to django content file
+    # convert base64 data  to django content file
     image_str = data.get('base64')
     image = ContentFile(base64.b64decode(image_str))
-    # Update thumbnail field
+    # update thumbnail field
     filename = data.get('filename')
     user.thumbnail.save(filename, image, save=True)
-    # Serialize user
+    # serialize user
     serialized = serializers.UserSerializer(user)
-    # Send updated user data including new thumbnail 
+    # send updated user data including new thumbnail 
     self.send_group(self.id, 'thumbnail', serialized.data)
 
   

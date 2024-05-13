@@ -1,4 +1,3 @@
-""" roommatefinder/apps/api/serializers.py """
 from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -7,7 +6,7 @@ from roommatefinder.settings._base import POPULAR_CHOICES
 
 
 class ChoicesField(serializers.Field):
-  """ Custom Choices Field """
+  """ custom choices field """
   def __init__(self, choices, **kwargs):
     self._choices = choices
     super(ChoicesField, self).__init__(**kwargs)
@@ -24,13 +23,16 @@ class ChoicesField(serializers.Field):
   
 
 class PhotoSerializer(serializers.ModelSerializer):
-  """ models.Photo Serializer """
   def __init__(self, *args, **kwargs):
     many = kwargs.pop('many', True)
     super(PhotoSerializer, self).__init__(many=many, *args, **kwargs)
 
   image = serializers.ListField(child=serializers.ImageField(
-    required=True, allow_null=False, max_length=None, use_url=True))
+    required=True, 
+    allow_null=False, 
+    max_length=None, 
+    use_url=True
+  ))
 
   class Meta:
     model = models.Photo
@@ -38,7 +40,12 @@ class PhotoSerializer(serializers.ModelSerializer):
   
 
 class PhotoReturnSerializer(serializers.ModelSerializer):
-  image = serializers.ImageField(required=True, allow_null=False, max_length=None, use_url=True)
+  image = serializers.ImageField(
+    required=True, 
+    allow_null=False, 
+    max_length=None, 
+    use_url=True
+  )
 
   class Meta:
     model = models.Photo
@@ -46,11 +53,13 @@ class PhotoReturnSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-  """ Profile Serializer """
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
-  sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False, )
-  photos = PhotoReturnSerializer(source="photo_set", many=True, read_only=True)
+  sex = serializers.CharField(
+    source="get_sex_display", 
+    required=True, 
+    allow_null=False
+  )
 
   class Meta:
     model = models.Profile
@@ -75,28 +84,82 @@ class ProfileSerializer(serializers.ModelSerializer):
   
 
 class CreateProfileSerializer(serializers.Serializer):
-  """ Create Profile """
-  birthday = serializers.DateField(required=True, allow_null=False) # required
-  sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False, ) # required
-  dorm_building = serializers.CharField(required=True, allow_null=False)
-  interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False, )
+  birthday = serializers.DateField(
+    required=True, 
+    allow_null=False
+  )
+  sex = ChoicesField(
+    choices=models.Profile.SEX_CHOICES, 
+    required=True, 
+    allow_null=False
+  )
+  dorm_building = serializers.CharField(
+    required=True, 
+    allow_null=False
+  )
+  interests = fields.MultipleChoiceField(
+    choices=POPULAR_CHOICES, 
+    required=True, 
+    allow_null=False
+  )
+  thumbnail = fields.ImageField(
+    required=True,
+    allow_null=False
+  )
 
 
 class UpdateProfileSerializer(serializers.Serializer):
-  instagram = serializers.CharField(required=False, allow_null=True, )
-  snapchat = serializers.CharField(required=False, allow_null=True, )
-  major = serializers.CharField(required=False, allow_null=True, )
-  city = serializers.CharField(required=False, allow_null=True, )
-  state = serializers.CharField(required=False, allow_null=True, )
-  description = serializers.CharField(required=False, allow_null=True, allow_blank=True, )
-  sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=False, allow_null=True, )
-  dorm_building = ChoicesField(choices=models.Profile.DORM_CHOICES, required=False, allow_null=True, )
-  interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True, )
+  instagram = serializers.CharField(
+    required=False,
+    allow_null=True
+  )
+  snapchat = serializers.CharField(
+    required=False, 
+    allow_null=True
+  )
+  major = serializers.CharField(
+    required=False,
+    allow_null=True
+  )
+  city = serializers.CharField(
+    required=False, 
+    allow_null=True
+  )
+  state = serializers.CharField(
+    required=False, 
+    allow_null=True
+  )
+  description = serializers.CharField(
+    required=False, 
+    allow_null=True, 
+    allow_blank=True
+  )
+  sex = ChoicesField(
+    choices=models.Profile.SEX_CHOICES, 
+    required=False, 
+    allow_null=True
+  )
+  dorm_building = ChoicesField(
+    choices=models.Profile.DORM_CHOICES, 
+    required=False, 
+    allow_null=True
+  )
+  interests = fields.MultipleChoiceField(
+    choices=POPULAR_CHOICES, 
+    required=False, 
+    allow_null=True
+  )
+  graduation_year = fields.CharField(
+    required=False,
+    allow_null=True
+  )
 
 
 class SwipeProfileSerializer(serializers.ModelSerializer):
   sex = serializers.CharField(
-    source="get_sex_display", required=True, allow_null=False
+    source="get_sex_display", 
+    required=True, 
+    allow_null=False
   )
 
   photos = PhotoReturnSerializer(source="photo_set", many=True, read_only=True)
@@ -122,17 +185,13 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     ]
 
 
-
-"""
-Chat
-"""
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Profile
 		fields = [
       'id',
 			'name',
-			'thumbnail'
+			'thumbnail',
     ]
 
 
@@ -170,7 +229,7 @@ class RequestSerializer(serializers.ModelSerializer):
 			'receiver',
 			'created'
 		]
-      
+
       
 class FriendSerializer(serializers.ModelSerializer):
 	friend = serializers.SerializerMethodField()
@@ -187,10 +246,10 @@ class FriendSerializer(serializers.ModelSerializer):
 		]
 
 	def get_friend(self, obj):
-		# If Im the sender
+		# if I'm the sender
 		if self.context['user'] == obj.sender:
 			return UserSerializer(obj.receiver).data
-		# If Im the receiver
+		# if I'm the receiver
 		elif self.context['user'] == obj.receiver:
 			return UserSerializer(obj.sender).data
 		else:
@@ -208,6 +267,7 @@ class FriendSerializer(serializers.ModelSerializer):
 		else:
 			date = obj.latest_created or obj.updated
 		return date.isoformat()
+
 
 class MessageSerializer(serializers.ModelSerializer):
 	is_me = serializers.SerializerMethodField()

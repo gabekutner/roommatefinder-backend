@@ -38,11 +38,10 @@ class ProfileViewSet(ModelViewSet):
       return [AllowAny()]
     return [permission() for permission in self.permission_classes]
 
+
   def list(self, request):
     if not request.user.is_superuser:
-      return Response(
-        {"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
-      )
+      return Response({"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
     profiles = models.Profile.objects.all()
     serializer = serializers.ProfileSerializer(profiles, many=True)
@@ -56,49 +55,43 @@ class ProfileViewSet(ModelViewSet):
     
   
   def create(self, request):
-    """ Register / Sign Up for an account.  """
+    """ register for an account """
     data = request.data
     password = data["password"]
     repeated_password = data["repeated_password"]
 
     if password != repeated_password:
-      return Response(
-        {"detail": "Your password does not match."}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-      user = models.Profile.objects.create(email=data["email"], password=make_password(data["password"]), name=data["name"])
+      user = models.Profile.objects.create(name=data["name"], email=data["email"], password=make_password(data["password"]))
       serializer = serializers.ProfileSerializer(user, many=False)
       return Response(serializer.data)
     except:
-      return Response(
-        {"detail": "User with this email already exists."}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "profile with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
     
+
   def retrieve(self, request, pk=None):
-    """ Get a Profile by id. """
+    """ get a profile """
     try:
       profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response(
-        {"detail": "Profile does not exist."}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     exec.only_admin_and_user(profile.id, request)
     serializer = serializers.ProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
+
   def update(self, request, pk=None):
-    """ Update a Profile. """
+    """ update a profile """
     fields_serializer = serializers.UpdateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
 
     try:
       profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response(
-        {"Error": "Profile does not exist."}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "profile doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     exec.only_admin_and_user(profile.id, request)
 
@@ -108,8 +101,10 @@ class ProfileViewSet(ModelViewSet):
       profile.snapchat = fields_serializer.validated_data["snapchat"]
     if "major" in request.data:
       profile.major = fields_serializer.validated_data["major"]
-    if "minor" in request.data:
-      profile.minor = fields_serializer.validated_data["minor"]
+    if "city" in request.data:
+      profile.city = fields_serializer.validated_data["city"]
+    if "state" in request.data:
+      profile.state = fields_serializer.validated_data["state"]
     if "description" in request.data:
       profile.description = fields_serializer.validated_data["description"]
     if "sex" in request.data:
@@ -118,28 +113,28 @@ class ProfileViewSet(ModelViewSet):
       profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     if "interests" in request.data:
       profile.interests = fields_serializer.validated_data["interests"]
+    if "graduation_year" in request.data:
+      profile.graduation_year = fields_serializer.validated_data["graduation_year"]
   
     profile.save()
     profile_serializer = serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data)
   
+
   def destroy(self, request, pk=None):
-    """ Delete a Profile. """
+    """ delete a profile """
     try:
       profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response(
-          {"Error": "Profile does not exist."}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "Profile does not exist."}, status=status.HTTP_400_BAD_REQUEST)
     exec.only_admin_and_user(profile.id, request)
     profile.delete()
-    return Response(
-      {"detail": "User deleted successfully."}, status=status.HTTP_200_OK
-    )
+    return Response({"detail": "profile deleted successfully."}, status=status.HTTP_200_OK)
   
+
   @action(detail=False, methods=["post"], url_path=r"actions/create-profile")
   def create_profile(self, request):
-    """ Create a profile. Must be a registered user. """
+    """ create a profile """
     profile = request.user
     fields_serializer = serializers.CreateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
@@ -148,39 +143,41 @@ class ProfileViewSet(ModelViewSet):
     profile.sex = fields_serializer.validated_data["sex"]
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     profile.interests = fields_serializer.validated_data["interests"]
+    profile.thumbnail = fields_serializer.validated_data["thumbnail"]
     profile.has_account = True
 
     profile.save()
     profile_serializer = serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data)
 
+
   @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
   def block_profile(self, request, pk=None):
-    """ Block a profile. """
+    """ block a profile """
     current_profile = request.user
     try:
       blocked_profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response(
-        {"Error": "Profile does not exist"}, status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
     current_profile.block_profile(blocked_profile)
-    return Response({"detail": f"Successfully blocked {blocked_profile.id}."}, status=status.HTTP_200_OK)
+    return Response({"detail": f"successfully blocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
   
+
   @action(detail=True, methods=["post"], url_path=r"actions/unblock-profile")
   def unblock_profile(self, request, pk=None):
-    """ Unblock a profile. """
+    """ unblock a profile """
     profile = request.user
     try:
       blocked_profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response({"Error": "Profile does not exist."})
+      return Response({"detail": "profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
     profile.blocked_profiles.remove(blocked_profile)
-    return Response({"detail": f"Successfully unblocked {blocked_profile.id}."}, status=status.HTTP_200_OK)
+    return Response({"detail": f"successfully unblocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
   
+
   @action(detail=False, methods=["get"], url_path=r"actions/get-blocked-profiles")
   def get_blocked_profiles(self, request):
-    """ Get all blocked profiles. """
+    """ get all blocked profiles """
     current_profile = request.user
     blocked_profiles = current_profile.blocked_profiles.all()
     serializer = serializers.SwipeProfileSerializer(blocked_profiles, many=True)
@@ -188,7 +185,7 @@ class ProfileViewSet(ModelViewSet):
 
   @action(detail=False, methods=["post"], url_path=r"actions/reset-password")
   def reset_password(self, request):
-    """ Reset password. """
+    """ reset password """
     current_profile = request.user
     data = request.data
     password = data["password"]
@@ -197,13 +194,9 @@ class ProfileViewSet(ModelViewSet):
     if password == repeated_password:
       current_profile.password = make_password(password)
       current_profile.save()
-      return Response(
-        {"detail": "You password has been reset."}, status=status.HTTP_200_OK
-      )
+      return Response({"detail": "your password has been reset"}, status=status.HTTP_200_OK)
 
-    return Response(
-      {"detail": "Your passwords do not match."}, status=status.HTTP_400_BAD_REQUEST,
-    )
+    return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
   
 
 class PhotoViewSet(ModelViewSet):
@@ -230,26 +223,16 @@ class PhotoViewSet(ModelViewSet):
     return Response(serializer.data)
 
   def create(self, request):
-    # print(request.data)
     profile = request.user
     profile_photos = models.Photo.objects.filter(profile=profile.id)
     fields_serializer = serializers.PhotoSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
 
-    if len(profile_photos) >= 5:
-      return Response(
-        {"detail": "Profile cannot have more than 5 images."}, status=status.HTTP_400_BAD_REQUEST,
-      )
+    if len(profile_photos) >= 4:
+      return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
 
-    image = fields_serializer._validated_data.pop("image")
-    photos = list()
-    for img in image:
-      print(img)
-      photo = models.Photo.objects.create(
-        profile=profile, image=img
-      )
-      photos.append(photo)
-
+    image = fields_serializer._validated_data.pop("image")    
+    photos = [models.Photo.objects.create(profile=profile, image=img) for img in image]
     serializer = serializers.PhotoReturnSerializer(photos, many=True)
     return Response(serializer.data)
 
@@ -266,4 +249,4 @@ class PhotoViewSet(ModelViewSet):
   def destroy(self, request, pk):
     photo = models.Photo.objects.get(pk=pk)
     photo.delete()
-    return Response({"detail": "Photo deleted."}, status=status.HTTP_200_OK)
+    return Response({"detail": "photo deleted"}, status=status.HTTP_200_OK)
