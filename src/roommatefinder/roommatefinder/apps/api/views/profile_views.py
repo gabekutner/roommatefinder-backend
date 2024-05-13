@@ -1,7 +1,6 @@
-""" roommatefinder/apps/api/views/profile_views.py """
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -28,8 +27,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 class ProfileViewSet(ModelViewSet):
-  """ Profile views """
-  # https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
   queryset = models.Profile.objects.all()
   serializer_class = serializers.ProfileSerializer
   permission_classes = [IsAuthenticated]
@@ -42,16 +39,20 @@ class ProfileViewSet(ModelViewSet):
     return [permission() for permission in self.permission_classes]
 
   def list(self, request):
-    """ test for now... """
+    if not request.user.is_superuser:
+      return Response(
+        {"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+      )
+
     profiles = models.Profile.objects.all()
     serializer = serializers.ProfileSerializer(profiles, many=True)
     return Response(
-      {"count": len(serializer.data), "results": serializer.data}, status=status.HTTP_200_OK,
+      {
+        "detail": "hello admin",
+        "profile_count": profiles.count(),
+        "profiles": serializer.data
+      }, status=status.HTTP_200_OK
     )
-  ### testing ...
-    # return Response(
-    #   {"detail": "Not authorized."}, status=status.HTTP_401_UNAUTHORIZED
-    # )
     
   
   def create(self, request):

@@ -12,9 +12,8 @@ from roommatefinder.apps.api.managers import CustomUserManager
 from roommatefinder.settings._base import POPULAR_CHOICES
 
 
-
 def upload_thumbnail(instance, filename):
-	path = f'thumbnails/{instance.email}'
+	path = f'thumbnails/{instance.id}'
 	extension = filename.split('.')[-1]
 	if extension:
 		path = path + '.' + extension
@@ -57,7 +56,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   is_staff = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
   has_account = models.BooleanField(default=False)
-  seen_tutorial = models.BooleanField(default=False)
+  # seen_tutorial = models.BooleanField(default=False)
   
   sex = models.CharField(
     choices=SEX_CHOICES,
@@ -89,9 +88,8 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
   def block_profile(self, blocked_profile):
     """ Block a profile. """
-    # remove likes
-    # remove match
-    # remove conversation
+    # remove connection
+    # remove messages
     self.blocked_profiles.add(blocked_profile)
 
   def delete(self):
@@ -110,25 +108,22 @@ class Photo(CreationModificationDateBase):
     super().delete()
 
 
-class Prompt(CreationModificationDateBase):
-  """ Prompts model """
-  PROMPT_CHOICES = Choices(('1', 'When it comes to studying, noise should be'),
-                           ('2', 'Fill this in later'),
-                           ('3', 'Fill this in later'),
-                           ('4', 'Fill this in later'),
-                           ('5', 'Fill this in later'), )
+# class Prompt(CreationModificationDateBase):
+#   """ Prompts model """
+#   PROMPT_CHOICES = Choices(('1', 'When it comes to studying, noise should be'),
+#                            ('2', 'Fill this in later'),
+#                            ('3', 'Fill this in later'),
+#                            ('4', 'Fill this in later'),
+#                            ('5', 'Fill this in later'), )
 
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-  prompt = models.CharField(choices=PROMPT_CHOICES, max_length=1, null=False)
-  answer = models.CharField(max_length=100, null=False)
+#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+#   prompt = models.CharField(choices=PROMPT_CHOICES, max_length=1, null=False)
+#   answer = models.CharField(max_length=100, null=False)
 
-  def delete(self):
-    self.image.delete(save=False)
-    super().delete()
-
-
-
+#   def delete(self):
+#     self.image.delete(save=False)
+#     super().delete()
 
 
 #-----------
