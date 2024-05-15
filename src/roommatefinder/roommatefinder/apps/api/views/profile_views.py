@@ -95,6 +95,8 @@ class ProfileViewSet(ModelViewSet):
 
     exec.only_admin_and_user(profile.id, request)
 
+    if "name" in request.data:
+      profile.name = fields_serializer.validated_data["name"]
     if "instagram" in request.data:
       profile.instagram = fields_serializer.validated_data["instagram"]
     if "snapchat" in request.data:
@@ -107,8 +109,8 @@ class ProfileViewSet(ModelViewSet):
       profile.state = fields_serializer.validated_data["state"]
     if "description" in request.data:
       profile.description = fields_serializer.validated_data["description"]
-    if "sex" in request.data:
-      profile.sex = fields_serializer.validated_data["sex"]
+    # if "sex" in request.data:
+    #   profile.sex = fields_serializer.validated_data["sex"]
     if "dorm_building" in request.data:
       profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     if "interests" in request.data:

@@ -109,6 +109,10 @@ class CreateProfileSerializer(serializers.Serializer):
 
 
 class UpdateProfileSerializer(serializers.Serializer):
+  name = serializers.CharField(
+    required=False,
+    allow_null=True
+  )
   instagram = serializers.CharField(
     required=False,
     allow_null=True
@@ -134,11 +138,11 @@ class UpdateProfileSerializer(serializers.Serializer):
     allow_null=True, 
     allow_blank=True
   )
-  sex = ChoicesField(
-    choices=models.Profile.SEX_CHOICES, 
-    required=False, 
-    allow_null=True
-  )
+  # sex = ChoicesField(
+  #   choices=models.Profile.SEX_CHOICES, 
+  #   required=False, 
+  #   allow_null=True
+  # )
   dorm_building = ChoicesField(
     choices=models.Profile.DORM_CHOICES, 
     required=False, 

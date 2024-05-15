@@ -292,8 +292,8 @@ DORM_CHOICES = (('1', 'Chapel Glen'),
                 ('6', 'Officers Circle'),
                 ('7', 'Sage Point'),
                 ('8', 'Marriott Honors Community'),
-                ('9' 'Guest House'),
-                ('10' "I don't know"), )
+                ('9', 'Guest House'),
+                ('10', "I don't know"))
 
 
 
