@@ -21,11 +21,11 @@ router.register(
   basename="photo",
 )
 
-router.register(
-    r"swipe",
-    swipe_views.SwipeModelViewSet,
-    basename="swipe",
-)
+# router.register(
+#     r"swipe",
+#     swipe_views.SwipeModelViewSet,
+#     basename="swipe",
+# )
 
 
 urlpatterns = [
@@ -45,4 +45,5 @@ urlpatterns = [
 
   # ModelViewSets
   path("", include(router.urls)),
+  path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe")
 ]
