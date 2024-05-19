@@ -10,10 +10,12 @@ from ..pagination import StandardResultsSetPagination
 
 
 class SwipeModelViewSet(ListAPIView):
-  # permission_classes = [IsAuthenticated]
-  queryset = models.Profile.objects.all()
+  # queryset = models.Profile.objects.all()
   pagination_class = StandardResultsSetPagination
   serializer_class = serializers.SwipeProfileSerializer
+
+  def get_queryset(self):
+    return models.Profile.objects.all().exclude(id=self.request.user.id)
 
   # def list(self, request): 
   #   """ list swipe cards """

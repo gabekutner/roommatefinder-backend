@@ -186,6 +186,7 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "instagram",
       "snapchat",
       "interests",
+      "thumbnail",
     ]
 
 
