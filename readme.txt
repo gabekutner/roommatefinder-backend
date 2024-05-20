@@ -1,18 +1,8 @@
-=========================== Basic Details ==================================
-Application Name: roommatefinder.com (backend)
-Developer: Gabe Kutner
-Status: Development
+[**Roommatefinder**](https://github.com/gabekutner/roommatefinder-mobile) is a mobile app for finding college dorm roommates.
 
-=========================== Description ====================================
-A React Native app for finding college dorm roommates.
+Built using: 
+- [**React Native**](https://reactnative.dev)
+- [**Django REST framework**](https://www.django-rest-framework.org/)
+- [**Postgres**](https://www.postgresql.org/)
 
-=========================== Features =======================================
-AUTH
-- Login and registration with JWT Bearer token
-- Block / unblock profiles
-- Password recovery
-PROFILE
-- Create profile
-- Edit profile & photos
-CHAT
-- Message profiles
+This is the Django backend repository. Here's the link for the [**frontend**](https://github.com/gabekutner/roommatefinder-mobile).
