@@ -1,8 +1,9 @@
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
+from rest_framework.decorators import api_view, permission_classes
+
 
 from .. import models, serializers
 from ..handlers.rank import rank_profiles
@@ -17,30 +18,10 @@ class SwipeModelViewSet(ListAPIView):
   def get_queryset(self):
     return models.Profile.objects.all().exclude(id=self.request.user.id)
 
-  # def list(self, request): 
-  #   """ list swipe cards """
-  #   current_profile = request.user
-  #   profiles = models.Profile.objects.all().filter(has_account=True).exclude(id=current_profile.id)
-
-  #   if not current_profile.age:
-  #     return Response(
-  #       {"details": "You need an account to perform this action"},
-  #       status=status.HTTP_401_UNAUTHORIZED,
-  #     )
-    
-  #   # filters go here
-  #   # show_profiles = rank_profiles(current_profile, profiles)
-
-  #   profiles_serializer = serializers.SwipeProfileSerializer(profiles, many=True)
-  #   return Response(
-  #     {
-  #       "count": len(profiles),
-  #       "profile_count": profiles.count(),
-  #       "results": profiles_serializer.data,
-  #     }
-  #   )
-  
-  # def retrieve(self, request, pk=None):
-  #   profile = models.Profile.objects.get(pk=pk)
-  #   serializer = serializers.SwipeProfileSerializer(profile, many=False)
-  #   return Response(serializer.data, status=status.HTTP_200_OK)
+@api_view(["get"])
+@permission_classes([IsAuthenticated])
+def get_swipe_profile(request, pk):
+  """ get one swipe profile """
+  profile = models.Profile.objects.get(pk=pk)
+  serializer = serializers.SwipeProfileSerializer(profile, many=False)
+  return Response(serializer.data, status=status.HTTP_200_OK)

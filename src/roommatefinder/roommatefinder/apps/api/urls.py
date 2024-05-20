@@ -21,13 +21,6 @@ router.register(
   basename="photo",
 )
 
-# router.register(
-#     r"swipe",
-#     swipe_views.SwipeModelViewSet,
-#     basename="swipe",
-# )
-
-
 urlpatterns = [
   # internal admin actions - profiles
   path("internal/profiles/", internal_profiles.list_profiles, name="list_profiles"),
@@ -45,5 +38,6 @@ urlpatterns = [
 
   # ModelViewSets
   path("", include(router.urls)),
-  path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe")
+  path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe"),
+  path("swipe/<pk>/", swipe_views.get_swipe_profile, name="swipe-profile")
 ]

@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .. import serializers, models
 
 
-@api_view(["GET"])
+@api_view(["get"])
 @permission_classes([IsAdminUser])
 def list_profiles(request):
   """ List all profiles. """
@@ -17,7 +17,7 @@ def list_profiles(request):
     {"count": len(serializer.data), "results": serializer.data}, status=status.HTTP_200_OK,
   )
 
-@api_view(["POST"])
+@api_view(["post"])
 @permission_classes([IsAdminUser])
 def delete_profile(request, pk):
   """ Delete a profile by id. """
