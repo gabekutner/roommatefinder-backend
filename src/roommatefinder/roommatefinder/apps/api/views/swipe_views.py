@@ -17,7 +17,7 @@ class SwipeModelViewSet(ListAPIView):
 
   def get_queryset(self):
     """ get swipe queryset - exclude self, connections & rank """
-    profiles = models.Profile.objects.all()
+    profiles = models.Profile.objects.filter(has_account=True)
     blocked_profiles = self.request.user.blocked_profiles.all()
     connections = models.Connection.objects.filter(
       Q(sender=self.request.user.id) | Q(receiver=self.request.user.id),
@@ -31,11 +31,13 @@ class SwipeModelViewSet(ListAPIView):
     blocked_ids = set([id for sublist in blocked_ids for id in sublist])
 
     excluded_ids = excluded_ids.union(blocked_ids)
-    
+
+    if not bool(excluded_ids):
+      excluded_ids = set([self.request.user.id])
+
     profiles = profiles.exclude(
       id__in=excluded_ids
     )
-  
     return profiles
 
 
