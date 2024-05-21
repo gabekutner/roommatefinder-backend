@@ -23,34 +23,15 @@ class ChoicesField(serializers.Field):
   
 
 class PhotoSerializer(serializers.ModelSerializer):
-  def __init__(self, *args, **kwargs):
-    many = kwargs.pop('many', True)
-    super(PhotoSerializer, self).__init__(many=many, *args, **kwargs)
-
-  image = serializers.ListField(child=serializers.ImageField(
+  image = serializers.ListField(
     required=True, 
     allow_null=False, 
     max_length=None, 
-    use_url=True
-  ))
-
-  class Meta:
-    model = models.Photo
-    fields = ["id", "image", "profile"]
-  
-
-class PhotoReturnSerializer(serializers.ModelSerializer):
-  image = serializers.ImageField(
-    required=True, 
-    allow_null=False, 
-    max_length=None, 
-    use_url=True
   )
 
   class Meta:
     model = models.Photo
     fields = ["id", "image", "profile"]
-
 
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
@@ -166,8 +147,6 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     allow_null=False
   )
 
-  photos = PhotoReturnSerializer(source="photo_set", many=True, read_only=True)
-
   class Meta:
     model = models.Profile
     fields = [
@@ -182,7 +161,6 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "major",
       "dorm_building",
       "description",
-      "photos",
       "instagram",
       "snapchat",
       "interests",
