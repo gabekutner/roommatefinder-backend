@@ -21,14 +21,10 @@ class ChoicesField(serializers.Field):
       return getattr(self._choices, data)
     raise serializers.ValidationError(["choice not valid"])
   
-
 class PhotoSerializer(serializers.ModelSerializer):
-  image = serializers.ListField(
-    required=True, 
-    allow_null=False, 
-    max_length=None, 
+  image = serializers.ImageField(
+    required=True, allow_null=False, max_length=None, use_url=True
   )
-
   class Meta:
     model = models.Photo
     fields = ["id", "image", "profile"]

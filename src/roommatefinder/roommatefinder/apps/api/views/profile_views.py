@@ -229,13 +229,14 @@ class PhotoViewSet(ModelViewSet):
     profile_photos = models.Photo.objects.filter(profile=profile.id)
     fields_serializer = serializers.PhotoSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
-
+    
     if len(profile_photos) >= 4:
       return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
 
-    image = fields_serializer._validated_data.pop("image")    
-    photos = [models.Photo.objects.create(profile=profile, image=img) for img in image]
-    serializer = serializers.PhotoReturnSerializer(photos, many=True)
+    photo = models.Photo.objects.create(
+      profile=profile, image=fields_serializer._validated_data["image"]
+    )
+    serializer = serializers.PhotoSerializer(photo, many=False)
     return Response(serializer.data)
 
   def update(self, request, pk=None, *args, **kwargs):
