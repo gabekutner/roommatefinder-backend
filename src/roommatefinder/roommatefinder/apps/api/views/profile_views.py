@@ -232,11 +232,25 @@ class PhotoViewSet(ModelViewSet):
     
     if len(profile_photos) >= 4:
       return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # if key already exists update photo
+    return_photo = None
 
-    photo = models.Photo.objects.create(
-      profile=profile, image=fields_serializer._validated_data["image"]
-    )
-    serializer = serializers.PhotoSerializer(photo, many=False)
+    updated = False
+    for photo in profile_photos:
+      if photo.key == fields_serializer._validated_data["key"]:
+        photo.image = fields_serializer._validated_data["image"]
+        photo.save()
+        updated = True
+        return_photo = photo
+
+    if updated is False:
+      photo = models.Photo.objects.create(
+        profile=profile, image=fields_serializer._validated_data["image"], key=fields_serializer._validated_data["key"]
+      )
+      return_photo = photo
+    
+    serializer = serializers.PhotoSerializer(return_photo, many=False)
     return Response(serializer.data)
 
   def update(self, request, pk=None, *args, **kwargs):

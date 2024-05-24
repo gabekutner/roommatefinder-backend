@@ -25,18 +25,22 @@ class PhotoSerializer(serializers.ModelSerializer):
   image = serializers.ImageField(
     required=True, allow_null=False, max_length=None, use_url=True
   )
+  key = serializers.IntegerField(required=True)
   class Meta:
     model = models.Photo
-    fields = ["id", "image", "profile"]
+    fields = ["id", "image", "profile", "key"]
 
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
+
   sex = serializers.CharField(
     source="get_sex_display", 
     required=True, 
     allow_null=False
   )
+  
+  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
 
   class Meta:
     model = models.Profile
