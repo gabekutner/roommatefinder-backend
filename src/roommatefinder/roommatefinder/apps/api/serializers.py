@@ -143,6 +143,8 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     allow_null=False
   )
 
+  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+
   class Meta:
     model = models.Profile
     fields = [
@@ -161,6 +163,7 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "snapchat",
       "interests",
       "thumbnail",
+      "photos",
     ]
 
 
