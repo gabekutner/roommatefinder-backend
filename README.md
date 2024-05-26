@@ -4,5 +4,15 @@ Built using:
 - [**React Native**](https://reactnative.dev)
 - [**Django REST framework**](https://www.django-rest-framework.org/)
 - [**Postgres**](https://www.postgresql.org/)
+- [**Redis**](https://redis.io/)
 
-This is the Django backend repository. Here's the link for the [**frontend**](https://github.com/gabekutner/roommatefinder-mobile).
+This is the Django REST backend repository. Here's the link for the [**frontend**](https://github.com/gabekutner/roommatefinder-mobile).
+
+##  Tech used
+- 🐻 [**Zustand**](https://github.com/pmndrs/zustand)
+- 🚩 [**react-native-fast-image**](https://github.com/DylanVann/react-native-fast-image)
+- 🕹️ [**Font Awesome Icons**](https://fontawesome.com/)
+- 🛩️ [**react-native-size-matters**](https://github.com/nirsky/react-native-size-matters)
+
+## Preview
+![preview](https://github.com/gabekutner/roommatefinder-mobile/blob/main/preview.png)
