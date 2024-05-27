@@ -15,19 +15,21 @@ class APIConsumer(WebsocketConsumer):
   def connect(self):
     user = self.scope['user']
     if not user.is_authenticated:
+      self.close()
       return
 
-    self.id, self._id = str(user.id), user.id
+    # self.id, self._id = str(user.id), user.id
+    self._id = str(user.id)
     # join this user to a group by their id
     async_to_sync(self.channel_layer.group_add)(
-			self.id, self.channel_name
+			self._id, self.channel_name
 		)
     self.accept()
 
   def disconnect(self, close_code):
 		# leave room/group
     async_to_sync(self.channel_layer.group_discard)(
-			self.id, self.channel_name
+			self._id, self.channel_name
 		)
 		
 
@@ -217,7 +219,7 @@ class APIConsumer(WebsocketConsumer):
     )
     serialized = serializers.RequestSerializer(connections, many=True)
     # send request list back to user
-    return self.send_group(self.id, 'request.list', serialized.data)
+    return self.send_group(str(user.id), 'request.list', serialized.data)
 
 
   def receive_request_connect(self, data):
@@ -276,7 +278,7 @@ class APIConsumer(WebsocketConsumer):
     # serialized results
     serialized = serializers.SearchSerializer(profiles, many=True)
      # send results back to user
-    self.send_group(self.id, 'search', serialized.data) 
+    self.send_group(self._id, 'search', serialized.data) 
 
 
   def receive_thumbnail(self, data):
@@ -290,7 +292,7 @@ class APIConsumer(WebsocketConsumer):
     # serialize user
     serialized = serializers.UserSerializer(user)
     # send updated user data including new thumbnail 
-    self.send_group(self.id, 'thumbnail', serialized.data)
+    self.send_group(self._id, 'thumbnail', serialized.data)
 
   
   #--------------------------------------------
