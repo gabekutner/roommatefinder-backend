@@ -119,11 +119,6 @@ class UpdateProfileSerializer(serializers.Serializer):
     allow_null=True, 
     allow_blank=True
   )
-  # sex = ChoicesField(
-  #   choices=models.Profile.SEX_CHOICES, 
-  #   required=False, 
-  #   allow_null=True
-  # )
   dorm_building = ChoicesField(
     choices=models.Profile.DORM_CHOICES, 
     required=False, 
@@ -139,6 +134,10 @@ class UpdateProfileSerializer(serializers.Serializer):
     allow_null=True
   )
 
+class ConnectionSerializer(serializers.ModelSerializer):
+  class Meta:
+      model = models.Connection
+      fields = ['id', 'sender', 'receiver', 'accepted']
 
 class SwipeProfileSerializer(serializers.ModelSerializer):
   sex = serializers.CharField(
@@ -148,6 +147,9 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
   )
 
   photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  # get status of connection between 
+  sent_connections = ConnectionSerializer(many=True)
+  received_connections = ConnectionSerializer(many=True)
 
   class Meta:
     model = models.Profile
@@ -168,6 +170,8 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "interests",
       "thumbnail",
       "photos",
+      "sent_connections",
+      "received_connections",
     ]
 
 
