@@ -180,7 +180,6 @@ class UserSerializer(serializers.ModelSerializer):
 			'thumbnail',
     ]
 
-
 class SearchSerializer(UserSerializer):
   status = serializers.SerializerMethodField()
 

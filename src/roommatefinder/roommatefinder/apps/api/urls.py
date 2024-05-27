@@ -39,5 +39,5 @@ urlpatterns = [
   # ModelViewSets
   path("", include(router.urls)),
   path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe"),
-  path("swipe/<pk>/", swipe_views.get_swipe_profile, name="swipe-profile")
+  path("swipe/<pk>/", swipe_views.SwipeDetailView.as_view(), name="swipe-profile")
 ]
