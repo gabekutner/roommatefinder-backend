@@ -58,7 +58,6 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   is_staff = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
   has_account = models.BooleanField(default=False)
-  # seen_tutorial = models.BooleanField(default=False)
   
   sex = models.CharField(
     choices=SEX_CHOICES,
@@ -87,6 +86,32 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   def age(self):
     if self.birthday:
       return int((datetime.date.today() - self.birthday).days / 365.25)
+  
+  @property
+  def progress(self):
+    attrs = self.__dict__
+    attrs_to_delete = (
+      '_state', 
+      'last_login',
+      'is_superuser',
+      'created',
+      'modified',
+      'id',
+      'password',
+      'is_staff',
+      'is_active',
+      'has_account',
+    )
+    for attr in attrs_to_delete:
+      attrs.pop(attr, None)
+
+    progress = 0
+    count = attrs.keys().__len__()
+    for key in attrs.keys():
+      if attrs[key] == None:
+        progress += 1
+
+    return int((progress / count) * 100)
 
   def block_profile(self, blocked_profile):
     """ block a profile """

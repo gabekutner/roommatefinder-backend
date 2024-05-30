@@ -44,15 +44,31 @@ class ProfileSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = models.Profile
-    exclude = [
-      "user_permissions",
-      "groups",
-      "password",
-      "last_login",
-      "is_staff",
-      "is_active",
-      "blocked_profiles",
-   ]
+    fields = [
+      "id",
+      "token",
+      "refresh_token",
+      "sex",
+      "photos",
+      "is_superuser",
+      "created",
+      "modified",
+      "email",
+      "name",
+      "birthday", 
+      "age",
+      "instagram",
+      "snapchat",
+      "major",
+      "city",
+      "state",
+      "description",
+      "dorm_building",
+      "interests",
+      "has_account",
+      "thumbnail",
+      "progress"
+    ]
 
   # refresh the token everytime the user is called
   def get_token(self, profile):
