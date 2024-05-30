@@ -6,7 +6,9 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.decorators import api_view, permission_classes
 
 from .. import models, serializers
-from ..handlers.rank import rank_profiles
+from ..handlers import swipe_filters
+# from ..handlers.rank import as
+# from api.handlers.swipe_filters
 from ..pagination import StandardResultsSetPagination
 
 
