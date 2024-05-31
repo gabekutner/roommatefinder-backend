@@ -111,7 +111,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
       if attrs[key] == None:
         progress += 1
 
-    return int((progress / count) * 100)
+    return 100 - int((progress / count) * 100)
 
   def block_profile(self, blocked_profile):
     """ block a profile """
