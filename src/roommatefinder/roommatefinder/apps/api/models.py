@@ -5,6 +5,7 @@ import datetime
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.validators import MaxValueValidator, MinValueValidator
 from multiselectfield import MultiSelectField
 from model_utils import Choices
 
@@ -144,7 +145,6 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
 class Photo(CreationModificationDateBase):
   """ Photo Model """
-  # class Key(models.IntegerChoices):
   _key_choices = Choices(("0", "UNSET"),
                          ("1", "ONE"),
                          ("2", "TWO"),
@@ -162,6 +162,23 @@ class Photo(CreationModificationDateBase):
   def delete(self):
     self.image.delete(save=False)
     super().delete()
+
+
+class RoommateQuiz(CreationModificationDateBase):
+  """ Roommate Matching Quiz Model """
+  profile = models.OneToOneField(
+    Profile,
+    on_delete=models.CASCADE,
+    primary_key=True,
+  )
+  preferred_noise = models.IntegerField(
+    null=True,
+    blank=True,
+    validators=[
+      MaxValueValidator(100),
+      MinValueValidator(1)
+    ]
+  )
 
 
 # class Prompt(CreationModificationDateBase):

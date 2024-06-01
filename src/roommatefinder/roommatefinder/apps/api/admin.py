@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Photo, Connection, Message
+from .models import Profile, Photo, Connection, Message, RoommateQuiz
 
 # Register your models here.
 @admin.register(Profile)
@@ -17,3 +17,7 @@ class ConnectionAdmin(admin.ModelAdmin):
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
   list_display = ["connection"]
+
+@admin.register(RoommateQuiz)
+class RoommateQuizAdmin(admin.ModelAdmin):
+  list_display = ["profile"]
