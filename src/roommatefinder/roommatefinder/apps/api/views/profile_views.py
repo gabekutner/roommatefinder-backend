@@ -139,16 +139,30 @@ class ProfileViewSet(ModelViewSet):
     """ create a profile """
     profile = request.user
     fields_serializer = serializers.CreateProfileSerializer(data=request.data)
+    prompts_serializer = serializers.CreatePromptSerializer(data=request.data["prompts"], many=True)
+    quotes_serializer = serializers.CreateQuoteSerializer(data=request.data["quotes"], many=True)
+    links_serializer = serializers.CreateLinkSerializer(data=request.data["links"], many=True)
+
     fields_serializer.is_valid(raise_exception=True)
+    prompts_serializer.is_valid(raise_exception=True)
+    quotes_serializer.is_valid(raise_exception=True)
+    links_serializer.is_valid(raise_exception=True)
 
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
-    profile.dorm_building = fields_serializer.validated_data["dorm_building"]
+    profile.city = fields_serializer.validated_data["city"]
+    profile.state = fields_serializer.validated_data["state"]
+    profile.graduation_year = fields_serializer.validated_data["graduation_year"]
+    profile.major = fields_serializer.validated_data["major"]
     profile.interests = fields_serializer.validated_data["interests"]
-    profile.thumbnail = fields_serializer.validated_data["thumbnail"]
+    profile.dorm_building = fields_serializer.validated_data["dorm_building"]    
     profile.has_account = True
 
     profile.save()
+    prompts_serializer.save(profile=profile)
+    quotes_serializer.save(profile=profile)
+    links_serializer.save(profile=profile)
+    
     profile_serializer = serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data)
 

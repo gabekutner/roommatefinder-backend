@@ -297,6 +297,33 @@ DORM_CHOICES = (('1', 'Chapel Glen'),
                 ('9', 'Guest House'),
                 ('10', "I don't know"))
 
+PROMPTS = (('1', 'In one word, my friends would describe me as ...'),
+           ('2', 'My ideal roommate is ...'),
+           ('3', 'Hot take:'),
+           ('4', 'The biggest red flag a roommate could have is ...'),
+           ('5', 'The biggest green flag a roommate could have is ...'),
+           ('6', 'A boundary of mine is ...'),
+           ('7', 'All I ask of you is ...'),
+           ('8', 'My dream career ...'),
+           ('9', "If loving this is wrong, I don't want to be right ..."),
+           ('10', 'My guilty pleasure is ...'),
+           ('11', 'If someone broke into our dorm, my plan would be ...'),
+           ('12', "Uh oh! Roommate's vape charger lit the room on fire, the first thing I'm grabbing is ..."),
+           ('13', 'My parents would kill me if they found out I ...'),
+           ('14', 'What would be the scariest sound to hear in your dorm room?'),
+           ('15', 'The most embarrassing moment of my life was when ...'),
+           ('16', 'My late night drive home along song is ...'),
+           ('17', 'My ideal college day in the life looks like ...'),
+           ('18', "Don't tell the RA ..."),
+           ('19', 'My craziest side quest:'),
+           ('20', 'My strange addiction:'),
+           ('21', "I'm looking for a roommate who ..."),
+           ('22', 'Weird flex:'),
+           ('23', 'If I won the lottery, my first purchase would be ...'),
+           ('24', 'Celebrity crush:'),
+           ('25', "If I'm not in class, catch me ..."),
+           ('26', "If you take my toothpaste I'll ..."),)
+
 
 
 # Default primary key field type

@@ -30,6 +30,60 @@ class PhotoSerializer(serializers.ModelSerializer):
     model = models.Photo
     fields = ["id", "image", "profile", "key"]
 
+class PromptSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Prompt
+    fields = ["id", "profile", "question", "answer"]
+
+class CreatePromptSerializer(serializers.ModelSerializer):
+  question = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  answer = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  class Meta:
+    model = models.Prompt
+    fields = ['question', 'answer']
+
+class QuoteSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Quote
+    fields = ["id", "profile", "quote", "cited"]
+
+class CreateQuoteSerializer(serializers.ModelSerializer):
+  quote = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  cited = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  class Meta:
+    model = models.Quote
+    fields = ['quote', 'cited']
+
+class LinkSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Link
+    fields = ["id", "profile", "title", "link"]
+
+class CreateLinkSerializer(serializers.ModelSerializer):
+  title = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  link = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  class Meta:
+    model = models.Link
+    fields = ['title', 'link']
+
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
@@ -41,6 +95,9 @@ class ProfileSerializer(serializers.ModelSerializer):
   )
   
   photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
+  quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
+  links = LinkSerializer(source="link_set", many=True, read_only=True)
 
   class Meta:
     model = models.Profile
@@ -50,6 +107,9 @@ class ProfileSerializer(serializers.ModelSerializer):
       "refresh_token",
       "sex",
       "photos",
+      "prompts",
+      "quotes",
+      "links",
       "is_superuser",
       "created",
       "modified",
@@ -67,7 +127,7 @@ class ProfileSerializer(serializers.ModelSerializer):
       "interests",
       "has_account",
       "thumbnail",
-      "progress"
+      "progress",
     ]
 
   # refresh the token everytime the user is called
@@ -77,10 +137,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
   def get_refresh_token(self, profile):
     token = RefreshToken.for_user(profile)
-    return str(token)
-  
+    return str(token)  
 
 class CreateProfileSerializer(serializers.Serializer):
+  """
+    age: new Date(),
+    sex: "",
+    hometown: "",
+    graduation_year: "",
+    major: "",
+    interests: [],
+    prompts: [],
+    quotes: [],
+    links: [],
+    photos: [],
+    dorm_building: "",
+  """
   birthday = serializers.DateField(
     required=True, 
     allow_null=False
@@ -90,8 +162,20 @@ class CreateProfileSerializer(serializers.Serializer):
     required=True, 
     allow_null=False
   )
-  dorm_building = serializers.CharField(
-    required=True, 
+  city = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  state = serializers.CharField(
+    required=True,
+    allow_null=False
+  )
+  graduation_year = serializers.IntegerField(
+    required=True,
+    allow_null=False
+  )
+  major = serializers.CharField(
+    required=True,
     allow_null=False
   )
   interests = fields.MultipleChoiceField(
@@ -99,10 +183,15 @@ class CreateProfileSerializer(serializers.Serializer):
     required=True, 
     allow_null=False
   )
-  thumbnail = fields.ImageField(
-    required=True,
+  
+  prompts = CreatePromptSerializer(source="prompt_set", many=True, required=True)
+  quotes = CreateQuoteSerializer(source="quote_set", many=True, required=True)
+  links = CreateLinkSerializer(source="link_set", many=True, required=True)
+
+  dorm_building = serializers.CharField(
+    required=True, 
     allow_null=False
-  )
+  )   
 
 
 class UpdateProfileSerializer(serializers.Serializer):

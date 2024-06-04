@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Profile, Photo, Connection, Message, RoommateQuiz
+from .models import (
+  Profile, 
+  Photo, 
+  Connection, 
+  Message, 
+  RoommateQuiz,
+  Prompt,
+  Quote,
+  Link
+)
 
 # Register your models here.
 @admin.register(Profile)
@@ -21,3 +30,15 @@ class MessageAdmin(admin.ModelAdmin):
 @admin.register(RoommateQuiz)
 class RoommateQuizAdmin(admin.ModelAdmin):
   list_display = ["profile"]
+
+@admin.register(Prompt)
+class PromptAdmin(admin.ModelAdmin):
+  list_display = ["profile", "question"]
+
+@admin.register(Quote)
+class QuoteAdmin(admin.ModelAdmin):
+  list_display = ["profile", "quote"]
+
+@admin.register(Link)
+class LinkAdmin(admin.ModelAdmin):
+  list_display = ["profile", "title"]

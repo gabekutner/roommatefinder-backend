@@ -11,7 +11,7 @@ from model_utils import Choices
 
 from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
-from roommatefinder.settings._base import POPULAR_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES, PROMPTS
 
 
 def upload_thumbnail(instance, filename):
@@ -23,7 +23,19 @@ def upload_thumbnail(instance, filename):
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
-  """ Profile Model """
+  """ Profile Model 
+  create: (del later)
+    birthday: new Date(),
+    sex: "",
+    hometown: "",
+    graduation_year: "",
+    major: "",
+    interests: [],
+    prompts: [],
+    quotes: [],
+    links: [],
+    photos: [],
+  """
   SEX_CHOICES = Choices(("M", "Male"),
                         ("F", "Female"),)
   
@@ -162,6 +174,34 @@ class Photo(CreationModificationDateBase):
   def delete(self):
     self.image.delete(save=False)
     super().delete()
+
+
+class Prompt(CreationModificationDateBase):
+  """ Prompts Model """
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+  question = models.CharField(
+    choices=PROMPTS,
+    max_length=2,
+    null=False,
+    blank=False
+  )
+  answer = models.CharField(max_length=250, null=False, blank=False)
+
+class Quote(CreationModificationDateBase):
+  """ Quotes Model """
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+  quote = models.CharField(max_length=250, null=False, blank=False)
+  cited = models.CharField(max_length=100, null=True, blank=True)
+
+class Link(CreationModificationDateBase):
+  """ Links Model """
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+  title = models.CharField(max_length=250, null=False, blank=False)
+  link = models.CharField(max_length=250, null=False, blank=False)
+
 
 
 class RoommateQuiz(CreationModificationDateBase):
