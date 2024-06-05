@@ -157,19 +157,19 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
 class Photo(CreationModificationDateBase):
   """ Photo Model """
-  _key_choices = Choices(("0", "UNSET"),
-                         ("1", "ONE"),
-                         ("2", "TWO"),
-                         ("3", "THREE"),
-                         ("4", "FOUR"),)
+  # _key_choices = Choices(("0", "UNSET"),
+  #                        ("1", "ONE"),
+  #                        ("2", "TWO"),
+  #                        ("3", "THREE"),
+  #                        ("4", "FOUR"),)
     
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   image = models.ImageField(null=True, blank=True)
-  key = models.IntegerField(
-    choices=_key_choices, 
-    default="0"
-  )
+  # key = models.IntegerField(
+  #   choices=_key_choices, 
+  #   default="0"
+  # )
 
   def delete(self):
     self.image.delete(save=False)

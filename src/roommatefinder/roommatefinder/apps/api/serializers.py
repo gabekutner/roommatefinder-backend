@@ -25,10 +25,15 @@ class PhotoSerializer(serializers.ModelSerializer):
   image = serializers.ImageField(
     required=True, allow_null=False, max_length=None, use_url=True
   )
-  key = serializers.IntegerField(required=True)
+  # key = serializers.IntegerField(required=True)
   class Meta:
     model = models.Photo
-    fields = ["id", "image", "profile", "key"]
+    fields = ["id", "image", "profile"]
+
+class CreatePhotoSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = models.Photo
+    # fields = ["image"]
 
 class PromptSerializer(serializers.ModelSerializer):
   class Meta:
@@ -151,6 +156,7 @@ class CreateProfileSerializer(serializers.Serializer):
     quotes: [],
     links: [],
     photos: [],
+    thumbnail: null,
     dorm_building: "",
   """
   birthday = serializers.DateField(
@@ -187,6 +193,7 @@ class CreateProfileSerializer(serializers.Serializer):
   prompts = CreatePromptSerializer(source="prompt_set", many=True, required=True)
   quotes = CreateQuoteSerializer(source="quote_set", many=True, required=True)
   links = CreateLinkSerializer(source="link_set", many=True, required=True)
+  photos = CreatePhotoSerializer(source="photo_set", many=True, required=True)
 
   dorm_building = serializers.CharField(
     required=True, 

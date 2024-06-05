@@ -142,11 +142,13 @@ class ProfileViewSet(ModelViewSet):
     prompts_serializer = serializers.CreatePromptSerializer(data=request.data["prompts"], many=True)
     quotes_serializer = serializers.CreateQuoteSerializer(data=request.data["quotes"], many=True)
     links_serializer = serializers.CreateLinkSerializer(data=request.data["links"], many=True)
+    photos_serializer = serializers.CreatePhotoSerializer(data=request.data["photos"], many=True)
 
     fields_serializer.is_valid(raise_exception=True)
     prompts_serializer.is_valid(raise_exception=True)
     quotes_serializer.is_valid(raise_exception=True)
     links_serializer.is_valid(raise_exception=True)
+    photos_serializer.is_valid(raise_exception=True)
 
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
@@ -162,6 +164,7 @@ class ProfileViewSet(ModelViewSet):
     prompts_serializer.save(profile=profile)
     quotes_serializer.save(profile=profile)
     links_serializer.save(profile=profile)
+    photos_serializer.save(profile=profile)
     
     profile_serializer = serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data)
