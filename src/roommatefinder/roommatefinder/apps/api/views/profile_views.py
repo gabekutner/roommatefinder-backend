@@ -139,16 +139,7 @@ class ProfileViewSet(ModelViewSet):
     """ create a profile """
     profile = request.user
     fields_serializer = serializers.CreateProfileSerializer(data=request.data)
-    prompts_serializer = serializers.CreatePromptSerializer(data=request.data["prompts"], many=True)
-    quotes_serializer = serializers.CreateQuoteSerializer(data=request.data["quotes"], many=True)
-    links_serializer = serializers.CreateLinkSerializer(data=request.data["links"], many=True)
-    photos_serializer = serializers.CreatePhotoSerializer(data=request.data["photos"], many=True)
-
     fields_serializer.is_valid(raise_exception=True)
-    prompts_serializer.is_valid(raise_exception=True)
-    quotes_serializer.is_valid(raise_exception=True)
-    links_serializer.is_valid(raise_exception=True)
-    photos_serializer.is_valid(raise_exception=True)
 
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
@@ -160,12 +151,30 @@ class ProfileViewSet(ModelViewSet):
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]    
     profile.has_account = True
 
-    profile.save()
+    prompts_data = fields_serializer.validated_data.get("prompts", [])
+    quotes_data = fields_serializer.validated_data.get("quotes", [])
+    links_data = fields_serializer.validated_data.get("links", [])
+    photos_data = fields_serializer.validated_data.get("photos", [])
+
+    prompts_serializer = serializers.CreatePromptSerializer(data=prompts_data, many=True)
+    quotes_serializer = serializers.CreateQuoteSerializer(data=quotes_data, many=True)
+    links_serializer = serializers.CreateLinkSerializer(data=links_data, many=True)
+    photos_serializer = serializers.CreatePhotoSerializer(data=photos_data, many=True)
+
+    if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid(), photos_serializer.is_valid()]):
+        return Response({
+            'prompts_errors': prompts_serializer.errors,
+            'quotes_errors': quotes_serializer.errors,
+            'links_errors': links_serializer.errors,
+            'photos_errors': photos_serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     prompts_serializer.save(profile=profile)
     quotes_serializer.save(profile=profile)
     links_serializer.save(profile=profile)
     photos_serializer.save(profile=profile)
-    
+
+    profile.save()    
     profile_serializer = serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data)
 

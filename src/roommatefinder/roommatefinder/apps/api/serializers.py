@@ -190,10 +190,10 @@ class CreateProfileSerializer(serializers.Serializer):
     allow_null=False
   )
   
-  prompts = CreatePromptSerializer(source="prompt_set", many=True, required=True)
-  quotes = CreateQuoteSerializer(source="quote_set", many=True, required=True)
-  links = CreateLinkSerializer(source="link_set", many=True, required=True)
-  photos = CreatePhotoSerializer(source="photo_set", many=True, required=True)
+  prompts = CreatePromptSerializer(source="prompt_set", many=True, required=False)
+  quotes = CreateQuoteSerializer(source="quote_set", many=True, required=False)
+  links = CreateLinkSerializer(source="link_set", many=True, required=False)
+  photos = CreatePhotoSerializer(source="photo_set", many=True, required=False)
 
   dorm_building = serializers.CharField(
     required=True, 
