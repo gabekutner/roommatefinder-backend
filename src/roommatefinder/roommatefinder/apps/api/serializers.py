@@ -41,17 +41,9 @@ class PromptSerializer(serializers.ModelSerializer):
     fields = ["id", "profile", "question", "answer"]
 
 class CreatePromptSerializer(serializers.ModelSerializer):
-  question = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  answer = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
   class Meta:
     model = models.Prompt
-    fields = ['question', 'answer']
+    fields = '__all__'
 
 class QuoteSerializer(serializers.ModelSerializer):
   class Meta:
@@ -59,17 +51,9 @@ class QuoteSerializer(serializers.ModelSerializer):
     fields = ["id", "profile", "quote", "cited"]
 
 class CreateQuoteSerializer(serializers.ModelSerializer):
-  quote = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  cited = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
   class Meta:
     model = models.Quote
-    fields = ['quote', 'cited']
+    fields = '__all__'
 
 class LinkSerializer(serializers.ModelSerializer):
   class Meta:
@@ -77,17 +61,9 @@ class LinkSerializer(serializers.ModelSerializer):
     fields = ["id", "profile", "title", "link"]
 
 class CreateLinkSerializer(serializers.ModelSerializer):
-  title = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  link = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
   class Meta:
     model = models.Link
-    fields = ['title', 'link']
+    fields = '__all__'
 
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
@@ -144,62 +120,21 @@ class ProfileSerializer(serializers.ModelSerializer):
     token = RefreshToken.for_user(profile)
     return str(token)  
 
+
+
 class CreateProfileSerializer(serializers.Serializer):
-  """
-    age: new Date(),
-    sex: "",
-    hometown: "",
-    graduation_year: "",
-    major: "",
-    interests: [],
-    prompts: [],
-    quotes: [],
-    links: [],
-    photos: [],
-    thumbnail: null,
-    dorm_building: "",
-  """
-  birthday = serializers.DateField(
-    required=True, 
-    allow_null=False
-  )
-  sex = ChoicesField(
-    choices=models.Profile.SEX_CHOICES, 
-    required=True, 
-    allow_null=False
-  )
-  city = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  state = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  graduation_year = serializers.IntegerField(
-    required=True,
-    allow_null=False
-  )
-  major = serializers.CharField(
-    required=True,
-    allow_null=False
-  )
-  interests = fields.MultipleChoiceField(
-    choices=POPULAR_CHOICES, 
-    required=True, 
-    allow_null=False
-  )
+  birthday = serializers.DateField(required=True, allow_null=False)
+  sex = ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False)
+  city = serializers.CharField(required=True, allow_null=False)
+  state = serializers.CharField(required=True, allow_null=False)
+  graduation_year = serializers.IntegerField(required=True, allow_null=False)
+  major = serializers.CharField(required=True, allow_null=False)
+  interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False)
+  dorm_building = serializers.CharField(required=True, allow_null=False)  
+
+  links = CreateLinkSerializer(many=True, required=True)
+
   
-  prompts = CreatePromptSerializer(source="prompt_set", many=True, required=False)
-  quotes = CreateQuoteSerializer(source="quote_set", many=True, required=False)
-  links = CreateLinkSerializer(source="link_set", many=True, required=False)
-  photos = CreatePhotoSerializer(source="photo_set", many=True, required=False)
-
-  dorm_building = serializers.CharField(
-    required=True, 
-    allow_null=False
-  )   
-
 
 class UpdateProfileSerializer(serializers.Serializer):
   name = serializers.CharField(
