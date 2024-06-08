@@ -132,7 +132,9 @@ class CreateProfileSerializer(serializers.Serializer):
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=True, allow_null=False)
   dorm_building = serializers.CharField(required=True, allow_null=False)  
 
-  links = CreateLinkSerializer(many=True, required=True)
+  prompts = CreatePromptSerializer(source='prompt_set', many=True, required=True)
+  quotes = CreateQuoteSerializer(source='quote_set', many=True, required=True)
+  links = CreateLinkSerializer(source='link_set', many=True, required=True)
 
   
 

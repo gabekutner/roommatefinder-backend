@@ -148,11 +148,7 @@ class ProfileViewSet(ModelViewSet):
     profile = request.user
     fields_serializer = serializers.CreateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
-    
-    validated_data = fields_serializer._validated_data
-
-    # print(validated_data)
-
+  
     # Save profile fields
     profile.birthday = fields_serializer.validated_data["birthday"]
     profile.sex = fields_serializer.validated_data["sex"]
@@ -163,37 +159,30 @@ class ProfileViewSet(ModelViewSet):
     profile.interests = fields_serializer.validated_data["interests"]
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]
     profile.has_account = True
-    # profile.save()
+    profile.save()
 
     # Save related objects
-    prompts_data = fields_serializer.validated_data.get("prompts", [])
-    quotes_data = fields_serializer.validated_data.get("quotes", [])
-    links_data = fields_serializer.validated_data.get("links", [])
-    links_data = validated_data.get('links', [])
-    # photos_data = fields_serializer.validated_data.get("photos", [])
+    prompts_data = fields_serializer.validated_data.get("prompt_set", [])
+    quotes_data = fields_serializer.validated_data.get("quote_set", [])
+    links_data = fields_serializer.validated_data.get("link_set", [])
 
-    print("Links Data:", links_data)  # Debugging statement
+    prompts_serializer = serializers.CreatePromptSerializer(data=prompts_data, many=True)
+    quotes_serializer = serializers.CreateQuoteSerializer(data=quotes_data, many=True)
+    links_serializer = serializers.CreateLinkSerializer(data=links_data, many=True)
 
-    # prompts_serializer = serializers.CreatePromptSerializer(data=prompts_data, many=True)
-    # quotes_serializer = serializers.CreateQuoteSerializer(data=quotes_data, many=True)
-    # links_serializer = serializers.CreateLinkSerializer(data=links_data, many=True)
-    # photos_serializer = serializers.CreatePhotoSerializer(data=photos_data, many=True)
+    if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
+        return Response({
+            'prompts_errors': prompts_serializer.errors,
+            'quotes_errors': quotes_serializer.errors,
+            'links_errors': links_serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-    # if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid(), photos_serializer.is_valid()]):
-    #     return Response({
-    #         'prompts_errors': prompts_serializer.errors,
-    #         'quotes_errors': quotes_serializer.errors,
-    #         'links_errors': links_serializer.errors,
-    #         'photos_errors': photos_serializer.errors,
-    #     }, status=status.HTTP_400_BAD_REQUEST)
+    prompts_serializer.save(profile=profile)
+    quotes_serializer.save(profile=profile)
+    links_serializer.save(profile=profile)
 
-    # prompts_serializer.save(profile=profile)
-    # quotes_serializer.save(profile=profile)
-    # links_serializer.save(profile=profile)
-    # photos_serializer.save(profile=profile)
-
-    # profile_serializer = serializers.ProfileSerializer(profile)
-    return Response({'test'}, status=status.HTTP_201_CREATED)
+    profile_serializer = serializers.ProfileSerializer(profile)
+    return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
 
 
   @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
