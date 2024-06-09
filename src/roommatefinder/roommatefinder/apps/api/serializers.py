@@ -34,6 +34,11 @@ class CreatePhotoSerializer(serializers.ModelSerializer):
     model = models.Photo
     fields = ['image']
 
+class UploadThumbnailSerializer(serializers.Serializer):
+  thumbnail = serializers.ImageField(
+    required=True, allow_null=False, max_length=None, use_url=True
+  )
+
 class PromptSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Prompt

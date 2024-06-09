@@ -134,6 +134,19 @@ class ProfileViewSet(ModelViewSet):
     return Response({"detail": "profile deleted successfully."}, status=status.HTTP_200_OK)
   
 
+  @action(detail=False, methods=["post"], url_path=r"actions/upload-thumbnail")
+  def upload_thumbnail(self, request):
+    profile = request.user
+
+    fields_serializer = serializers.UploadThumbnailSerializer(data=request.data)
+    if fields_serializer.is_valid():
+      profile.thumbnail = fields_serializer.validated_data["thumbnail"]
+      profile.save()
+
+    profile_serializer = serializers.ProfileSerializer(profile)
+    return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
+  
+
   @action(detail=False, methods=["post"], url_path=r"actions/create-profile")
   def create_profile(self, request):
     # NOTE: This will create everything but thumbnail and photos
