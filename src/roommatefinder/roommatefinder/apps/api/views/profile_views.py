@@ -257,33 +257,33 @@ class PhotoViewSet(ModelViewSet):
     return Response(serializer.data)
 
   def create(self, request):
+    def modify_input_for_multiple_files(image):
+      dict = {}
+      dict['image'] = image
+      return dict
+
     profile = request.user
     profile_photos = models.Photo.objects.filter(profile=profile.id)
-    fields_serializer = serializers.PhotoSerializer(data=request.data)
-    fields_serializer.is_valid(raise_exception=True)
-    
-    if len(profile_photos) >= 4:
-      return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # if key already exists update photo
-    return_photo = None
 
-    updated = False
-    for photo in profile_photos:
-      if photo.key == fields_serializer._validated_data["key"]:
-        photo.image = fields_serializer._validated_data["image"]
-        photo.save()
-        updated = True
-        return_photo = photo
+    images = dict((request.data).lists())['image']
 
-    if updated is False:
-      photo = models.Photo.objects.create(
-        profile=profile, image=fields_serializer._validated_data["image"], key=fields_serializer._validated_data["key"]
-      )
-      return_photo = photo
+    if len(profile_photos) + len(images) > 4:
+      return Response({"detail": "Profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
+
+    for image in images:
+      modified_data = modify_input_for_multiple_files(image)
+      file_serializer = serializers.CreatePhotoSerializer(data=modified_data)
+      if file_serializer.is_valid():
+        models.Photo.objects.create(
+          profile=profile, image=image
+        )
+
+      else:
+        return Response({"detail": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
     
-    serializer = serializers.PhotoSerializer(return_photo, many=False)
-    return Response(serializer.data)
+    return Response({'detail': 'Photos upload successfully.'}, status=status.HTTP_201_CREATED)
+  
+
 
   def update(self, request, pk=None, *args, **kwargs):
     photo = models.Photo.objects.get(pk=pk)

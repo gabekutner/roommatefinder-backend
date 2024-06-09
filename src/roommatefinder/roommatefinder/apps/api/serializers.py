@@ -25,7 +25,6 @@ class PhotoSerializer(serializers.ModelSerializer):
   image = serializers.ImageField(
     required=True, allow_null=False, max_length=None, use_url=True
   )
-  # key = serializers.IntegerField(required=True)
   class Meta:
     model = models.Photo
     fields = ["id", "image", "profile"]
@@ -33,7 +32,7 @@ class PhotoSerializer(serializers.ModelSerializer):
 class CreatePhotoSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Photo
-    # fields = ["image"]
+    fields = ['image']
 
 class PromptSerializer(serializers.ModelSerializer):
   class Meta:
