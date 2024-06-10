@@ -193,7 +193,6 @@ class Link(CreationModificationDateBase):
   link = models.CharField(max_length=250, null=False, blank=False)
 
 
-
 class RoommateQuiz(CreationModificationDateBase):
   """ Roommate Matching Quiz Model """
   profile = models.OneToOneField(
@@ -201,37 +200,50 @@ class RoommateQuiz(CreationModificationDateBase):
     on_delete=models.CASCADE,
     primary_key=True,
   )
-  preferred_noise = models.IntegerField(
-    null=True,
-    blank=True,
+  social_battery = models.IntegerField(
+    null=False, 
+    blank=False,
     validators=[
-      MaxValueValidator(100),
-      MinValueValidator(1)
-    ]
+      MinValueValidator(0),
+      MaxValueValidator(20)
+    ],
+    default=10
   )
+  clean_room = models.CharField(max_length=100, null=False, blank=True, default="")
+  noise_level = models.IntegerField(
+    null=False, 
+    blank=False,
+    validators=[
+      MinValueValidator(0),
+      MaxValueValidator(20)
+    ],
+    default=10
+  )
+  guest_policy = models.CharField(max_length=100, null=False, blank=True, default="")
+  in_room = models.IntegerField(
+    null=False, 
+    blank=False,
+    validators=[
+      MinValueValidator(0),
+      MaxValueValidator(20)
+    ],
+    default=10
+  )
+  hot_cold = models.IntegerField(
+    null=False, 
+    blank=False,
+    validators=[
+      MinValueValidator(0),
+      MaxValueValidator(20)
+    ],
+    default=10
+  )
+  bed_time = models.CharField(max_length=100, null=False, blank=True, default="")
+  wake_up_time = models.CharField(max_length=100, null=False, blank=True, default="")
+  sharing_policy = models.CharField(max_length=100, null=False, blank=True, default="")
+  
 
 
-# class Prompt(CreationModificationDateBase):
-#   """ Prompts model """
-#   PROMPT_CHOICES = Choices(('1', 'When it comes to studying, noise should be'),
-#                            ('2', 'Fill this in later'),
-#                            ('3', 'Fill this in later'),
-#                            ('4', 'Fill this in later'),
-#                            ('5', 'Fill this in later'), )
-
-#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-#   prompt = models.CharField(choices=PROMPT_CHOICES, max_length=1, null=False)
-#   answer = models.CharField(max_length=100, null=False)
-
-#   def delete(self):
-#     self.image.delete(save=False)
-#     super().delete()
-
-
-#-----------
-#   Chat
-#-----------
 class Connection(models.Model): 
 	sender = models.ForeignKey(
 		Profile,
