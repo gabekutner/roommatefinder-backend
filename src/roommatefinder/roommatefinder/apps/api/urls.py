@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import profile_views, swipe_views
+from .views import profile_views, swipe_views, matching_views
 from .internal import internal_profiles
 
 
@@ -19,6 +19,12 @@ router.register(
   r"photos",
   profile_views.PhotoViewSet,
   basename="photo",
+)
+
+router.register(
+  r"matching",
+  matching_views.RoommateQuizViewSet,
+  basename="matching"
 )
 
 urlpatterns = [
