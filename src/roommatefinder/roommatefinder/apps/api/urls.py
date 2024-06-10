@@ -36,7 +36,7 @@ urlpatterns = [
     name="login",
   ),
 
-  # ModelViewSets
+  # ViewSets
   path("", include(router.urls)),
   path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe"),
   path("swipe/<pk>/", swipe_views.SwipeDetailView.as_view(), name="swipe-profile")
