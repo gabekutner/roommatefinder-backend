@@ -200,6 +200,9 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
   )
 
   photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
+  quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
+  links = LinkSerializer(source="link_set", many=True, read_only=True)
   # get status of connection between 
   sent_connections = ConnectionSerializer(many=True)
   received_connections = ConnectionSerializer(many=True)
@@ -223,6 +226,9 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "interests",
       "thumbnail",
       "photos",
+      "prompts",
+      "quotes",
+      "links",
       "sent_connections",
       "received_connections",
     ]
