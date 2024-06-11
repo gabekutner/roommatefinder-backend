@@ -113,6 +113,7 @@ class ProfileSerializer(serializers.ModelSerializer):
       "has_account",
       "thumbnail",
       "progress",
+      "graduation_year"
     ]
 
   # refresh the token everytime the user is called
