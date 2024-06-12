@@ -247,6 +247,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+print ('Settings.py MEDIA_ROOT: ', MEDIA_ROOT)
+
 POPULAR_CHOICES = ( # sample size, uofu28, 27 specific
                    ('1', 'Hanging out with friends'),
                    ('2', 'Shopping'),
