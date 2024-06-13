@@ -11,6 +11,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from .. import serializers, models
 from ..utils import exec
+from .._serializers import profile_serializers
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -84,42 +85,50 @@ class ProfileViewSet(ModelViewSet):
   
 
   def update(self, request, pk=None):
-    """ update a profile """
-    fields_serializer = serializers.UpdateProfileSerializer(data=request.data)
-    fields_serializer.is_valid(raise_exception=True)
+    profile = request.user
+    field_serializer = profile_serializers.UpdateProfileSerializer(data=request.data)
+    if field_serializer.is_valid(raise_exception=True):
+      try:
+        profile = models.Profile.objects.get(pk=pk)
+      except ObjectDoesNotExist:
+        return Response({"detail": "Profile doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-      profile = models.Profile.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-      return Response({"detail": "profile doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+      if "name" in request.data:
+        profile.name = field_serializer.validated_data["name"]
+      if "city" in request.data:
+        profile.city = field_serializer.validated_data["state"]
+      if "state" in request.data:
+        profile.state = field_serializer.validated_data["state"]
+      if "graduation_year" in request.data:
+        profile.graduation_year = field_serializer.validated_data["graduation_year"]
+      if "major" in request.data:
+        profile.major = field_serializer.validated_data["major"]
+      if "interests" in request.data:
+        profile.interests = field_serializer.validated_data["interests"]
+      profile.save()
 
-    exec.only_admin_and_user(profile.id, request)
+      # prompts_data = field_serializer.validated_data.get("prompt_set", [])
+      # quotes_data = field_serializer.validated_data.get("quote_set", [])
+      # links_data = field_serializer.validated_data.get("link_set", [])
 
-    if "name" in request.data:
-      profile.name = fields_serializer.validated_data["name"]
-    if "instagram" in request.data:
-      profile.instagram = fields_serializer.validated_data["instagram"]
-    if "snapchat" in request.data:
-      profile.snapchat = fields_serializer.validated_data["snapchat"]
-    if "major" in request.data:
-      profile.major = fields_serializer.validated_data["major"]
-    if "city" in request.data:
-      profile.city = fields_serializer.validated_data["city"]
-    if "state" in request.data:
-      profile.state = fields_serializer.validated_data["state"]
-    if "description" in request.data:
-      profile.description = fields_serializer.validated_data["description"]
-    # if "sex" in request.data:
-    #   profile.sex = fields_serializer.validated_data["sex"]
-    if "dorm_building" in request.data:
-      profile.dorm_building = fields_serializer.validated_data["dorm_building"]
-    if "interests" in request.data:
-      profile.interests = fields_serializer.validated_data["interests"]
-    if "graduation_year" in request.data:
-      profile.graduation_year = fields_serializer.validated_data["graduation_year"]
+      # prompts_serializer = serializers.UpdatePromptSerializer(data=prompts_data, many=True)
+      # quotes_serializer = serializers.UpdateQuoteSerializer(data=quotes_data, many=True)
+      # links_serializer = serializers.UpdateLinkSerializer(data=links_data, many=True)
+
+      # if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
+      #   return Response({
+      #     'prompts_errors': prompts_serializer.errors,
+      #     'quotes_errors': quotes_serializer.errors,
+      #     'links_errors': links_serializer.errors,
+      #   }, status=status.HTTP_400_BAD_REQUEST)
+
+      # prompts_serializer.save(profile=profile)
+      # quotes_serializer.save(profile=profile)
+      # links_serializer.save(profile=profile)
+    else:
+      return Response({'detail': 'Update profile failed.'}, status=status.HTTP_400_BAD_REQUEST)
   
-    profile.save()
-    profile_serializer = serializers.ProfileSerializer(profile, many=False)
+    profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data)
   
 

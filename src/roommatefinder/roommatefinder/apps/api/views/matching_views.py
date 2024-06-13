@@ -63,9 +63,7 @@ class RoommateQuizViewSet(ModelViewSet):
         quiz.wake_up_time = field_serializer.validated_data["wake_up_time"]
       if "sharing_policy" in request.data:
         quiz.sharing_policy = field_serializer.validated_data["sharing_policy"]
-
       quiz.save()
-
     else:
       return Response({'detail': 'Update roommate matching quiz failed.'}, status=status.HTTP_400_BAD_REQUEST)
   

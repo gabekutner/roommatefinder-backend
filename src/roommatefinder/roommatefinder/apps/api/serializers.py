@@ -49,6 +49,10 @@ class CreatePromptSerializer(serializers.ModelSerializer):
     model = models.Prompt
     fields = '__all__'
 
+class UpdatePromptSerializer(serializers.Serializer):
+  question = serializers.CharField(required=False, allow_null=True)
+  answer = serializers.CharField(required=False, allow_null=True)
+
 class QuoteSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Quote
@@ -59,6 +63,10 @@ class CreateQuoteSerializer(serializers.ModelSerializer):
     model = models.Quote
     fields = '__all__'
 
+class UpdateQuoteSerializer(serializers.ModelSerializer):
+  quote = serializers.CharField(required=False, allow_null=True)
+  cited = serializers.CharField(required=False, allow_null=True)
+
 class LinkSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Link
@@ -68,6 +76,10 @@ class CreateLinkSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Link
     fields = '__all__'
+
+class UpdateLinkSerializer(serializers.ModelSerializer):
+  title = serializers.CharField(required=False, allow_null=True)
+  link = serializers.CharField(required=False, allow_null=True)
 
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
