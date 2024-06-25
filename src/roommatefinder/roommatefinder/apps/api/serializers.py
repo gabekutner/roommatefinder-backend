@@ -238,6 +238,7 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "snapchat",
       "interests",
       "thumbnail",
+      "graduation_year",
       "photos",
       "prompts",
       "quotes",
