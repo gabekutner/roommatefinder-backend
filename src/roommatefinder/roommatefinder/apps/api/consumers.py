@@ -230,12 +230,22 @@ class APIConsumer(WebsocketConsumer):
     except models.Profile.DoesNotExist:
       print({'detail': 'user not found'})
       return
- 
-    # create connection
-    connection, _ = models.Connection.objects.get_or_create(
-      sender=self.scope['user'],
-      receiver=receiver,
+
+    # test if an unaccepted connection exists between the two users already
+    # this would mean receiver and sender are switched in this possible connection
+    possible_connection = models.Connection.objects.get(
+      receiver=self.scope['user'], sender=receiver
     )
+    # if there already exists a connection, update the possible_connection as accepted
+    if possible_connection is not None:
+      possible_connection.accepted = True
+      connection = possible_connection.save()
+    else:
+      # create connection 
+      connection, _ = models.Connection.objects.get_or_create(
+        sender=self.scope['user'],
+        receiver=receiver,
+      )
     # serialized connection
     serialized = serializers.RequestSerializer(connection)
     # send results back to sender
