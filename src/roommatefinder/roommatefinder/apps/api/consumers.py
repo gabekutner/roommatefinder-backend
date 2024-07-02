@@ -233,13 +233,18 @@ class APIConsumer(WebsocketConsumer):
 
     # test if an unaccepted connection exists between the two users already
     # this would mean receiver and sender are switched in this possible connection
-    possible_connection = models.Connection.objects.get(
-      receiver=self.scope['user'], sender=receiver
-    )
+    try:
+      possible_connection = models.Connection.objects.get(
+        receiver=self.scope['user'], sender=receiver
+      )
+    except models.Connection.DoesNotExist:
+      possible_connection = None
     # if there already exists a connection, update the possible_connection as accepted
     if possible_connection is not None:
       possible_connection.accepted = True
-      connection = possible_connection.save()
+      possible_connection.display_match = True
+      possible_connection.save()
+      connection = possible_connection
     else:
       # create connection 
       connection, _ = models.Connection.objects.get_or_create(

@@ -245,22 +245,27 @@ class RoommateQuiz(CreationModificationDateBase):
 
 
 class Connection(models.Model): 
-	sender = models.ForeignKey(
-		Profile,
-		related_name='sent_connections',
-		on_delete=models.CASCADE
-	)
-	receiver = models.ForeignKey(
-		Profile,
-		related_name='received_connections',
-		on_delete=models.CASCADE
-	)
-	accepted = models.BooleanField(default=False)
-	updated = models.DateTimeField(auto_now=True)
-	created = models.DateTimeField(auto_now_add=True)
+  sender = models.ForeignKey(
+    Profile,
+    related_name='sent_connections',
+    on_delete=models.CASCADE
+  )
+  receiver = models.ForeignKey(
+    Profile,
+    related_name='received_connections',
+    on_delete=models.CASCADE
+  )
+  accepted = models.BooleanField(default=False)
+  # new data point - display_match:bool , default = false
+  # if model is being updated than display_match=True
+  display_match = models.BooleanField(default=False)
 
-	def __str__(self):
-		return str(self.sender.id) + ' -> ' + str(self.receiver.id)
+  # deprecated, can replace with CreationModificationBase
+  updated = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(auto_now_add=True)
+  
+  def __str__(self):
+	  return str(self.sender.id) + ' -> ' + str(self.receiver.id)
 
 
 class Message(models.Model):

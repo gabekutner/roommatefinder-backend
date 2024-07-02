@@ -289,7 +289,8 @@ class RequestSerializer(serializers.ModelSerializer):
 			'id',
 			'sender',
 			'receiver',
-			'created'
+			'created',
+      'display_match'
 		]
 
       
