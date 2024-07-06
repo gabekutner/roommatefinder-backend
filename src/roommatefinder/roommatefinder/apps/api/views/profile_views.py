@@ -13,7 +13,7 @@ from .._serializers import profile_serializers
 
 class ProfileViewSet(ModelViewSet):
   queryset = models.Profile.objects.all()
-  serializer_class = serializers.ProfileSerializer
+  serializer_class = profile_serializers.ProfileSerializer
   permission_classes = [IsAuthenticated]
 
   # admin actions for this model view set
@@ -29,7 +29,7 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
     profiles = models.Profile.objects.all()
-    serializer = serializers.ProfileSerializer(profiles, many=True)
+    serializer = profile_serializers.ProfileSerializer(profiles, many=True)
     return Response(
       {
         "detail": "hello admin",
@@ -50,7 +50,7 @@ class ProfileViewSet(ModelViewSet):
     
     try:
       user = models.Profile.objects.create(name=data["name"], email=data["email"], password=make_password(data["password"]))
-      serializer = serializers.ProfileSerializer(user, many=False)
+      serializer = profile_serializers.ProfileSerializer(user, many=False)
       return Response(serializer.data)
     except:
       return Response({"detail": "profile with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
@@ -64,7 +64,7 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     exec.only_admin_and_user(profile.id, request)
-    serializer = serializers.ProfileSerializer(profile, many=False)
+    serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
 
@@ -114,12 +114,12 @@ class ProfileViewSet(ModelViewSet):
   def upload_thumbnail(self, request):
     profile = request.user
 
-    fields_serializer = serializers.UploadThumbnailSerializer(data=request.data)
+    fields_serializer = profile_serializers.UploadThumbnailSerializer(data=request.data)
     if fields_serializer.is_valid():
       profile.thumbnail = fields_serializer.validated_data["thumbnail"]
       profile.save()
 
-    profile_serializer = serializers.ProfileSerializer(profile)
+    profile_serializer = profile_serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
   
 
@@ -135,7 +135,7 @@ class ProfileViewSet(ModelViewSet):
     # I get an error telling me the fields of these models must be set although they are.
     # Will separate this into two endpoints now.
     profile = request.user
-    fields_serializer = serializers.CreateProfileSerializer(data=request.data)
+    fields_serializer = profile_serializers.CreateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
   
     # Save profile fields
@@ -170,7 +170,7 @@ class ProfileViewSet(ModelViewSet):
     quotes_serializer.save(profile=profile)
     links_serializer.save(profile=profile)
 
-    profile_serializer = serializers.ProfileSerializer(profile)
+    profile_serializer = profile_serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -220,74 +220,3 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "your password has been reset"}, status=status.HTTP_200_OK)
 
     return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
-  
-
-
-
-
-# class PhotoViewSet(ModelViewSet):
-#   serializer_class = serializers.PhotoSerializer
-#   permission_classes = [IsAuthenticated]
-#   parser_classes = (MultiPartParser, FormParser,)
-
-#   def get_serializer(self, *args, **kwargs):
-#     # add many=True if the data is of type list
-#     if isinstance(kwargs.get("data", {}), list):
-#       kwargs["many"] = True
-
-#     return super(PhotoViewSet, self).get_serializer(*args, **kwargs)
-
-#   def list(self, request):
-#     profile = request.user
-#     queryset = models.Photo.objects.filter(profile=profile.id).order_by("created")
-#     serializer = serializers.PhotoSerializer(queryset, many=True)
-#     return Response(serializer.data)
-
-#   def retrieve(self, request, pk):
-#     photo = models.Photo.objects.get(pk=pk)
-#     serializer = serializers.PhotoSerializer(photo, many=False)
-#     return Response(serializer.data)
-
-#   def create(self, request):
-#     def modify_input_for_multiple_files(image):
-#       dict = {}
-#       dict['image'] = image
-#       return dict
-
-#     profile = request.user
-#     profile_photos = models.Photo.objects.filter(profile=profile.id)
-
-#     images = dict((request.data).lists())['image']
-
-#     if len(profile_photos) + len(images) > 4:
-#       return Response({"detail": "Profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
-
-#     for image in images:
-#       modified_data = modify_input_for_multiple_files(image)
-#       file_serializer = serializers.CreatePhotoSerializer(data=modified_data)
-#       if file_serializer.is_valid():
-#         models.Photo.objects.create(
-#           profile=profile, image=image
-#         )
-
-#       else:
-#         return Response({"detail": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
-    
-#     return Response({'detail': 'Photos upload successfully.'}, status=status.HTTP_201_CREATED)
-  
-
-
-#   def update(self, request, pk=None, *args, **kwargs):
-#     photo = models.Photo.objects.get(pk=pk)
-#     fields_serializer = serializers.PhotoSerializer(data=request.data, partial=True)
-#     fields_serializer.is_valid(raise_exception=True)
-#     photo.image = fields_serializer.validated_data["image"]
-
-#     photo.save()
-#     serializer = serializers.PhotoSerializer(photo, many=False)
-#     return Response(serializer.data)
-
-#   def destroy(self, request, pk):
-#     photo = models.Photo.objects.get(pk=pk)
-#     photo.delete()
-#     return Response({"detail": "photo deleted"}, status=status.HTTP_200_OK)

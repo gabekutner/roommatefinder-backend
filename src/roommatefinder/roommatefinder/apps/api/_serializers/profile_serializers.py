@@ -9,14 +9,10 @@ from ..serializers import (
   CreatePromptSerializer,
   CreateQuoteSerializer,
   CreateLinkSerializer,
-  UpdatePromptSerializer,
-  UpdateQuoteSerializer,
-  UpdateLinkSerializer
 )
 from .. import models
 from ..utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES
-
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -27,7 +23,6 @@ class ProfileSerializer(serializers.ModelSerializer):
   prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
   quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
   links = LinkSerializer(source="link_set", many=True, read_only=True)
-
   sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False)
 
   class Meta:
@@ -72,6 +67,8 @@ class UpdateProfileSerializer(serializers.Serializer):
   major = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
 
-  # prompts = UpdatePromptSerializer(source='prompt_set', many=True, required=False)
-  # quotes = UpdateQuoteSerializer(source='quote_set', many=True, required=False)
-  # links = UpdateLinkSerializer(source='link_set', many=True, required=False)
+# Extras
+class UploadThumbnailSerializer(serializers.Serializer):
+  thumbnail = serializers.ImageField(
+    required=True, allow_null=False, max_length=None, use_url=True
+  )
