@@ -16,10 +16,12 @@ class RoommateQuizViewSet(ModelViewSet):
   serializer_class = RoommateQuizSerializer
 
   def list(self, request):
+    """ get all matching quizes """
     serializer = RoommateQuizSerializer(self.queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
   def retrieve(self, request, pk=None):
+    """ get matching quiz """
     quiz = self.queryset.filter(profile=pk)
     serializer = RoommateQuizSerializer(quiz, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -32,18 +34,19 @@ class RoommateQuizViewSet(ModelViewSet):
         profile=profile, **field_serializer.validated_data
       )
     else:
-      return Response({'detail': 'Create roommate matching quiz failed.'}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({'detail': 'create matching quiz failed'}, status=status.HTTP_400_BAD_REQUEST)
     
     matching_serializer = RoommateQuizSerializer(quiz)
     return Response(matching_serializer.data, status=status.HTTP_201_CREATED)
 
   def update(self, request, pk=None):
+    """ update matching quiz """
     field_serializer = UpdateRoommateQuiz(data=request.data)
     if field_serializer.is_valid(raise_exception=True):
       try:
         quiz = models.RoommateQuiz.objects.get(pk=pk)
       except ObjectDoesNotExist:
-        return Response({"detail": "Profile doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "profile doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
       
       if "social_battery" in request.data:
         quiz.social_battery = field_serializer.validated_data["social_battery"]
@@ -65,16 +68,17 @@ class RoommateQuizViewSet(ModelViewSet):
         quiz.sharing_policy = field_serializer.validated_data["sharing_policy"]
       quiz.save()
     else:
-      return Response({'detail': 'Update roommate matching quiz failed.'}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({'detail': 'update matching quiz failed'}, status=status.HTTP_400_BAD_REQUEST)
   
     quiz_serializer = RoommateQuizSerializer(quiz)
     return Response(quiz_serializer.data, status=status.HTTP_200_OK)
 
   def destroy(self, request, pk=None):
+    """ delete matchin quiz """
     try:
       quiz = models.RoommateQuiz.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response({"detail": "Profile does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({"detail": "profile does not exis."}, status=status.HTTP_400_BAD_REQUEST)
 
     quiz.delete()
-    return Response({"detail": "Quiz deleted successfully."}, status=status.HTTP_200_OK)
+    return Response({"detail": "matching quiz deleted successfully"}, status=status.HTTP_200_OK)

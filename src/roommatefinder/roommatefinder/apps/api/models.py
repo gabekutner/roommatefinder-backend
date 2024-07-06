@@ -110,7 +110,6 @@ class Photo(CreationModificationDateBase):
     self.image.delete(save=False)
     super().delete()
 
-
 class Prompt(CreationModificationDateBase):
   """ prompts model """
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -131,12 +130,11 @@ class Quote(CreationModificationDateBase):
   cited = models.CharField(max_length=100, null=True, blank=True)
 
 class Link(CreationModificationDateBase):
-  """ Links Model """
+  """ links model """
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   title = models.CharField(max_length=250, null=False, blank=False)
   link = models.CharField(max_length=250, null=False, blank=False)
-
 
 class RoommateQuiz(CreationModificationDateBase):
   """ roommate matching quiz model """
@@ -203,13 +201,9 @@ class Connection(CreationModificationDateBase):
   # new data point - display_match:bool , default = false
   # if model is being updated than display_match=True
   display_match = models.BooleanField(default=False)
-  # deprecated, can replace with CreationModificationBase
-  # updated = models.DateTimeField(auto_now=True)
-  # created = models.DateTimeField(auto_now_add=True)
   
   def __str__(self):
 	  return str(self.sender.id) + ' -> ' + str(self.receiver.id)
-
 
 class Message(CreationModificationDateBase):
   """ message model """
@@ -224,7 +218,6 @@ class Message(CreationModificationDateBase):
 		on_delete=models.CASCADE
 	)
   text = models.TextField()
-  # created = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
     return str(self.user.id) + ': ' + self.text

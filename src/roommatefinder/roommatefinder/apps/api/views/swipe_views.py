@@ -13,6 +13,7 @@ class SwipeModelViewSet(ListAPIView):
 
   def get_queryset(self):
     """ get swipe queryset - exclude self, connections & rank """
+    # algorithem implemented here ...
     profiles = models.Profile.objects.filter(has_account=True)
     blocked_profiles = self.request.user.blocked_profiles.all()
     connections = models.Connection.objects.filter(

@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .. import serializers, models
+from .. import models
 from ..serializers import photo_serializers
 
 
@@ -21,17 +21,20 @@ class PhotoViewSet(ModelViewSet):
     return super(PhotoViewSet, self).get_serializer(*args, **kwargs)
 
   def list(self, request):
+    """ list photos """
     profile = request.user
     queryset = models.Photo.objects.filter(profile=profile.id).order_by("created")
     serializer = photo_serializers.PhotoSerializer(queryset, many=True)
     return Response(serializer.data)
 
   def retrieve(self, request, pk):
+    """ get a photo """
     photo = models.Photo.objects.get(pk=pk)
-    serializer = serializers.PhotoSerializer(photo, many=False)
+    serializer = photo_serializers.PhotoSerializer(photo, many=False)
     return Response(serializer.data)
 
   def create(self, request):
+    """ create photo(s) """
     def modify_input_for_multiple_files(image):
       dict = {}
       dict['image'] = image
@@ -42,6 +45,8 @@ class PhotoViewSet(ModelViewSet):
 
     images = dict((request.data).lists())['image']
 
+    # on frontend, user can only upload 3 + thumbnail
+    # this is for photos not including thumbnail
     if len(profile_photos) + len(images) > 4:
       return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -56,9 +61,10 @@ class PhotoViewSet(ModelViewSet):
       else:
         return Response({"detail": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
     
-    return Response({'detail': 'photos upload successfully'}, status=status.HTTP_201_CREATED)
+    return Response({'detail': 'photos uploaded successfully'}, status=status.HTTP_201_CREATED)
 
   def update(self, request, pk=None, *args, **kwargs):
+    """ update photo """
     photo = models.Photo.objects.get(pk=pk)
     fields_serializer = photo_serializers.PhotoSerializer(data=request.data, partial=True)
     fields_serializer.is_valid(raise_exception=True)
@@ -69,6 +75,7 @@ class PhotoViewSet(ModelViewSet):
     return Response(serializer.data)
 
   def destroy(self, request, pk):
+    """ delete photo """
     photo = models.Photo.objects.get(pk=pk)
     photo.delete()
     return Response({"detail": "photo deleted"}, status=status.HTTP_200_OK)
