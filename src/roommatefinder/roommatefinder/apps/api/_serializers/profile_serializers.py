@@ -2,7 +2,6 @@ from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from ..serializers import (
-  PhotoSerializer,
   PromptSerializer,
   QuoteSerializer,
   LinkSerializer,
@@ -10,6 +9,7 @@ from ..serializers import (
   CreateQuoteSerializer,
   CreateLinkSerializer,
 )
+from .._serializers import photo_serializers
 from .. import models
 from ..utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES
@@ -19,7 +19,7 @@ class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
 
-  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
   prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
   quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
   links = LinkSerializer(source="link_set", many=True, read_only=True)
@@ -44,7 +44,6 @@ class ProfileSerializer(serializers.ModelSerializer):
     token = RefreshToken.for_user(profile)
     return str(token)  
     
-
 class CreateProfileSerializer(serializers.Serializer):
   birthday = serializers.DateField(required=True, allow_null=False)
   sex = model_utils.ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False)
@@ -57,7 +56,6 @@ class CreateProfileSerializer(serializers.Serializer):
   prompts = CreatePromptSerializer(source='prompt_set', many=True, required=True)
   quotes = CreateQuoteSerializer(source='quote_set', many=True, required=True)
   links = CreateLinkSerializer(source='link_set', many=True, required=True)
-
 
 class UpdateProfileSerializer(serializers.Serializer):
   name = serializers.CharField(required=False, allow_null=True)

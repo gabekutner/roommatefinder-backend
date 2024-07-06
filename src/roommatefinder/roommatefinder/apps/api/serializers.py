@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from . import models
+from ._serializers import photo_serializers
 
 
 class ChoicesField(serializers.Field):
@@ -17,87 +18,66 @@ class ChoicesField(serializers.Field):
     if data in self._choices:
       return getattr(self._choices, data)
     raise serializers.ValidationError(["choice not valid"])
-  
 
-class PhotoSerializer(serializers.ModelSerializer):
-  image = serializers.ImageField(
-    required=True, allow_null=False, max_length=None, use_url=True
-  )
-  class Meta:
-    model = models.Photo
-    fields = ["id", "image", "profile"]
-
-
-class CreatePhotoSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Photo
-    fields = ['image']
-
-
+# prompts
 class PromptSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Prompt
     fields = ["id", "profile", "question", "answer"]
-
 
 class CreatePromptSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Prompt
     fields = '__all__'
 
-
 class UpdatePromptSerializer(serializers.Serializer):
   question = serializers.CharField(required=False, allow_null=True)
   answer = serializers.CharField(required=False, allow_null=True)
 
-
+# quotes
 class QuoteSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Quote
     fields = ["id", "profile", "quote", "cited"]
-
 
 class CreateQuoteSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Quote
     fields = '__all__'
 
-
 class UpdateQuoteSerializer(serializers.ModelSerializer):
   quote = serializers.CharField(required=False, allow_null=True)
   cited = serializers.CharField(required=False, allow_null=True)
 
-
+# links
 class LinkSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Link
     fields = ["id", "profile", "title", "link"]
-
 
 class CreateLinkSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Link
     fields = '__all__'
 
-
 class UpdateLinkSerializer(serializers.ModelSerializer):
   title = serializers.CharField(required=False, allow_null=True)
   link = serializers.CharField(required=False, allow_null=True)
 
-
+# connections
 class ConnectionSerializer(serializers.ModelSerializer):
   class Meta:
       model = models.Connection
       fields = ['id', 'sender', 'receiver', 'accepted']
 
-
+# swipe
 class SwipeProfileSerializer(serializers.ModelSerializer):
   sex = serializers.CharField(
     source="get_sex_display", 
     required=True, 
     allow_null=False
   )
-  photos = PhotoSerializer(source="photo_set", many=True, read_only=True)
+  photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
   prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
   quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
   links = LinkSerializer(source="link_set", many=True, read_only=True)
@@ -131,7 +111,7 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "received_connections",
     ]
 
-
+# basic user 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Profile
@@ -141,7 +121,7 @@ class UserSerializer(serializers.ModelSerializer):
 			'thumbnail',
     ]
 
-
+# search
 class SearchSerializer(UserSerializer):
   status = serializers.SerializerMethodField()
   class Meta:
@@ -162,7 +142,7 @@ class SearchSerializer(UserSerializer):
       return 'connected'
     return 'no-connection'
     
-  
+# request
 class RequestSerializer(serializers.ModelSerializer):
 	sender = UserSerializer()
 	receiver = UserSerializer()
@@ -176,7 +156,7 @@ class RequestSerializer(serializers.ModelSerializer):
       'display_match'
 		]
 
-      
+# friends
 class FriendSerializer(serializers.ModelSerializer):
 	friend = serializers.SerializerMethodField()
 	preview = serializers.SerializerMethodField()
@@ -213,7 +193,7 @@ class FriendSerializer(serializers.ModelSerializer):
 			date = obj.latest_created or obj.updated
 		return date.isoformat()
 
-
+# message
 class MessageSerializer(serializers.ModelSerializer):
 	is_me = serializers.SerializerMethodField()
 	class Meta:

@@ -5,10 +5,11 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .. import serializers, models
+from .._serializers import photo_serializers
 
 
 class PhotoViewSet(ModelViewSet):
-  serializer_class = serializers.PhotoSerializer
+  serializer_class = photo_serializers.PhotoSerializer
   permission_classes = [IsAuthenticated]
   parser_classes = (MultiPartParser, FormParser,)
 
@@ -19,19 +20,16 @@ class PhotoViewSet(ModelViewSet):
 
     return super(PhotoViewSet, self).get_serializer(*args, **kwargs)
 
-
   def list(self, request):
     profile = request.user
     queryset = models.Photo.objects.filter(profile=profile.id).order_by("created")
-    serializer = serializers.PhotoSerializer(queryset, many=True)
+    serializer = photo_serializers.PhotoSerializer(queryset, many=True)
     return Response(serializer.data)
-
 
   def retrieve(self, request, pk):
     photo = models.Photo.objects.get(pk=pk)
     serializer = serializers.PhotoSerializer(photo, many=False)
     return Response(serializer.data)
-
 
   def create(self, request):
     def modify_input_for_multiple_files(image):
@@ -45,32 +43,30 @@ class PhotoViewSet(ModelViewSet):
     images = dict((request.data).lists())['image']
 
     if len(profile_photos) + len(images) > 4:
-      return Response({"detail": "Profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
 
     for image in images:
       modified_data = modify_input_for_multiple_files(image)
-      file_serializer = serializers.CreatePhotoSerializer(data=modified_data)
+      file_serializer = photo_serializers.CreatePhotoSerializer(data=modified_data)
       if file_serializer.is_valid():
         models.Photo.objects.create(
           profile=profile, image=image
         )
 
       else:
-        return Response({"detail": "Invalid data"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "invalid data"}, status=status.HTTP_400_BAD_REQUEST)
     
-    return Response({'detail': 'Photos upload successfully.'}, status=status.HTTP_201_CREATED)
-
+    return Response({'detail': 'photos upload successfully'}, status=status.HTTP_201_CREATED)
 
   def update(self, request, pk=None, *args, **kwargs):
     photo = models.Photo.objects.get(pk=pk)
-    fields_serializer = serializers.PhotoSerializer(data=request.data, partial=True)
+    fields_serializer = photo_serializers.PhotoSerializer(data=request.data, partial=True)
     fields_serializer.is_valid(raise_exception=True)
     photo.image = fields_serializer.validated_data["image"]
 
     photo.save()
-    serializer = serializers.PhotoSerializer(photo, many=False)
+    serializer = photo_serializers.PhotoSerializer(photo, many=False)
     return Response(serializer.data)
-
 
   def destroy(self, request, pk):
     photo = models.Photo.objects.get(pk=pk)
