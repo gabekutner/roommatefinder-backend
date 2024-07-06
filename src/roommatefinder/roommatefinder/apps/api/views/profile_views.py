@@ -3,28 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.parsers import MultiPartParser, FormParser
 
 from .. import serializers, models
 from ..utils import exec
 from .._serializers import profile_serializers
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-  def validate(self, attrs):
-    data = super().validate(attrs)
-    serializer = serializers.ProfileSerializer(self.user).data
-    for key, value in serializer.items():
-      data[key] = value
-    return data
-
-class MyTokenObtainPairView(TokenObtainPairView):
-  serializer_class = MyTokenObtainPairSerializer
-  permission_classes = [AllowAny]
 
 
 class ProfileViewSet(ModelViewSet):
