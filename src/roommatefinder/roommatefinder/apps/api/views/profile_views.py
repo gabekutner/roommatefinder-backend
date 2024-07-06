@@ -98,7 +98,6 @@ class ProfileViewSet(ModelViewSet):
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data)
   
-
   def destroy(self, request, pk=None):
     """ delete a profile """
     try:
@@ -108,7 +107,6 @@ class ProfileViewSet(ModelViewSet):
     exec.only_admin_and_user(profile.id, request)
     profile.delete()
     return Response({"detail": "profile deleted successfully"}, status=status.HTTP_200_OK)
-  
 
   @action(detail=False, methods=["post"], url_path=r"actions/upload-thumbnail")
   def upload_thumbnail(self, request):
