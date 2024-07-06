@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from . import models
-from ._serializers import photo_serializers
+from .. import models
+from .._serializers import photo_serializers
 
 
 class ChoicesField(serializers.Field):

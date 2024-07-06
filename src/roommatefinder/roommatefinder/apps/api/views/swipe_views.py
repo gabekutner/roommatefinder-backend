@@ -1,21 +1,15 @@
 from django.db.models import Q
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.decorators import api_view, permission_classes
 
-from .. import models, serializers
-from ..handlers import swipe_filters
-# from ..handlers.rank import as
-# from api.handlers.swipe_filters
+from .. import models
+from .._serializers import swipe_serializers
 from ..pagination import StandardResultsSetPagination
 
 
 class SwipeModelViewSet(ListAPIView):
   """ get swipe profiles """
   pagination_class = StandardResultsSetPagination
-  serializer_class = serializers.SwipeProfileSerializer
+  serializer_class = swipe_serializers.SwipeProfileSerializer
 
   def get_queryset(self):
     """ get swipe queryset - exclude self, connections & rank """
@@ -44,4 +38,4 @@ class SwipeModelViewSet(ListAPIView):
 
 class SwipeDetailView(RetrieveAPIView):
   queryset = models.Profile.objects.all()
-  serializer_class = serializers.SwipeProfileSerializer
+  serializer_class = swipe_serializers.SwipeProfileSerializer
