@@ -7,8 +7,7 @@ from django.core.files.base import ContentFile
 from django.db.models import Q, Exists, OuterRef
 
 from . import models
-from . import serializers
-
+from .serializers import extra_serializers
 
 class APIConsumer(WebsocketConsumer):
 
@@ -94,7 +93,7 @@ class APIConsumer(WebsocketConsumer):
       connection=connection
     ).order_by('-created')[page * page_size:(page + 1) * page_size]
     # serialized message
-    serialized_messages = serializers.MessageSerializer(
+    serialized_messages = extra_serializers.MessageSerializer(
       messages,
       context={'user': user}, 
       many=True
@@ -105,7 +104,7 @@ class APIConsumer(WebsocketConsumer):
       recipient = connection.receiver
 
     # serialize friend
-    serialized_friend = serializers.UserSerializer(recipient)
+    serialized_friend = extra_serializers.UserSerializer(recipient)
 
     # count the total number of messages for this connection
     messages_count = models.Message.objects.filter(
@@ -145,11 +144,11 @@ class APIConsumer(WebsocketConsumer):
       recipient = connection.receiver
 
     # send new message back to sender
-    serialized_message = serializers.MessageSerializer(
+    serialized_message = extra_serializers.MessageSerializer(
       message,
       context={'user': user}
     )
-    serialized_friend = serializers.UserSerializer(recipient)
+    serialized_friend = extra_serializers.UserSerializer(recipient)
     data = {
       'message': serialized_message.data,
       'friend': serialized_friend.data
@@ -157,11 +156,11 @@ class APIConsumer(WebsocketConsumer):
     self.send_group(str(user.id), 'message.send', data)
 
     # send new message to receiver
-    serialized_message = serializers.MessageSerializer(
+    serialized_message = extra_serializers.MessageSerializer(
       message,
       context={'user': recipient}
     )
-    serialized_friend = serializers.UserSerializer(user)
+    serialized_friend = extra_serializers.UserSerializer(user)
     data = {
       'message': serialized_message.data,
       'friend': serialized_friend.data
@@ -183,7 +182,7 @@ class APIConsumer(WebsocketConsumer):
       Q(sender=user) | Q(receiver=user),
       accepted=True,
     )
-    serialized = serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
+    serialized = extra_serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
     # send data back to user
     self.send_group(str(user.id), 'friend.list', serialized.data)
 
@@ -203,7 +202,7 @@ class APIConsumer(WebsocketConsumer):
     connection.accepted = True
     connection.save()
 
-    serialized = serializers.RequestSerializer(connection)
+    serialized = extra_serializers.RequestSerializer(connection)
     # send accepted request to sender
     self.send_group(str(connection.sender.id), 'request.accept', serialized.data)
     # send accepted request to receiver
@@ -217,7 +216,7 @@ class APIConsumer(WebsocketConsumer):
       receiver=user,
       accepted=False,
     )
-    serialized = serializers.RequestSerializer(connections, many=True)
+    serialized = extra_serializers.RequestSerializer(connections, many=True)
     # send request list back to user
     return self.send_group(str(user.id), 'request.list', serialized.data)
 
@@ -252,7 +251,7 @@ class APIConsumer(WebsocketConsumer):
         receiver=receiver,
       )
     # serialized connection
-    serialized = serializers.RequestSerializer(connection)
+    serialized = extra_serializers.RequestSerializer(connection)
     # send results back to sender
     self.send_group(str(connection.sender.id), 'request.connect', serialized.data)
     # send results back to receiver
@@ -291,7 +290,7 @@ class APIConsumer(WebsocketConsumer):
 			),
     )
     # serialized results
-    serialized = serializers.SearchSerializer(profiles, many=True)
+    serialized = extra_serializers.SearchSerializer(profiles, many=True)
      # send results back to user
     self.send_group(self._id, 'search', serialized.data) 
 
@@ -305,7 +304,7 @@ class APIConsumer(WebsocketConsumer):
     filename = data.get('filename')
     user.thumbnail.save(filename, image, save=True)
     # serialize user
-    serialized = serializers.UserSerializer(user)
+    serialized = extra_serializers.UserSerializer(user)
     # send updated user data including new thumbnail 
     self.send_group(self._id, 'thumbnail', serialized.data)
 
