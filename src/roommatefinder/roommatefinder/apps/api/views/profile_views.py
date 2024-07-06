@@ -25,6 +25,7 @@ class ProfileViewSet(ModelViewSet):
 
 
   def list(self, request):
+    """ only superuser can see all profiles """
     if not request.user.is_superuser:
       return Response({"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -38,7 +39,6 @@ class ProfileViewSet(ModelViewSet):
       }, status=status.HTTP_200_OK
     )
     
-  
   def create(self, request):
     """ register for an account """
     data = request.data
@@ -61,7 +61,7 @@ class ProfileViewSet(ModelViewSet):
     try:
       profile = models.Profile.objects.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({"detail": "profile doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     exec.only_admin_and_user(profile.id, request)
     serializer = profile_serializers.ProfileSerializer(profile, many=False)
@@ -76,7 +76,7 @@ class ProfileViewSet(ModelViewSet):
       try:
         profile = models.Profile.objects.get(pk=pk)
       except ObjectDoesNotExist:
-        return Response({"detail": "Profile doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "profile doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
 
       if "name" in request.data:
         profile.name = field_serializer.validated_data["name"]
@@ -90,6 +90,8 @@ class ProfileViewSet(ModelViewSet):
         profile.major = field_serializer.validated_data["major"]
       if "interests" in request.data:
         profile.interests = field_serializer.validated_data["interests"]
+      if "dorm_building" in request.data:
+        profile.dorm_building = field_serializer.validated_data["dorm_building"]
       profile.save()
 
     else:
@@ -158,11 +160,11 @@ class ProfileViewSet(ModelViewSet):
     links_serializer = serializers.CreateLinkSerializer(data=links_data, many=True)
 
     if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
-        return Response({
-            'prompts_errors': prompts_serializer.errors,
-            'quotes_errors': quotes_serializer.errors,
-            'links_errors': links_serializer.errors,
-        }, status=status.HTTP_400_BAD_REQUEST)
+      return Response({
+          'prompts_errors': prompts_serializer.errors,
+          'quotes_errors': quotes_serializer.errors,
+          'links_errors': links_serializer.errors,
+      }, status=status.HTTP_400_BAD_REQUEST)
 
     prompts_serializer.save(profile=profile)
     quotes_serializer.save(profile=profile)
@@ -195,7 +197,6 @@ class ProfileViewSet(ModelViewSet):
     profile.blocked_profiles.remove(blocked_profile)
     return Response({"detail": f"successfully unblocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
   
-
   @action(detail=False, methods=["get"], url_path=r"actions/get-blocked-profiles")
   def get_blocked_profiles(self, request):
     """ get all blocked profiles """

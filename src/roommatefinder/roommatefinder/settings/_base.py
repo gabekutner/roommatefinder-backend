@@ -50,6 +50,7 @@ CORS_ALLOW_CREDENTIALS = True
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 CORS_ALLOWED_ORIGINS = [
+  # deprecated: from react, not needed for native
   "http://127.0.0.1:3000"
 ]
 
@@ -57,14 +58,13 @@ CORS_ALLOWED_ORIGINS = [
 # SECRET_KEY = get_secret("DJANGO_SECRET_KEY")
 SECRET_KEY = '*s4y&fpo&@5s1wue%d_n3pd$0e+q4ye+s%!uc&3mmd!6!dm7de'
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-  "*",
-  "127.0.0.1",
-  "0.0.0.0",
+  "*", # ip
+  "127.0.0.1", # local
+  # once deployed add url here...
 ]
 
 AUTH_USER_MODEL = "api.Profile"
@@ -247,8 +247,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-print ('Settings.py MEDIA_ROOT: ', MEDIA_ROOT)
-
 POPULAR_CHOICES = ( # sample size, uofu28, 27 specific
                    ('1', 'Hanging out with friends'),
                    ('2', 'Shopping'),
@@ -299,7 +297,7 @@ DORM_CHOICES = (('1', 'Chapel Glen'),
                 ('7', 'Sage Point'),
                 ('8', 'Marriott Honors Community'),
                 ('9', 'Guest House'),
-                ('10', "I don't know"))
+                ('10', "I don't know 🤷‍♂️"))
 
 PROMPTS = (('1', 'In one word, my friends would describe me as ...'),
            ('2', 'My ideal roommate is ...'),

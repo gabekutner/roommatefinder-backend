@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from ..serializers import photo_serializers, extra_serializers
 from .. import models
 from ..utils import model_utils
-from roommatefinder.settings._base import POPULAR_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -56,6 +56,7 @@ class UpdateProfileSerializer(serializers.Serializer):
   graduation_year = serializers.CharField(required=False, allow_null=True)
   major = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
+  dorm_building = serializers.MultipleChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
 
 # Extras
 class UploadThumbnailSerializer(serializers.Serializer):

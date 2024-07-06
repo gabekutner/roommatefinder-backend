@@ -2,7 +2,6 @@ import uuid
 import datetime
 
 from django.db import models
-from django.db.models import Q
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MaxValueValidator, MinValueValidator
 from multiselectfield import MultiSelectField
@@ -10,7 +9,7 @@ from model_utils import Choices
 
 from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
-from roommatefinder.settings._base import POPULAR_CHOICES, PROMPTS
+from roommatefinder.settings._base import POPULAR_CHOICES, PROMPTS, DORM_CHOICES
 
 
 def upload_thumbnail(instance, filename):
@@ -22,19 +21,8 @@ def upload_thumbnail(instance, filename):
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
-  SEX_CHOICES = Choices(("M", "Male"),
-                        ("F", "Female"),)
-  
-  DORM_CHOICES = Choices(('1', 'Chapel Glen'), 
-                         ('2', 'Gateway Heights'),
-                         ('3' ,'Impact and Prosperity Epicenter'),
-                         ('4', 'Kahlert Village'),
-                         ('5', 'Lassonde Studios'),
-                         ('6', 'Officers Circle'),
-                         ('7', 'Sage Point'),
-                         ('8', 'Marriott Honors Community'),
-                         ('9', 'Guest House'),
-                         ('10', "I don't know"), )
+  """ profile model """
+  SEX_CHOICES = Choices(("M", "Male"), ("F", "Female"))
   
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   email = models.CharField(max_length=200, unique=True)
@@ -88,15 +76,9 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   def progress(self):
     attrs = self.__dict__
     attrs_to_delete = (
-      '_state', 
-      'last_login',
-      'is_superuser',
-      'created',
-      'modified',
-      'id',
-      'password',
-      'is_staff',
-      'is_active',
+      '_state', 'last_login', 'is_superuser',
+      'created', 'modified', 'id',
+      'password', 'is_staff', 'is_active',
       'has_account',
     )
     for attr in attrs_to_delete:
@@ -112,35 +94,14 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
   def block_profile(self, blocked_profile):
     """ block a profile """
-    # try:
-    #   connection = Connection.objects.get(
-    #     Q(sender=self.id, receiver=blocked_profile.id) | Q(sender=blocked_profile.id, receiver=self.id),
-    #     accepted=True,
-    #   )
-    #   print(connection)
-    #   messages = Message.objects.get(connection=connection)
-    #   print(messages)
-    # except Connection.DoesNotExist:
-    #   print({"detail": f"no connection between {self.id} and {blocked_profile.id}"})
-    
-    # connection.delete()
-
-    # try:
-    #   print(connection)
-      
-
-    # except Message.DoesNotExist:
-    #   print({"detail": f"no messages between {self.id} and {blocked_profile.id}"})
-
+    # remove connection, messages, and ... that should be it
     self.blocked_profiles.add(blocked_profile)
 
   def delete(self):
-    """ delete profile """
     super().delete()
 
-
 class Photo(CreationModificationDateBase):
-  """ Photo Model """    
+  """ photo model """    
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   image = models.ImageField(null=True, blank=True)
@@ -151,7 +112,7 @@ class Photo(CreationModificationDateBase):
 
 
 class Prompt(CreationModificationDateBase):
-  """ Prompts Model """
+  """ prompts model """
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   question = models.CharField(
@@ -163,7 +124,7 @@ class Prompt(CreationModificationDateBase):
   answer = models.CharField(max_length=250, null=False, blank=False)
 
 class Quote(CreationModificationDateBase):
-  """ Quotes Model """
+  """ quotes model """
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   quote = models.CharField(max_length=250, null=False, blank=False)
@@ -178,7 +139,7 @@ class Link(CreationModificationDateBase):
 
 
 class RoommateQuiz(CreationModificationDateBase):
-  """ Roommate Matching Quiz Model """
+  """ roommate matching quiz model """
   profile = models.OneToOneField(
     Profile,
     on_delete=models.CASCADE,
@@ -225,10 +186,9 @@ class RoommateQuiz(CreationModificationDateBase):
   bed_time = models.CharField(max_length=100, null=False, blank=True, default="")
   wake_up_time = models.CharField(max_length=100, null=False, blank=True, default="")
   sharing_policy = models.CharField(max_length=100, null=False, blank=True, default="")
-  
 
-
-class Connection(models.Model): 
+class Connection(CreationModificationDateBase): 
+  """ connection model """
   sender = models.ForeignKey(
     Profile,
     related_name='sent_connections',
@@ -243,28 +203,28 @@ class Connection(models.Model):
   # new data point - display_match:bool , default = false
   # if model is being updated than display_match=True
   display_match = models.BooleanField(default=False)
-
   # deprecated, can replace with CreationModificationBase
-  updated = models.DateTimeField(auto_now=True)
-  created = models.DateTimeField(auto_now_add=True)
+  # updated = models.DateTimeField(auto_now=True)
+  # created = models.DateTimeField(auto_now_add=True)
   
   def __str__(self):
 	  return str(self.sender.id) + ' -> ' + str(self.receiver.id)
 
 
-class Message(models.Model):
-	connection = models.ForeignKey(
+class Message(CreationModificationDateBase):
+  """ message model """
+  connection = models.ForeignKey(
 		Connection,
 		related_name='messages',
 		on_delete=models.CASCADE
 	)
-	user = models.ForeignKey(
+  user = models.ForeignKey(
 		Profile,
 		related_name='my_messages',
 		on_delete=models.CASCADE
 	)
-	text = models.TextField()
-	created = models.DateTimeField(auto_now_add=True)
+  text = models.TextField()
+  # created = models.DateTimeField(auto_now_add=True)
 
-	def __str__(self):
-		return str(self.user.id) + ': ' + self.text
+  def __str__(self):
+    return str(self.user.id) + ': ' + self.text
