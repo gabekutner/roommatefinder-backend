@@ -2,7 +2,7 @@ from django.db.models import Q
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 from .. import models
-from .._serializers import swipe_serializers
+from ..serializers import swipe_serializers
 from ..pagination import StandardResultsSetPagination
 
 

@@ -3,15 +3,13 @@ from django.utils.translation import gettext_lazy as _
 
 
 class CreationModificationDateBase(models.Model):
-  """
-  Abstract base class with a creation and modification date and time.
-  """
+  """ abstract base class with a creation and modification date and time """
   created = models.DateTimeField(
-    _("Creation Date and Time"),
+    _("creation date and time"),
     auto_now_add=True 
   )
   modified = models.DateTimeField(
-    _("Modification Date and Time"),
+    _("modification date and time"),
     auto_now=True
   )
   

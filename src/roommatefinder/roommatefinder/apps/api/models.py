@@ -1,4 +1,3 @@
-""" roommatefinder/apps/api/models.py """
 import uuid
 import datetime
 

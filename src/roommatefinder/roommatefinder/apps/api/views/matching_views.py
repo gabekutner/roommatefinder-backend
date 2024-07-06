@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 
 from .. import models
-from .._serializers.matching_serializers import (
+from ..serializers.matching_serializers import (
   RoommateQuizSerializer, 
   CreateRoommateQuizSerializer, 
   UpdateRoommateQuiz

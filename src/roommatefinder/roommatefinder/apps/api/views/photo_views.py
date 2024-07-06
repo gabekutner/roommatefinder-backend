@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from .. import serializers, models
-from .._serializers import photo_serializers
+from ..serializers import photo_serializers
 
 
 class PhotoViewSet(ModelViewSet):

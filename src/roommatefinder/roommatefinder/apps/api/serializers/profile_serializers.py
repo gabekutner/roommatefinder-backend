@@ -1,7 +1,7 @@
 from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .._serializers import photo_serializers, extra_serializers
+from ..serializers import photo_serializers, extra_serializers
 from .. import models
 from ..utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES

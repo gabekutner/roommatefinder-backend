@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .. import serializers, models
 from ..utils import exec
-from .._serializers import profile_serializers
+from ..serializers import profile_serializers
 
 
 class ProfileViewSet(ModelViewSet):
