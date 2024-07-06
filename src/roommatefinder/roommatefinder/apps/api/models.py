@@ -22,19 +22,6 @@ def upload_thumbnail(instance, filename):
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
-  """ Profile Model 
-  create: (del later)
-    birthday: new Date(),
-    sex: "",
-    hometown: "",
-    graduation_year: "",
-    major: "",
-    interests: [],
-    prompts: [],
-    quotes: [],
-    links: [],
-    photos: [],
-  """
   SEX_CHOICES = Choices(("M", "Male"),
                         ("F", "Female"),)
   
@@ -53,11 +40,8 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   email = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
-
   birthday = models.DateField(null=True)
-  
-  instagram = models.CharField(max_length=15, null=True, blank=True)
-  snapchat = models.CharField(max_length=15, null=True, blank=True)
+
   major = models.CharField(max_length=25, null=True, default="Undecided")
   city = models.CharField(max_length=25, null=True, blank=True)
   state = models.CharField(max_length=25, null=True, blank=True)
@@ -70,6 +54,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   is_staff = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
   has_account = models.BooleanField(default=False)
+  pause_profile = models.BooleanField(default=False)
   
   sex = models.CharField(
     choices=SEX_CHOICES,

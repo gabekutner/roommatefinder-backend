@@ -25,7 +25,7 @@ class ProfileSerializer(serializers.ModelSerializer):
               'email', 'name', 'birthday', 'age',
               'major', 'city', 'state', 'description',
               'dorm_building', 'interests', 'has_account',
-              'thumbnail', 'progress', 'graduation_year']
+              'thumbnail', 'progress', 'graduation_year', 'pause_profile']
   
   # refresh the token everytime the user is called
   def get_token(self, profile):

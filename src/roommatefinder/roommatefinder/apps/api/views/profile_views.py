@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .. import serializers, models
 from ..utils import exec
-from ..serializers import profile_serializers
+from ..serializers import profile_serializers, swipe_serializers
 
 
 class ProfileViewSet(ModelViewSet):
@@ -203,7 +203,7 @@ class ProfileViewSet(ModelViewSet):
     """ get all blocked profiles """
     current_profile = request.user
     blocked_profiles = current_profile.blocked_profiles.all()
-    serializer = serializers.SwipeProfileSerializer(blocked_profiles, many=True)
+    serializer = swipe_serializers.SwipeProfileSerializer(blocked_profiles, many=True)
     return Response({"count": blocked_profiles.count(), "results": serializer.data})
 
   @action(detail=False, methods=["post"], url_path=r"actions/reset-password")
@@ -220,3 +220,13 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "your password has been reset"}, status=status.HTTP_200_OK)
 
     return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
+  
+  @action(detail=False, methods=["post"], url_path=r"actions/pause-profile")
+  def pause_profile(self, request):
+    """ pause profile """
+    current_profile = request.user
+    pause_profile_status = current_profile.pause_profile
+    current_profile.pause_profile = not pause_profile_status
+    current_profile.save()
+    serializer = profile_serializers.ProfileSerializer(current_profile, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)
