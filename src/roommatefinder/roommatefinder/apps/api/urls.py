@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .views import profile_views, swipe_views, matching_views
+from .views import profile_views, swipe_views, matching_views, photo_views
 from .internal import internal_profiles
 
 
@@ -17,7 +17,8 @@ router.register(
 
 router.register(
   r"photos",
-  profile_views.PhotoViewSet,
+  # profile_views.PhotoViewSet,
+  photo_views.PhotoViewSet,
   basename="photo",
 )
 
