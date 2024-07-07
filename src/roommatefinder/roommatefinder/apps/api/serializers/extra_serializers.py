@@ -188,9 +188,9 @@ class FriendSerializer(serializers.ModelSerializer):
 
 	def get_updated(self, obj):
 		if not hasattr(obj, 'latest_created'):
-			date = obj.updated
+			date = obj.modified
 		else:
-			date = obj.latest_created or obj.updated
+			date = obj.latest_created or obj.modified
 		return date.isoformat()
 
 # message
