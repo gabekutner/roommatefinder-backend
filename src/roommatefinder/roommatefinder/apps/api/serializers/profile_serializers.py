@@ -55,6 +55,7 @@ class UpdateProfileSerializer(serializers.Serializer):
   state = serializers.CharField(required=False, allow_null=True)
   graduation_year = serializers.CharField(required=False, allow_null=True)
   major = serializers.CharField(required=False, allow_null=True)
+  description = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
   dorm_building = serializers.MultipleChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
 

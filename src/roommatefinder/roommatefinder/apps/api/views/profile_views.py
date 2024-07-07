@@ -88,6 +88,8 @@ class ProfileViewSet(ModelViewSet):
         profile.graduation_year = field_serializer.validated_data["graduation_year"]
       if "major" in request.data:
         profile.major = field_serializer.validated_data["major"]
+      if "description" in request.data:
+        profile.description = field_serializer.validated_data["description"]
       if "interests" in request.data:
         profile.interests = field_serializer.validated_data["interests"]
       if "dorm_building" in request.data:
