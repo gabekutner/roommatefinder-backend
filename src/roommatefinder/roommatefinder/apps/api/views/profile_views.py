@@ -81,7 +81,7 @@ class ProfileViewSet(ModelViewSet):
       if "name" in request.data:
         profile.name = field_serializer.validated_data["name"]
       if "city" in request.data:
-        profile.city = field_serializer.validated_data["state"]
+        profile.city = field_serializer.validated_data["city"]
       if "state" in request.data:
         profile.state = field_serializer.validated_data["state"]
       if "graduation_year" in request.data:
