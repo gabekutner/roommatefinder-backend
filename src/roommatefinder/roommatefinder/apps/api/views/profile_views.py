@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .. import serializers, models
 from ..utils import exec
-from ..serializers import profile_serializers, swipe_serializers
+from ..serializers import profile_serializers, swipe_serializers, extra_serializers
 
 
 class ProfileViewSet(ModelViewSet):
@@ -157,9 +157,9 @@ class ProfileViewSet(ModelViewSet):
     quotes_data = fields_serializer.validated_data.get("quote_set", [])
     links_data = fields_serializer.validated_data.get("link_set", [])
 
-    prompts_serializer = serializers.CreatePromptSerializer(data=prompts_data, many=True)
-    quotes_serializer = serializers.CreateQuoteSerializer(data=quotes_data, many=True)
-    links_serializer = serializers.CreateLinkSerializer(data=links_data, many=True)
+    prompts_serializer = extra_serializers.CreatePromptSerializer(data=prompts_data, many=True)
+    quotes_serializer = extra_serializers.CreateQuoteSerializer(data=quotes_data, many=True)
+    links_serializer = extra_serializers.CreateLinkSerializer(data=links_data, many=True)
 
     if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
       return Response({
