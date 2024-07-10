@@ -8,6 +8,7 @@ from .views import (
   swipe_views, 
   matching_views, 
   photo_views, 
+  widgets_views,
   tokens
 )
 
@@ -20,8 +21,13 @@ router.register(
 )
 
 router.register(
+  r"links",
+  widgets_views.LinkViewSet,
+  basename="link",
+)
+
+router.register(
   r"photos",
-  # profile_views.PhotoViewSet,
   photo_views.PhotoViewSet,
   basename="photo",
 )

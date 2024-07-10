@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 
-from .. import serializers, models
+from .. import models
 from ..utils import exec
 from ..serializers import profile_serializers, swipe_serializers, extra_serializers
 
