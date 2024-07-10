@@ -45,7 +45,7 @@ class CreateQuoteSerializer(serializers.ModelSerializer):
     model = models.Quote
     fields = '__all__'
 
-class UpdateQuoteSerializer(serializers.ModelSerializer):
+class UpdateQuoteSerializer(serializers.Serializer):
   quote = serializers.CharField(required=False, allow_null=True)
   cited = serializers.CharField(required=False, allow_null=True)
 
@@ -60,7 +60,7 @@ class CreateLinkSerializer(serializers.ModelSerializer):
     model = models.Link
     fields = '__all__'
 
-class UpdateLinkSerializer(serializers.ModelSerializer):
+class UpdateLinkSerializer(serializers.Serializer):
   title = serializers.CharField(required=False, allow_null=True)
   link = serializers.CharField(required=False, allow_null=True)
 

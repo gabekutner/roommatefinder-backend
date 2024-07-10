@@ -96,6 +96,26 @@ class ProfileViewSet(ModelViewSet):
         profile.dorm_building = field_serializer.validated_data["dorm_building"]
       profile.save()
 
+      # Save related objects
+      if "prompts" in request.data:
+        prompts_data = field_serializer.validated_data.get("prompt_set", [])
+        prompts_serializer = extra_serializers.UpdatePromptSerializer(data=prompts_data, many=True)
+        if not prompts_serializer.is_valid():
+          return Response({'prompts_errors': prompts_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        prompts_serializer.save(profile=profile)
+      if "quotes" in request.data:
+        quotes_data = field_serializer.validated_data.get("quote_set", [])
+        quotes_serializer = extra_serializers.UpdateQuoteSerializer(data=quotes_data, many=True)
+        if not quotes_serializer.is_valid():
+          return Response({'quotes_errors': quotes_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
+        quotes_serializer.save()
+      if "links" in request.data:
+        links_data = field_serializer.validated_data.get("link_set", [])
+        links_serializer = extra_serializers.UpdateLinkSerializer(data=links_data, many=True)
+        if not links_serializer.is_valid():
+          return Response({'links_errors': links_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)  
+        links_serializer.save()
+
     else:
       return Response({'detail': 'update profile failed'}, status=status.HTTP_400_BAD_REQUEST)
   
