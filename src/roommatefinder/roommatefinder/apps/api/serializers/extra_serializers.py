@@ -43,7 +43,7 @@ class QuoteSerializer(serializers.ModelSerializer):
 class CreateQuoteSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Quote
-    fields = '__all__'
+    fields = ["quote", "cited"]
 
 class UpdateQuoteSerializer(serializers.Serializer):
   quote = serializers.CharField(required=False, allow_null=True)

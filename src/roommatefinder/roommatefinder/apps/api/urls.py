@@ -21,12 +21,6 @@ router.register(
 )
 
 router.register(
-  r"links",
-  widgets_views.LinkViewSet,
-  basename="link",
-)
-
-router.register(
   r"photos",
   photo_views.PhotoViewSet,
   basename="photo",
@@ -36,6 +30,23 @@ router.register(
   r"matching-quizs",
   matching_views.RoommateQuizViewSet,
   basename="matching-quiz"
+)
+
+router.register(
+  r"links",
+  widgets_views.LinkViewSet,
+  basename="link",
+)
+
+router.register(
+  r"prompts",
+  widgets_views.PromptViewSet,
+  basename="prompt",
+)
+router.register(
+  r"quotes",
+  widgets_views.QuoteViewSet,
+  basename="quote",
 )
 
 urlpatterns = [
