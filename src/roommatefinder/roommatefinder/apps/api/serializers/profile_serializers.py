@@ -58,10 +58,7 @@ class UpdateProfileSerializer(serializers.Serializer):
   description = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
   dorm_building = serializers.MultipleChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
-  prompts = extra_serializers.UpdatePromptSerializer(source='prompt_set', many=True, required=True)
-  quotes = extra_serializers.UpdateQuoteSerializer(source='quote_set', many=True, required=True)
-  links = extra_serializers.UpdateLinkSerializer(source='link_set', many=True, required=True)
-
+  
 # Extras
 class UploadThumbnailSerializer(serializers.Serializer):
   thumbnail = serializers.ImageField(
