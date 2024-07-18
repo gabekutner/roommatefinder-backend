@@ -4,35 +4,31 @@
   </h1>
 </div>
 
+#### Table of Contents
+* [Local Development](#local-development)
 
+# Local Development
+These settings should get you setup to work on your own machine 🚀
 
->NOTE: Some initialization requirements are still hardcoded: settings secrets (secret key, database configuration, channels configuration).
+## Getting Started
+1. Install `python3` : `brew install python3`
+2. Install `redis` : `brew install redis`
+3. (Optional) Install  `docker`
+> I use `docker desktop`, but the CLI or a `postgres` database will work too.
 
->This backend requires a Postgres database running on port 5432:5432 and a Redis server running on port 6379. Start a Postgres db in Docker and use `redis-server` for the Redis server.
-
-Clone repository
-
-```bash
-git clone https://github.com/gabekutner/roommatefinder-backend.git
-cd roommatefinder-backend
-```
-
-Create a virtual env
-
+## Setup Dev Environment
+1. Run a `Postgres` image on port `5432`, using `docker` or `postgres`.
+2. Run `redis-server`, default port is `6379`.
+3. Create a `venv` in the top direcotry. Install project dependencies.
 ```bash
 python3 -m venv env
 source env/bin/activate
-```
 
-Install requirements
-
-```bash
 cd src/roommatefinder/requirements
 python3 -m pip install -r _base.txt
 ```
 
-And run
-
+Run the server on your ip, port 8000
 ```bash
-python3 manage.py runserver <ip:port>
+python3 manage.py runserver <your_ip_address>:8000
 ```
