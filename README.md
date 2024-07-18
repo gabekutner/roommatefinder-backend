@@ -1,26 +1,10 @@
-[**Roommatefinder**](https://github.com/gabekutner/roommatefinder-mobile) is a mobile app for finding college dorm roommates.
+<div align="center">
+  <h1>
+    UofU RoommateFinder
+  </h1>
+</div>
 
-Built using: 
-- [**React Native**](https://reactnative.dev)
-- [**Django REST framework**](https://www.django-rest-framework.org/)
-- [**Postgres**](https://www.postgresql.org/)
-- [**Redis**](https://redis.io/)
 
-This is the Django REST backend repository. Here's the link for the [**frontend**](https://github.com/gabekutner/roommatefinder-mobile).
-
-##  Tech used
-- 🐻 [**Zustand**](https://github.com/pmndrs/zustand)
-- 🚩 [**react-native-fast-image**](https://github.com/DylanVann/react-native-fast-image)
-- 🕹️ [**Font Awesome Icons**](https://fontawesome.com/)
-- 🛩️ [**react-native-size-matters**](https://github.com/nirsky/react-native-size-matters)
-- 
-## App Demo
-[![Roommatefinder App Demo](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/shorts/XGJW_hADc8s)
-
-## Preview
-![preview](https://github.com/gabekutner/roommatefinder-mobile/blob/main/preview.png)
-
-## Initialization
 
 >NOTE: Some initialization requirements are still hardcoded: settings secrets (secret key, database configuration, channels configuration).
 
