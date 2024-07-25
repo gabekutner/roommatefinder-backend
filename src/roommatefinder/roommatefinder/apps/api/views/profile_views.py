@@ -188,8 +188,10 @@ class ProfileViewSet(ModelViewSet):
       profile.graduation_year = fields_serializer.validated_data["graduation_year"]
     if "major" in fields_serializer.validated_data:
       profile.major = fields_serializer.validated_data["major"]
-    if "interets" in fields_serializer.validated_data:
+    if "interests" in fields_serializer.validated_data:
       profile.interests = fields_serializer.validated_data["interests"]
+    if "description" in fields_serializer.validated_data:
+      profile.description = fields_serializer.validated_data["description"]
     
     profile.has_account = True
     profile.save()

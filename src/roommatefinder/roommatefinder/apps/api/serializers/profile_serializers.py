@@ -51,6 +51,7 @@ class CreateProfileSerializer(serializers.Serializer):
   state = serializers.CharField(required=False, allow_null=True)
   graduation_year = serializers.IntegerField(required=False, allow_null=True)
   major = serializers.CharField(required=False, allow_null=True)
+  description = serializers.CharField(required=False, allow_null=True)
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
   
   """ widgets taken out of initial app version """
