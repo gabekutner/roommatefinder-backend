@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from .. import models
 from ..utils import exec
-from ..serializers import profile_serializers, swipe_serializers, extra_serializers
+from ..serializers import profile_serializers, swipe_serializers
 
 
 class ProfileViewSet(ModelViewSet):
@@ -42,6 +42,34 @@ class ProfileViewSet(ModelViewSet):
   def create(self, request):
     """ register for an account """
     data = request.data
+    try:
+      profile = models.Profile.objects.create(identifier=data["identifier"])
+      serializer = profile_serializers.ProfileSerializer(profile, many=False)
+      return Response(serializer.data)
+    except:
+      return Response({"detail": "profile with this identifier already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    
+  @action(detail=False, methods=["post"], url_path=r"actions/verify-otp")
+  def verify_otp(self, request):
+    """ verify otp """
+    otp = request.data['otp']
+    print(otp)
+    profile = models.Profile.objects.get(otp=otp)
+    if profile:
+      profile.otp = None
+      profile.otp_expiry = None
+      profile.max_otp_try = 3
+      profile.otp_max_out = None
+      profile.otp_verified = True
+      profile.save()
+      serializer = profile_serializers.ProfileSerializer(profile, many=False)
+      return Response(serializer.data)
+    else:
+      return Response("Please enter the correct OTP", status=status.HTTP_400_BAD_REQUEST)
+    
+  @action(detail=False, methods=["post"], url_path=r"actions/create-password")
+  def create_password(self, request):
+    data = request.data
     password = data["password"]
     repeated_password = data["repeated_password"]
 
@@ -49,12 +77,16 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-      user = models.Profile.objects.create(name=data["name"], email=data["email"], password=make_password(data["password"]))
-      serializer = profile_serializers.ProfileSerializer(user, many=False)
+      profile = models.Profile.objects.get(identifier=request.user.identifier)
+      if not profile.otp_verified:
+        return Response({'detail': 'verify otp before creating passwords'}, status=status.HTTP_400_BAD_REQUEST)
+      profile.password = make_password(data["password"])
+      profile.save()
+      serializer = profile_serializers.ProfileSerializer(profile, many=False)
       return Response(serializer.data)
     except:
-      return Response({"detail": "profile with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    
+      return Response({"detail": "error creating passwords"}, status=status.HTTP_400_BAD_REQUEST)
+          
 
   def retrieve(self, request, pk=None):
     """ get a profile """
@@ -141,36 +173,46 @@ class ProfileViewSet(ModelViewSet):
     fields_serializer.is_valid(raise_exception=True)
   
     # Save profile fields
-    profile.birthday = fields_serializer.validated_data["birthday"]
+    # print(profile.age)
+    profile.name = fields_serializer.validated_data["name"]
+    profile.age = fields_serializer.validated_data["age"]
     profile.sex = fields_serializer.validated_data["sex"]
-    profile.city = fields_serializer.validated_data["city"]
-    profile.state = fields_serializer.validated_data["state"]
-    profile.graduation_year = fields_serializer.validated_data["graduation_year"]
-    profile.major = fields_serializer.validated_data["major"]
-    profile.interests = fields_serializer.validated_data["interests"]
+    profile.thumbnail = fields_serializer.validated_data["thumbnail"]
     profile.dorm_building = fields_serializer.validated_data["dorm_building"]
+
+    if "city" in fields_serializer.validated_data: 
+      profile.city = fields_serializer.validated_data["city"]
+    if "state" in fields_serializer.validated_data:
+      profile.state = fields_serializer.validated_data["state"]
+    if "graduation_year" in fields_serializer.validated_data:
+      profile.graduation_year = fields_serializer.validated_data["graduation_year"]
+    if "major" in fields_serializer.validated_data:
+      profile.major = fields_serializer.validated_data["major"]
+    if "interets" in fields_serializer.validated_data:
+      profile.interests = fields_serializer.validated_data["interests"]
+    
     profile.has_account = True
     profile.save()
 
     # Save related objects
-    prompts_data = fields_serializer.validated_data.get("prompt_set", [])
-    quotes_data = fields_serializer.validated_data.get("quote_set", [])
-    links_data = fields_serializer.validated_data.get("link_set", [])
+    # prompts_data = fields_serializer.validated_data.get("prompt_set", [])
+    # quotes_data = fields_serializer.validated_data.get("quote_set", [])
+    # links_data = fields_serializer.validated_data.get("link_set", [])
 
-    prompts_serializer = extra_serializers.CreatePromptSerializer(data=prompts_data, many=True)
-    quotes_serializer = extra_serializers.CreateQuoteSerializer(data=quotes_data, many=True)
-    links_serializer = extra_serializers.CreateLinkSerializer(data=links_data, many=True)
+    # prompts_serializer = extra_serializers.CreatePromptSerializer(data=prompts_data, many=True)
+    # quotes_serializer = extra_serializers.CreateQuoteSerializer(data=quotes_data, many=True)
+    # links_serializer = extra_serializers.CreateLinkSerializer(data=links_data, many=True)
 
-    if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
-      return Response({
-          'prompts_errors': prompts_serializer.errors,
-          'quotes_errors': quotes_serializer.errors,
-          'links_errors': links_serializer.errors,
-      }, status=status.HTTP_400_BAD_REQUEST)
+    # if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
+    #   return Response({
+    #       'prompts_errors': prompts_serializer.errors,
+    #       'quotes_errors': quotes_serializer.errors,
+    #       'links_errors': links_serializer.errors,
+    #   }, status=status.HTTP_400_BAD_REQUEST)
 
-    prompts_serializer.save(profile=profile)
-    quotes_serializer.save(profile=profile)
-    links_serializer.save(profile=profile)
+    # prompts_serializer.save(profile=profile)
+    # quotes_serializer.save(profile=profile)
+    # links_serializer.save(profile=profile)
 
     profile_serializer = profile_serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)

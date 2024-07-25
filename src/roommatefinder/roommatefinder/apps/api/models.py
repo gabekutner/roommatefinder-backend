@@ -25,10 +25,12 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   SEX_CHOICES = Choices(("M", "Male"), ("F", "Female"))
   
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  email = models.CharField(max_length=200, unique=True)
+  # email, phone, uid
+  identifier = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
-  birthday = models.DateField(null=True)
+  # birthday = models.DateField(null=True)
+  age = models.PositiveIntegerField(default=0)
 
   major = models.CharField(max_length=25, null=True, default="Undecided")
   city = models.CharField(max_length=25, null=True, blank=True)
@@ -37,6 +39,13 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   dorm_building = models.CharField(choices=DORM_CHOICES, max_length=2, null=True)
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)
   graduation_year = models.PositiveIntegerField(null=True, blank=True)
+
+  # otp
+  otp = models.CharField(max_length=6, null=True, blank=True)
+  otp_expiry = models.DateTimeField(blank=True, null=True)
+  max_otp_try = models.CharField(max_length=2, default=3)
+  otp_max_out = models.DateTimeField(blank=True, null=True)
+  otp_verified = models.BooleanField(default=False)
 
   # background
   is_staff = models.BooleanField(default=False)
@@ -61,16 +70,16 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
     "self", symmetrical=False, related_name="blocked_by", blank=True
   )
 
-  USERNAME_FIELD = "email"
+  USERNAME_FIELD = "identifier"
   # required for creating user
   REQUIRED_FIELDS = []
 
   objects = CustomUserManager()
 
-  @property
-  def age(self):
-    if self.birthday:
-      return int((datetime.date.today() - self.birthday).days / 365.25)
+  # @property
+  # def age(self):
+  #   if self.birthday:
+  #     return int((datetime.date.today() - self.birthday).days / 365.25)
   
   @property
   def progress(self):
@@ -110,31 +119,31 @@ class Photo(CreationModificationDateBase):
     self.image.delete(save=False)
     super().delete()
 
-class Prompt(CreationModificationDateBase):
-  """ prompts model """
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-  question = models.CharField(
-    choices=PROMPTS,
-    max_length=2,
-    null=False,
-    blank=False
-  )
-  answer = models.CharField(max_length=250, null=False, blank=False)
+# class Prompt(CreationModificationDateBase):
+#   """ prompts model """
+#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+#   question = models.CharField(
+#     choices=PROMPTS,
+#     max_length=2,
+#     null=False,
+#     blank=False
+#   )
+#   answer = models.CharField(max_length=250, null=False, blank=False)
 
-class Quote(CreationModificationDateBase):
-  """ quotes model """
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-  quote = models.CharField(max_length=250, null=False, blank=False)
-  cited = models.CharField(max_length=100, null=True, blank=True)
+# class Quote(CreationModificationDateBase):
+#   """ quotes model """
+#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+#   quote = models.CharField(max_length=250, null=False, blank=False)
+#   cited = models.CharField(max_length=100, null=True, blank=True)
 
-class Link(CreationModificationDateBase):
-  """ links model """
-  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-  title = models.CharField(max_length=250, null=False, blank=False)
-  link = models.CharField(max_length=250, null=False, blank=False)
+# class Link(CreationModificationDateBase):
+#   """ links model """
+#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
+#   title = models.CharField(max_length=250, null=False, blank=False)
+#   link = models.CharField(max_length=250, null=False, blank=False)
 
 class RoommateQuiz(CreationModificationDateBase):
   """ roommate matching quiz model """

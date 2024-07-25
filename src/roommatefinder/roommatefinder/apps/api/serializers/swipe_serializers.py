@@ -12,9 +12,10 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
   )
 
   photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
-  prompts = extra_serializers.PromptSerializer(source="prompt_set", many=True, read_only=True)
-  quotes = extra_serializers.QuoteSerializer(source="quote_set", many=True, read_only=True)
-  links = extra_serializers.LinkSerializer(source="link_set", many=True, read_only=True)
+  """ widgets taken out of first version """
+  # prompts = extra_serializers.PromptSerializer(source="prompt_set", many=True, read_only=True)
+  # quotes = extra_serializers.QuoteSerializer(source="quote_set", many=True, read_only=True)
+  # links = extra_serializers.LinkSerializer(source="link_set", many=True, read_only=True)
   # get status of connection between 
   sent_connections = extra_serializers.ConnectionSerializer(many=True)
   received_connections = extra_serializers.ConnectionSerializer(many=True)
@@ -27,6 +28,5 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "city", "state", "major",
       "dorm_building", "description", "interests", 
       "thumbnail", "graduation_year", "photos",
-      "prompts", "quotes", "links",
       "sent_connections", "received_connections",
     ]

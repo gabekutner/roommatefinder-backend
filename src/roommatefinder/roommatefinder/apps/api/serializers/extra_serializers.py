@@ -20,49 +20,49 @@ class ChoicesField(serializers.Field):
     raise serializers.ValidationError(["choice not valid"])
 
 # prompts
-class PromptSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Prompt
-    fields = ["id", "profile", "question", "answer"]
+# class PromptSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Prompt
+#     fields = ["id", "profile", "question", "answer"]
 
-class CreatePromptSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Prompt
-    fields = '__all__'
+# class CreatePromptSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Prompt
+#     fields = '__all__'
 
-class UpdatePromptSerializer(serializers.Serializer):
-  question = serializers.CharField(required=False, allow_null=True)
-  answer = serializers.CharField(required=False, allow_null=True)
+# class UpdatePromptSerializer(serializers.Serializer):
+#   question = serializers.CharField(required=False, allow_null=True)
+#   answer = serializers.CharField(required=False, allow_null=True)
 
 # quotes
-class QuoteSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Quote
-    fields = ["id", "profile", "quote", "cited"]
+# class QuoteSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Quote
+#     fields = ["id", "profile", "quote", "cited"]
 
-class CreateQuoteSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Quote
-    fields = ["quote", "cited"]
+# class CreateQuoteSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Quote
+#     fields = ["quote", "cited"]
 
-class UpdateQuoteSerializer(serializers.Serializer):
-  quote = serializers.CharField(required=False, allow_null=True)
-  cited = serializers.CharField(required=False, allow_null=True)
+# class UpdateQuoteSerializer(serializers.Serializer):
+#   quote = serializers.CharField(required=False, allow_null=True)
+#   cited = serializers.CharField(required=False, allow_null=True)
 
 # links
-class LinkSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Link
-    fields = ["id", "profile", "title", "link"]
+# class LinkSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Link
+#     fields = ["id", "profile", "title", "link"]
 
-class CreateLinkSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Link
-    fields = '__all__'
+# class CreateLinkSerializer(serializers.ModelSerializer):
+#   class Meta:
+#     model = models.Link
+#     fields = '__all__'
 
-class UpdateLinkSerializer(serializers.Serializer):
-  title = serializers.CharField(required=False, allow_null=True)
-  link = serializers.CharField(required=False, allow_null=True)
+# class UpdateLinkSerializer(serializers.Serializer):
+#   title = serializers.CharField(required=False, allow_null=True)
+#   link = serializers.CharField(required=False, allow_null=True)
 
 # connections
 class ConnectionSerializer(serializers.ModelSerializer):
@@ -78,9 +78,9 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     allow_null=False
   )
   photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
-  prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
-  quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
-  links = LinkSerializer(source="link_set", many=True, read_only=True)
+  # prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
+  # quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
+  # links = LinkSerializer(source="link_set", many=True, read_only=True)
   # get status of connection between 
   sent_connections = ConnectionSerializer(many=True)
   received_connections = ConnectionSerializer(many=True)
@@ -104,9 +104,9 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "thumbnail",
       "graduation_year",
       "photos",
-      "prompts",
-      "quotes",
-      "links",
+      # "prompts",
+      # "quotes",
+      # "links",
       "sent_connections",
       "received_connections",
     ]
