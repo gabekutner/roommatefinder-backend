@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 import uuid
-import datetime
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -9,15 +9,16 @@ from model_utils import Choices
 
 from roommatefinder.apps.core.models import CreationModificationDateBase
 from roommatefinder.apps.api.managers import CustomUserManager
-from roommatefinder.settings._base import POPULAR_CHOICES, PROMPTS, DORM_CHOICES
+from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
 
 
 def upload_thumbnail(instance, filename):
-	path = f'thumbnails/{instance.id}'
-	extension = filename.split('.')[-1]
-	if extension:
-		path = path + '.' + extension
-	return path
+  """Defines where to upload a ``Profile`` thumbnail."""
+  path = f'thumbnails/{instance.id}'
+  extension = filename.split('.')[-1]
+  if extension:
+    path = path + '.' + extension
+  return path
 
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
@@ -29,7 +30,6 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   identifier = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
-  # birthday = models.DateField(null=True)
   age = models.PositiveIntegerField(default=0)
 
   major = models.CharField(max_length=25, null=True, default="Undecided")
@@ -75,11 +75,6 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   REQUIRED_FIELDS = []
 
   objects = CustomUserManager()
-
-  # @property
-  # def age(self):
-  #   if self.birthday:
-  #     return int((datetime.date.today() - self.birthday).days / 365.25)
   
   @property
   def progress(self):
@@ -108,6 +103,7 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
 
   def delete(self):
     super().delete()
+
 
 class Photo(CreationModificationDateBase):
   """ photo model """    
