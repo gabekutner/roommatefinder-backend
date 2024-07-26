@@ -45,10 +45,8 @@ class PhotoViewSet(ModelViewSet):
 
     images = dict((request.data).lists())['image']
 
-    # on frontend, user can only upload 3 + thumbnail
-    # this is for photos not including thumbnail
-    if len(profile_photos) + len(images) > 4:
-      return Response({"detail": "profile cannot have more than 4 images"}, status=status.HTTP_400_BAD_REQUEST)
+    if len(profile_photos) + len(images) > 5:
+      return Response({"detail": "profile cannot have more than 5 images"}, status=status.HTTP_400_BAD_REQUEST)
 
     for image in images:
       modified_data = modify_input_for_multiple_files(image)
