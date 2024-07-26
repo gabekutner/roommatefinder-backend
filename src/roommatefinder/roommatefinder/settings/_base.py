@@ -330,10 +330,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # for future email account: https://youtu.be/tN2k08Gucto?si=2WCMjnvLrN6mld4w
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = 'testfordjango5@gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = "testfordjango5@gmail.com"
-# EMAIL_HOST_PASSWORD = "123"
-# EMAIL_USE_TLS = True
-# EMAIL_USE_SSL = False
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = get_secret("EMAIL_HOST")
+EMAIL_PORT = get_secret("EMAIL_PORT")
+EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+# sms - look around for different options
+TWILIO_PASSWORD = get_secret("TWILIO_PASSWORD")
+TWILIO_RECOVERY_CODE = get_secret("TWILIO_RECOVERY_CODE")

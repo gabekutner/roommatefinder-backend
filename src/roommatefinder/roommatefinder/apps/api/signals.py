@@ -45,17 +45,17 @@ def send_otp(sender, instance, **kwargs):
   email_pattern = r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}\b'
   regex = re.compile(email_pattern)
   if regex.fullmatch(instance.identifier):
-    # is an email
-    pass
-    # send_mail(
-    #   "Subject here",
-    #   "Here's your otp verification code",
-    #   "gabekutner1@gmail.com",
-    #   ["to@example.com"],
-    #   fail_silently=False,
-    # )
+    try:
+      send_mail(
+        "OTP Verification",
+        f"Here's your otp verification code, {instance.otp}",
+        "testfordjango5@gmail.com",
+        [instance.identifier, ],
+        fail_silently=False,
+      )
+    except: 
+      print('error')
   else:
-    # is a uid or phone number
-    pass
+    print('not full match')
 
   return Response("Successfully generated OTP", status=status.HTTP_200_OK)
