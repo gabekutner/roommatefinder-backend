@@ -56,15 +56,13 @@ CORS_ALLOWED_ORIGINS = [
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secret("SECRET_KEY")
-# SECRET_KEY = '*s4y&fpo&@5s1wue%d_n3pd$0e+q4ye+s%!uc&3mmd!6!dm7de'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-  "*", # ip
-  "127.0.0.1", # local
-  # once deployed add url here...
+  "*", # all for now
+  "127.0.0.1", # local testing
 ]
 
 AUTH_USER_MODEL = "api.Profile"
@@ -108,6 +106,7 @@ CHANNEL_LAYERS = {
   'default': {
     'BACKEND': 'channels_redis.core.RedisChannelLayer',
     'CONFIG': {
+      # runs locally, port 6379
       'hosts': [('127.0.0.1', 6379)]
     }
   }
@@ -158,6 +157,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'roommatefinder.urls'
 
+# remove in production, will need replacement for admin page
 TEMPLATES = [
   {
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -224,13 +224,14 @@ USE_I18N = True
 
 USE_TZ = True
 
+# not used, remove in production
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale'),]
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-
+# no static files are hosting on the api, remove in production
 STATICFILES_DIRS = [
   os.path.join(BASE_DIR, 'roommatefinder', 'site_static'),
 ]
@@ -242,6 +243,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# model tuples might be better off elsewhere
 POPULAR_CHOICES = ( # sample size, uofu28, 27 specific
                    ('1', 'Hanging out with friends'),
                    ('2', 'Shopping'),
