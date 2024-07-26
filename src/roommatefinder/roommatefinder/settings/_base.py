@@ -31,16 +31,16 @@ EXTERNAL_APPS_PATH = os.path.join(EXTERNAL_BASE, "apps")
 sys.path = ["", EXTERNAL_LIBS_PATH, EXTERNAL_APPS_PATH] + sys.path
 
 
-# with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
-#   secrets = json.loads(f.read())
+with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
+  secrets = json.loads(f.read())
 
-# def get_secret(setting, secrets=secrets):
-#   """Get the secret variable or return explicit exception."""
-#   try:
-#     return secrets[setting]
-#   except KeyError:
-#     error_msg = f'Set the {setting} secret variable'
-#     raise ImproperlyConfigured(error_msg)
+def get_secret(setting, secrets=secrets):
+  """Get the secret variable or return explicit exception."""
+  try:
+    return secrets[setting]
+  except KeyError:
+    error_msg = f'Set the {setting} secret variable'
+    raise ImproperlyConfigured(error_msg)
   
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -55,8 +55,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = get_secret("DJANGO_SECRET_KEY")
-SECRET_KEY = '*s4y&fpo&@5s1wue%d_n3pd$0e+q4ye+s%!uc&3mmd!6!dm7de'
+SECRET_KEY = get_secret("SECRET_KEY")
+# SECRET_KEY = '*s4y&fpo&@5s1wue%d_n3pd$0e+q4ye+s%!uc&3mmd!6!dm7de'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -185,16 +185,11 @@ ASGI_APPLICATION = "roommatefinder.asgi.application"
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    # 'NAME': get_secret('DATABASE_NAME'),
-    # 'USER': get_secret('DATABASE_USER'),
-    # 'PASSWORD': get_secret('DATABASE_PASSWORD'),
-    # 'HOST': get_secret('DATABASE_HOST'),
-    # 'PORT': get_secret('DATABASE_PORT'),
-    'NAME': 'postgres',
-    'USER': 'postgres',
-    'PASSWORD': 'postgres',
-    'HOST': 'localhost',
-    'PORT': '5432',
+    'NAME': get_secret('DATABASE_NAME'),
+    'USER': get_secret('DATABASE_USER'),
+    'PASSWORD': get_secret('DATABASE_PASSWORD'),
+    'HOST': get_secret('DATABASE_HOST'),
+    'PORT': get_secret('DATABASE_PORT'),
   }
 }
 
@@ -334,7 +329,11 @@ PROMPTS = (('1', 'In one word, my friends would describe me as ...'),
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# EMAIL_HOST = get_secret("EMAIL_HOST")
-# EMAIL_PORT = get_secret("EMAIL_PORT")
-# EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
-# EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+# for future email account: https://youtu.be/tN2k08Gucto?si=2WCMjnvLrN6mld4w
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = 'testfordjango5@gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = "testfordjango5@gmail.com"
+# EMAIL_HOST_PASSWORD = "123"
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False

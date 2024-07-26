@@ -1,8 +1,10 @@
+import re
 import random
 import datetime
 
 from rest_framework import status
 from rest_framework.response import Response
+from django.core.mail import send_mail
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -40,4 +42,20 @@ def send_otp(sender, instance, **kwargs):
 
   print(instance.otp, 'OTP', instance.identifier)
   # send otp here
+  email_pattern = r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}\b'
+  regex = re.compile(email_pattern)
+  if regex.fullmatch(instance.identifier):
+    # is an email
+    pass
+    # send_mail(
+    #   "Subject here",
+    #   "Here's your otp verification code",
+    #   "gabekutner1@gmail.com",
+    #   ["to@example.com"],
+    #   fail_silently=False,
+    # )
+  else:
+    # is a uid or phone number
+    pass
+
   return Response("Successfully generated OTP", status=status.HTTP_200_OK)
