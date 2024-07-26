@@ -339,5 +339,5 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
 # sms - look around for different options
-TWILIO_PASSWORD = get_secret("TWILIO_PASSWORD")
-TWILIO_RECOVERY_CODE = get_secret("TWILIO_RECOVERY_CODE")
+# TWILIO_PASSWORD = get_secret("TWILIO_PASSWORD")
+# TWILIO_RECOVERY_CODE = get_secret("TWILIO_RECOVERY_CODE")
