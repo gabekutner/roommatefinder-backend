@@ -300,7 +300,7 @@ class ProfileViewSet(ModelViewSet):
     excluded_ids = connections.values_list('sender', 'receiver')
     excluded_ids = set([id for sublist in excluded_ids for id in sublist])
     
-    # remove current user for result by defaul
+    # remove current user for result by default
     if not bool(excluded_ids):
       excluded_ids = set([request.user.id])
 
@@ -313,7 +313,32 @@ class ProfileViewSet(ModelViewSet):
     # Serialize the paginated profiles
     serializer = swipe_serializers.SwipeProfileSerializer(paginated_profiles, many=True)
     return paginator.get_paginated_response(serializer.data)
+
   
+  @action(detail=True, methods=["get"], url_path=r"actions/swipe-profile")
+  def swipe_profile(self, request, pk=None):
+    """Get a single :class:`~roommatefinder.apps.api.models.Profile` instance as a class:`~roommatefinder.apps.api.serialiers.profile_serializers.SwipeProfileSerializer` object.
+    
+    Returns a :class:`~roommatefinder.apps.api.serializers.profile_serializers.ProfileSerializer` object.
+
+    Required parameters:
+
+    :param pk: The id of the profile to get
+
+    """
+    # /api/v1/profiles/{pk}/actions/swipe-profile/
+    try:
+      profile = models.Profile.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+      return Response(
+        {"detail": f"Profile: {pk} doesn't exist."}, 
+        status=status.HTTP_400_BAD_REQUEST
+      )
+
+    exec.only_admin_and_user(profile.id, request)
+    serializer = swipe_serializers.SwipeProfileSerializer(profile, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
   #! @not in v 1.0.0
   @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
