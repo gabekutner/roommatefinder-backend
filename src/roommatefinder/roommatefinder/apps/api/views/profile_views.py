@@ -285,6 +285,7 @@ class ProfileViewSet(ModelViewSet):
   def swipe_profiles(self, request):
     """Get a paginated 10 result list of the :class:`~roommatefinder.apps.api.models.Profile` model.
     
+    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
     
     """
     # get the ModelViewSet queryset
