@@ -6,8 +6,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 
-from .. import models
+from .. import models, pagination
 from ..utils import exec
 from ..serializers import profile_serializers, swipe_serializers
 
@@ -278,6 +279,40 @@ class ProfileViewSet(ModelViewSet):
 
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
+  
+
+  @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles")
+  def swipe_profiles(self, request):
+    """Get a paginated 10 result list of the :class:`~roommatefinder.apps.api.models.Profile` model.
+    
+    
+    """
+    # get the ModelViewSet queryset
+    profiles = self.get_queryset()
+    profiles = profiles.filter(has_account=True)
+    
+    connections = models.Connection.objects.filter(
+      Q(sender=request.user.id) | Q(receiver=request.user.id),
+      accepted=True
+    )
+    # remove connections from a result
+    excluded_ids = connections.values_list('sender', 'receiver')
+    excluded_ids = set([id for sublist in excluded_ids for id in sublist])
+    
+    # remove current user for result by defaul
+    if not bool(excluded_ids):
+      excluded_ids = set([request.user.id])
+
+    profiles = profiles.exclude(id__in=excluded_ids)
+
+    # Apply pagination
+    paginator = pagination.StandardResultsSetPagination()
+    paginated_profiles = paginator.paginate_queryset(profiles, request, view=self)
+    
+    # Serialize the paginated profiles
+    serializer = swipe_serializers.SwipeProfileSerializer(paginated_profiles, many=True)
+    return paginator.get_paginated_response(serializer.data)
+  
 
   #! @not in v 1.0.0
   @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
