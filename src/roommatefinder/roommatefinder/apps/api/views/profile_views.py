@@ -27,7 +27,7 @@ class ProfileViewSet(ModelViewSet):
 
 
   def list(self, request):
-    """ only superuser can see all profiles """
+    """Only superuser can see all profiles. """
     if not request.user.is_superuser:
       return Response({"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 

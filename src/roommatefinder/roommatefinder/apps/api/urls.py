@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -5,7 +6,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .internal import internal_profiles
 from .views import (
   profile_views, 
-  swipe_views, 
   matching_views, 
   photo_views, 
   tokens
@@ -50,15 +50,17 @@ urlpatterns = [
   ),
 
   # authentication
-  path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+  path(
+    "token/refresh/", 
+    TokenRefreshView.as_view(), 
+    name="token_refresh"
+  ),
   path(
     "users/login/",
     tokens.MyTokenObtainPairView.as_view(),
     name="login",
   ),
 
-  # ViewSets
+  # viewSets
   path("", include(router.urls)),
-  path("swipe/", swipe_views.SwipeModelViewSet.as_view(), name="swipe"),
-  path("swipe/<pk>/", swipe_views.SwipeDetailView.as_view(), name="swipe-profile")
 ]
