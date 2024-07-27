@@ -8,7 +8,6 @@ from .views import (
   swipe_views, 
   matching_views, 
   photo_views, 
-  # widgets_views,
   tokens
 )
 
@@ -31,24 +30,6 @@ router.register(
   matching_views.RoommateQuizViewSet,
   basename="matching-quiz"
 )
-
-""" widgets taken out of initial app version """
-# router.register(
-#   r"links",
-#   widgets_views.LinkViewSet,
-#   basename="link",
-# )
-
-# router.register(
-#   r"prompts",
-#   widgets_views.PromptViewSet,
-#   basename="prompt",
-# )
-# router.register(
-#   r"quotes",
-#   widgets_views.QuoteViewSet,
-#   basename="quote",
-# )
 
 urlpatterns = [
   # internal admin actions - profiles

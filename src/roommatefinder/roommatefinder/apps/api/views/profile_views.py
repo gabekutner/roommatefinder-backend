@@ -159,21 +159,11 @@ class ProfileViewSet(ModelViewSet):
 
   @action(detail=False, methods=["post"], url_path=r"actions/create-profile")
   def create_profile(self, request):
-    # NOTE: This will create everything but thumbnail and photos
-    # That will be handled in two separate views: thumbnail in ProfileViewSet 
-    # photos in PhotoViewSet. This way I can separate request data as raw json and multipart.
-    # Really not sure why I'm having a problem with posting it all as multipart data, but the
-    # problem persists and I'd rather make two requests one user's creating profiles than 
-    # figuring out why this is. On submitted raw json, the request works (this is without submitting
-    # files). Once I try to submit multipart data with nested objects such as the links, quotes, and prompts
-    # I get an error telling me the fields of these models must be set although they are.
-    # Will separate this into two endpoints now.
     profile = request.user
     fields_serializer = profile_serializers.CreateProfileSerializer(data=request.data)
     fields_serializer.is_valid(raise_exception=True)
   
     # Save profile fields
-    # print(profile.age)
     profile.name = fields_serializer.validated_data["name"]
     profile.age = fields_serializer.validated_data["age"]
     profile.sex = fields_serializer.validated_data["sex"]
@@ -192,29 +182,9 @@ class ProfileViewSet(ModelViewSet):
       profile.interests = fields_serializer.validated_data["interests"]
     if "description" in fields_serializer.validated_data:
       profile.description = fields_serializer.validated_data["description"]
-    
+
     profile.has_account = True
     profile.save()
-
-    # Save related objects
-    # prompts_data = fields_serializer.validated_data.get("prompt_set", [])
-    # quotes_data = fields_serializer.validated_data.get("quote_set", [])
-    # links_data = fields_serializer.validated_data.get("link_set", [])
-
-    # prompts_serializer = extra_serializers.CreatePromptSerializer(data=prompts_data, many=True)
-    # quotes_serializer = extra_serializers.CreateQuoteSerializer(data=quotes_data, many=True)
-    # links_serializer = extra_serializers.CreateLinkSerializer(data=links_data, many=True)
-
-    # if not all([prompts_serializer.is_valid(), quotes_serializer.is_valid(), links_serializer.is_valid()]):
-    #   return Response({
-    #       'prompts_errors': prompts_serializer.errors,
-    #       'quotes_errors': quotes_serializer.errors,
-    #       'links_errors': links_serializer.errors,
-    #   }, status=status.HTTP_400_BAD_REQUEST)
-
-    # prompts_serializer.save(profile=profile)
-    # quotes_serializer.save(profile=profile)
-    # links_serializer.save(profile=profile)
 
     profile_serializer = profile_serializers.ProfileSerializer(profile)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
