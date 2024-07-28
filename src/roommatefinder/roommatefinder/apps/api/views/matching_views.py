@@ -4,20 +4,15 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from .. import models
-from ..serializers.matching_serializers import (
-  RoommateQuizSerializer, 
-  CreateRoommateQuizSerializer, 
-  UpdateRoommateQuiz
-)
+from ..serializers.matching_serializers import RoommateQuizSerializer, CreateRoommateQuizSerializer, UpdateRoommateQuiz
 
 
 class RoommateQuizViewSet(ModelViewSet):
   queryset = models.RoommateQuiz.objects.all()
   serializer_class = RoommateQuizSerializer
 
-
   def list(self, request):
-    """Get all matching quizes. """
+    """ Get all matching quizes. """
     serializer = RoommateQuizSerializer(self.queryset, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -36,16 +31,24 @@ class RoommateQuizViewSet(ModelViewSet):
   def create(self, request):
     """Create method for the :class:`~roommatefinder.apps.api.models.Profile` model. 
     
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+    Returns a :class:`~roommatefinder.apps.api.serializers.profile_serializers.ProfileSerializer` object.
 
     Required parameters:
 
-      :param : 
+      :param social_battery: integer
+      :param clean_room: string
+      :param noise_level: integer
+      :param guest_policy: string
+      :param in_room: integer
+      :param hot_cold: integer
+      :param bed_time: string
+      :param wake_up_time: string
+      :param sharing_policy: string
 
     """
     profile = request.user
     field_serializer = CreateRoommateQuizSerializer(data=request.data, many=False)
-    if field_serializer.is_valid():
+    if field_serializer.is_valid(raise_exception=True):
       quiz = models.RoommateQuiz.objects.create(profile=profile, **field_serializer.validated_data)
     else:
       return Response(
@@ -58,7 +61,11 @@ class RoommateQuizViewSet(ModelViewSet):
 
 
   def update(self, request, pk=None):
-    """ update matching quiz """
+    """Update method for the :class:`~roommatefinder.apps.api.models.RoommateQuiz` model. 
+
+    Returns a :class:`~roommatefinder.apps.api.serializers.matching_serializers.RoommateQuizSerializer` object.
+
+    """
     field_serializer = UpdateRoommateQuiz(data=request.data)
     if field_serializer.is_valid(raise_exception=True):
       try:
@@ -96,7 +103,7 @@ class RoommateQuizViewSet(ModelViewSet):
 
 
   def destroy(self, request, pk=None):
-    """ delete matchin quiz """
+    """ Delete matching quiz. """
     try:
       quiz = models.RoommateQuiz.objects.get(pk=pk)
     except ObjectDoesNotExist:
