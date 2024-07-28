@@ -39,17 +39,16 @@ python3 -m pip install -r _base.txt
 4. For settings secrets, create a file called `sample_secrets.json` in `src/roommatefinder/roommatefinder/settings`. Add the following secrets:
 ```json
 {
-  "SECRET_KEY": <django secret key>,
-  "DATABASE_NAME": <postgres db name>,
-  "DATABASE_USER": <postgres db user>,
-  "DATABASE_PASSWORD": <postgres db password>,
-  "DATABASE_HOST": "localhost", // unless you specified otherwise
-  "DATABASE_PORT": 5432, // unless you specified otherwise
-  // email config
-  "EMAIL_HOST": "smtp.gmail.com", // if you use gmail acct
-  "EMAIL_PORT": 587, // what i use
-  "EMAIL_HOST_USER": <your email>,
-  "EMAIL_HOST_PASSWORD": <passphrase>, // watch https://youtu.be/tN2k08Gucto?si=2WCMjnvLrN6mld4w
+  "SECRET_KEY": "<django secret key>",
+  "DATABASE_NAME": "<postgres db name>",
+  "DATABASE_USER": "<postgres db user>",
+  "DATABASE_PASSWORD": "<postgres db password>",
+  "DATABASE_HOST": "localhost", 
+  "DATABASE_PORT": 5432, 
+  "EMAIL_HOST": "smtp.gmail.com",
+  "EMAIL_PORT": 587, 
+  "EMAIL_HOST_USER": "<your email>",
+  "EMAIL_HOST_PASSWORD": "<passphrase>"
 }
 ```
 
