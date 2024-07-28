@@ -26,9 +26,9 @@ router.register(
 )
 
 router.register(
-  r"matching-quizs",
+  r"quizs",
   matching_views.RoommateQuizViewSet,
-  basename="matching-quiz"
+  basename="quiz"
 )
 
 urlpatterns = [
