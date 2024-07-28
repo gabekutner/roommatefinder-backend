@@ -263,7 +263,7 @@ class APIConsumer(WebsocketConsumer):
     # get profiles from query search term
     profiles = models.Profile.objects.filter(
       Q(name__istartswith=query) |
-      Q(email__istartswith=query)
+      Q(identifier__istartswith=query)
     ).exclude(
       id=self._id
     ).annotate(
