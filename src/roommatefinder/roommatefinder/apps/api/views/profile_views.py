@@ -184,6 +184,8 @@ class ProfileViewSet(ModelViewSet):
         profile.interests = field_serializer.validated_data["interests"]
       if "dorm_building" in request.data:
         profile.dorm_building = field_serializer.validated_data["dorm_building"]
+      if "thumbnail" in request.data:
+        profile.thumbnail = field_serializer.validated_data["thumbnail"]
       profile.save()
 
     else:
@@ -288,6 +290,7 @@ class ProfileViewSet(ModelViewSet):
     Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
     
     """
+    # @! convert over to an algorithm in a separate file
     # get the ModelViewSet queryset
     profiles = self.get_queryset()
     profiles = profiles.filter(has_account=True)

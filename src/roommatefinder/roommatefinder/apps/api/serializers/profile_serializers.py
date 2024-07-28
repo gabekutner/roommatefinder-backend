@@ -43,9 +43,7 @@ class CreateProfileSerializer(serializers.Serializer):
   age = serializers.IntegerField(required=True, allow_null=False)
   sex = model_utils.ChoicesField(choices=models.Profile.SEX_CHOICES, required=True, allow_null=False)
   dorm_building = serializers.CharField(required=True, allow_null=False)  
-  thumbnail = serializers.ImageField(
-    required=True, allow_null=False, max_length=None, use_url=True
-  )
+  thumbnail = serializers.ImageField(required=True, allow_null=False, max_length=None, use_url=True)
 
   city = serializers.CharField(required=False, allow_null=True)
   state = serializers.CharField(required=False, allow_null=True)
@@ -68,9 +66,10 @@ class UpdateProfileSerializer(serializers.Serializer):
   description = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
   dorm_building = serializers.MultipleChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
+  thumbnail = serializers.ImageField(required=False, allow_null=True, max_length=None, use_url=True)
   
 # Extras
-class UploadThumbnailSerializer(serializers.Serializer):
-  thumbnail = serializers.ImageField(
-    required=True, allow_null=False, max_length=None, use_url=True
-  )
+# class UploadThumbnailSerializer(serializers.Serializer):
+#   thumbnail = serializers.ImageField(
+#     required=True, allow_null=False, max_length=None, use_url=True
+#   )
