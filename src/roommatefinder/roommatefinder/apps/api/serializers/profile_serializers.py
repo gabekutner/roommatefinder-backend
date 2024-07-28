@@ -65,7 +65,7 @@ class UpdateProfileSerializer(serializers.Serializer):
   major = serializers.CharField(required=False, allow_null=True)
   description = serializers.CharField(required=False, allow_null=True)
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
-  dorm_building = serializers.MultipleChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
+  dorm_building = serializers.ChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
   thumbnail = serializers.ImageField(required=False, allow_null=True, max_length=None, use_url=True)
   
 # Extras
