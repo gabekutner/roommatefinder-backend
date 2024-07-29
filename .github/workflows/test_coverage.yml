@@ -1,0 +1,13 @@
+name: test_coverage
+on: [pull_request, push]
+jobs:
+  test_project:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout action
+        uses: actions/checkout@v2
+      - name: Django Coverage action
+        uses: actions/python-django-coverage-github-action@0.9
+        with:
+          django-app: "api"
+          minimum-coverage: "20"
