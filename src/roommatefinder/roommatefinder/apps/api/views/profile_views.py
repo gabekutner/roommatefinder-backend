@@ -24,7 +24,7 @@ class ProfileViewSet(ModelViewSet):
     if self.action in ALLOW_ANY:
       return [AllowAny()]
     return [permission() for permission in self.permission_classes]
-
+  
 
   def list(self, request):
     """Only superuser can see all profiles. """

@@ -2,6 +2,7 @@
 
 echo "Starting ${GITHUB_WORKFLOW}:${GITHUB_ACTION}"
 
+# source project config
 source project.config
 
 coverage erase
