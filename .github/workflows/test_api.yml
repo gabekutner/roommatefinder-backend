@@ -6,17 +6,15 @@ jobs:
 
     services:
       postgres:
-        # Docker Hub image
-        image: postgres
+        image: postgres:latest
         env:
-          DATABASE_NAME: postgres
-          DATABASE_USER: postgres
-          DATABASE_PASSWORD: postgres
-          DATABASE_HOST: localhost
-          DATABASE_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
         ports: 
           # Maps tcp port 5432 on service container to host
-          - 5432
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Checkout action
@@ -25,12 +23,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.10.5
+
       # install test deps
       - name: Install test deps
         run: pip install -r src/roommatefinder/requirements/test.txt
+      # migrate
+      - name: Run migrations
+        run: python manage.py migrate
+      
       # create sample_secrets.json
       - name: Create sample_secrets.json
         run: commands/__tests__/create_secrets.sh
+
       # test api
       - name: Run tests
         run: commands/__tests__/run_tests_on_api.sh
