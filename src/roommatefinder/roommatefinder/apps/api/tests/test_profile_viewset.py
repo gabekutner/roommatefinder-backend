@@ -20,7 +20,7 @@ class TestProfileModelViewSet(TestCase):
       self.assertEqual(response.status_code, 401)
     
     def test_list_authed(self):
-      """ Test listing profiles without authentication """
+      """ Test listing profiles with authentication """
       request = self.factory.get("/")
       view = views.profile_views.ProfileViewSet.as_view({'get': 'list'})
       force_authenticate(request, user=self.authed_user)
