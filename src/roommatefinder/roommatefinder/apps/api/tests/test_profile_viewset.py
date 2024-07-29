@@ -12,6 +12,6 @@ class TestProfileModelViewSet(TestCase):
 
     def test_list_unauthed(self):
         """Test listing profiles without authentication"""
-        response = views.ProfileViewSet.as_view({'get': 'list'})
+        response = views.profile_views.ProfileViewSet.as_view({'get': 'list'})
         self.assertEqual(response.status_code, 200)
         # Add more assertions as needed
