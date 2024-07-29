@@ -7,4 +7,4 @@ jobs:
       - name: Checkout action
         uses: actions/checkout@v2
       - name: Django Coverage action
-        run: commmands/__tests__/run_coverage_on_api.sh
+        run: commands/__tests__/run_tests_on_coverage.sh
