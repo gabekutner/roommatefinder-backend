@@ -30,9 +30,6 @@ jobs:
       # create sample_secrets.json
       - name: Create sample_secrets.json
         run: commands/__tests__/create_secrets.sh
-      # make migrations
-      - name: Make migrations
-        run: python3 src/roommatefinder/manage.py makemigrations
       # migrate
       - name: Run migrations
         run: python3 src/roommatefinder/manage.py migrate
