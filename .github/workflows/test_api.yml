@@ -27,14 +27,12 @@ jobs:
       # install test deps
       - name: Install test deps
         run: pip install -r src/roommatefinder/requirements/test.txt
-      # migrate
-      - name: Run migrations
-        run: python src/roommatefinder/manage.py migrate
-      
       # create sample_secrets.json
       - name: Create sample_secrets.json
         run: commands/__tests__/create_secrets.sh
-
+      # migrate
+      - name: Run migrations
+        run: python src/roommatefinder/manage.py migrate
       # test api
       - name: Run tests
         run: commands/__tests__/run_tests_on_api.sh
