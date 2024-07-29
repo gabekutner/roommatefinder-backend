@@ -16,7 +16,7 @@ jobs:
           DATABASE_PORT: 5432
         ports: 
           # Maps tcp port 5432 on service container to host
-          - 5432:5432
+          - 5432
 
     steps:
       - name: Checkout action
