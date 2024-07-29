@@ -11,6 +11,6 @@ jobs:
       # install test deps
       - run: pip install -r src/roommatefinder/requirements/test.txt
       # create sample_secrets.json
-      - run: .github/create_secrets.sh
+      - run: commands/__tests__/create_secrets.sh
       # test api
-      - run: .github/run_tests_on_api.sh
+      - run: commands/__tests__/run_tests_on_api.sh
