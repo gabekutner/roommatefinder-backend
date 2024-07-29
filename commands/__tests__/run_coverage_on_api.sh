@@ -2,7 +2,7 @@
 
 echo "Starting ${GITHUB_WORKFLOW}:${GITHUB_ACTION}"
 
-MIN_COVERAGE=25
+MIN_COVERAGE=85
 
 coverage erase
 coverage run --source=roommatefinder.apps.api src/roommatefinder/manage.py test roommatefinder.apps.api --settings=roommatefinder.settings.test
