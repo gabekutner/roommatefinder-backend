@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
-from . import models, views
+from .. import models, views
 
 class TestProfileModelViewSet(TestCase):
     """Test ProfileModelViewSet"""
