@@ -3,15 +3,35 @@ on: [pull_request, push]
 jobs:
   coverage:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports: 
+          # Maps tcp port 5432 on service container to host
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps: 
       - name: Checkout action
         uses: actions/checkout@v2
+      - name: Setup Python3 action
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10.5
       # install test deps
       - name: Install test deps
         run: pip install -r src/roommatefinder/requirements/test.txt
       # create sample_secrets.json
       - name: Create sample_secrets.json
         run: commands/__tests__/create_secrets.sh
+      # migrate
+      - name: Run migrations
+        run: python3 src/roommatefinder/manage.py migrate
       # run coverage
       - name: Django Coverage action
         run: commands/__tests__/run_coverage_on_api.sh
