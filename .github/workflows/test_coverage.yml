@@ -9,5 +9,9 @@ jobs:
       # install test deps
       - name: Install test deps
         run: pip install -r src/roommatefinder/requirements/test.txt
+      # create sample_secrets.json
+      - name: Create sample_secrets.json
+        run: commands/__tests__/create_secrets.sh
+      # run coverage
       - name: Django Coverage action
         run: commands/__tests__/run_coverage_on_api.sh
