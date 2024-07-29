@@ -6,5 +6,8 @@ jobs:
     steps: 
       - name: Checkout action
         uses: actions/checkout@v2
+      # install test deps
+      - name: Install test deps
+        run: pip install -r src/roommatefinder/requirements/test.txt
       - name: Django Coverage action
         run: commands/__tests__/run_coverage_on_api.sh
