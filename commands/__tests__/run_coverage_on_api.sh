@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 coverage erase
-coverage run --source=src.roommatefinder.roommatefinder.apps.api src/roommatefinder/manage.py test src.roommatefinder.roommatefinder.apps.api --settings=src.roommatefinder.roommatefinder.settings.test
+coverage run --source=roommatefinder.apps.api src/roommatefinder/manage.py test roommatefinder.apps.api --settings=roommatefinder.settings.test
 coverage report
