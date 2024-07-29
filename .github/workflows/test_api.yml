@@ -30,9 +30,23 @@ jobs:
       # create sample_secrets.json
       - name: Create sample_secrets.json
         run: commands/__tests__/create_secrets.sh
-      # migrate
+        
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U postgres; then
+              break
+            fi
+            echo "Waiting for PostgreSQL..."
+            sleep 5
+          done
+
       - name: Run migrations
         run: python3 src/roommatefinder/manage.py migrate
-      # test api
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/github_actions
+
       - name: Run tests
         run: commands/__tests__/run_tests_on_api.sh
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/github_actions
