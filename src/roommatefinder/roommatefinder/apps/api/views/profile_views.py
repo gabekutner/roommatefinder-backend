@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -13,77 +14,124 @@ from ..serializers import profile_serializers, swipe_serializers
 
 
 class ProfileViewSet(ModelViewSet):
+  """
+  ViewSet for managing user profiles.
+
+  Inherits from:
+    ModelViewSet (rest_framework.viewsets)
+
+  Attributes:
+    queryset (QuerySet): The queryset to be used for this viewset.
+    serializer_class (Type[profile_serializers.ProfileSerializer]): The serializer class to be used.
+    permission_classes (list): List of permission classes for access control.
+  """
   queryset = models.Profile.objects.all()
   serializer_class = profile_serializers.ProfileSerializer
   permission_classes = [IsAuthenticated]
 
-  # admin actions for this model view set
   def get_permissions(self):
+    """
+    Determines the permissions required based on the action being performed.
+
+    Returns:
+      list: A list of permission instances based on the action.
+    """
     ALLOW_ANY = ["create"]
     if self.action in ALLOW_ANY:
       return [AllowAny()]
     return [permission() for permission in self.permission_classes]
   
 
-  def list(self, request):
-    """Only superuser can see all profiles. """
-    if not request.user.is_superuser:
-      return Response({"detail": "unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    profiles = models.Profile.objects.all()
-    serializer = profile_serializers.ProfileSerializer(profiles, many=True)
-    return Response(
-      {
-        "detail": "hello admin",
-        "profile_count": profiles.count(),
-        "profiles": serializer.data
-      }, status=status.HTTP_200_OK,
-    )
-    
-
-  def create(self, request):
-    """Create method for the :class:`~roommatefinder.apps.api.models.Profile` model. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
-
-    Required parameters:
-
-    :param identifier: the email, phone number, or uid for the user. 
-
+  def list(self, request: Request) -> Response:
     """
-    data = request.data
+    List all profiles. Only accessible by superusers.
+
+    Parameters:
+      request (Request): The incoming HTTP request.
+
+    Returns:
+      Response: A Response object containing the profile data or an unauthorized error message.
+    """
+    # Check if the user is a superuser
+    if not request.user.is_superuser:
+      return Response({"detail": "Unauthorizd access"}, status=status.HTTP_403_FORBIDDEN)
+
+    serializer = profile_serializers.ProfileSerializer(self.queryset, many=True)
+    # Prepare the response data
+    response_data = {
+      "message": "Hello admin.",
+      "profile_count": self.queryset.count(),
+      "profiles": serializer.data
+    }
+    return Response(response_data, status=status.HTTP_200_OK)
+    
+
+  def create(self, request: Request) -> Response:
+    """
+    Create a new profile with given identifier.
+
+    Parameters:
+      request (Request): The incoming HTTP request containing profile data.
+
+    Returns:
+      Response: A Response object indicating the result of the profile creation.
+        - On success: Returns the serialized profile data and a 201 Created status.
+        - On failure: Returns an error message indicating that a profile with the given identifier already exists, with a 400 Bad Request status.
+    """
+    identifier = request.data["identifier"]
     try:
-      profile = models.Profile.objects.create(identifier=data["identifier"])
+      # Attempt to create a new profile with the provided identifier
+      profile = models.Profile.objects.create(identifier=identifier)
       serializer = profile_serializers.ProfileSerializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     except:
+      # Return an error response if a profile with the given identifier already exists
       return Response({"detail": "A profile with this identifier already exists."}, status=status.HTTP_400_BAD_REQUEST)
     
 
   @action(detail=False, methods=["post"], url_path=r"actions/verify-otp", url_name="otp-verify")
-  def verify_otp(self, request):
-    """Verifies one time password sent to a :class:`~roommatefinder.apps.api.models.Profile`'s identifier attribute. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+  def verify_otp(self, request: Request) -> Response:
+    """
+    Verify the OTP provided by the user.
 
-    Required parameters:
+    This action checks if the provided OTP matches the one stored in the user's profile. 
+    If the OTP is correct, it clears the OTP fields in the profile and marks the OTP as verified.
+    Otherwise, it returns an error indicating an incorrect OTP.
 
-    :param otp: integer, the 4-digit verification code
+    Parameters:
+      request (Request): The incoming HTTP request containing the OTP.
+
+    Returns:
+      Response: A Response object indicating the result of the OTP verification.
+        - On success: Returns the updated profile data and a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status.
     """
     user = request.user
     otp = request.data['otp']
-    profile = models.Profile.objects.get(id=user.id)
+
+    try:
+      # Necessary query
+      ## if you use >>> self.queryset.filter(id=user.id)
+      ## an error is raised that there is no attribute profile.otp
+      ## because profile_serializers.ProfileSerializer does not have the 
+      ## otp related fields other than otp_verified
+      profile = models.Profile.objects.get(id=user.id)
+    except models.Profile.DoesNotExist:
+      return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
     
     if str(profile.otp) == str(otp):
+      # OTP is correct, update the profile
       profile.otp = None
       profile.otp_expiry = None
       profile.max_otp_try = 3
       profile.otp_max_out = None
       profile.otp_verified = True
       profile.save()
+      # Serialize the updated profile
       serializer = profile_serializers.ProfileSerializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_200_OK)
     else:
+      # OTP is incorrect
       return Response(
         {"detail": f"Not the correct verification code for the profile: {profile.id}."}, 
         status=status.HTTP_400_BAD_REQUEST
