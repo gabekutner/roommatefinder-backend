@@ -60,7 +60,7 @@ class ProfileViewSet(ModelViewSet):
       return Response({"detail": "A profile with this identifier already exists."}, status=status.HTTP_400_BAD_REQUEST)
     
 
-  @action(detail=False, methods=["post"], url_path=r"actions/verify-otp")
+  @action(detail=False, methods=["post"], url_path=r"actions/verify-otp", url_name="otp-verify")
   def verify_otp(self, request):
     """Verifies one time password sent to a :class:`~roommatefinder.apps.api.models.Profile`'s identifier attribute. 
     
@@ -68,11 +68,13 @@ class ProfileViewSet(ModelViewSet):
 
     Required parameters:
 
-    :param otp: the 4-digit verification code
+    :param otp: integer, the 4-digit verification code
     """
+    user = request.user
     otp = request.data['otp']
-    profile = models.Profile.objects.get(otp=otp)
-    if profile:
+    profile = models.Profile.objects.get(id=user.id)
+    
+    if str(profile.otp) == str(otp):
       profile.otp = None
       profile.otp_expiry = None
       profile.max_otp_try = 3

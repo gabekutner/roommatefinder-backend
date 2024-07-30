@@ -24,9 +24,9 @@ def send_otp(sender, instance, **kwargs):
     # send otp
     if int(instance.max_otp_try) == 0 and instance.otp_max_out and timezone.now() < instance.otp_max_out:
       return Response(
-      "Max OTP try reached, try after an hour",
-      status=status.HTTP_400_BAD_REQUEST,
-    )
+        "Max OTP try reached, try after an hour",
+        status=status.HTTP_400_BAD_REQUEST,
+      )
 
     otp = random.randint(1000, 9999)
     otp_expiry = timezone.now() + datetime.timedelta(minutes=10)
