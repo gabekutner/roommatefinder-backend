@@ -60,3 +60,18 @@ class TestProfileModelViewSet(TestCase):
     force_authenticate(request, user=profile)
     response = view(request)
     self.assertEqual(response.status_code, 400)
+
+  def test_create_passwords(self):
+    profile = models.Profile.objects.create(identifier="123", otp_verified=True)
+    request = self.factory.post(
+      '/api/v1/profiles/actions/create-password/', 
+      {
+        'password': '123',
+        'repeated_password': '123'
+      }, 
+      format='json'
+    )
+    view = views.profile_views.ProfileViewSet.as_view({'post': 'create_password'})
+    force_authenticate(request, user=profile)
+    response = view(request)
+    self.assertEqual(response.status_code, 200)

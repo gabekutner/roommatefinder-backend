@@ -12,6 +12,8 @@ from django.utils import timezone
 
 from . import models
 
+VERBOSE = False
+
 
 @receiver(post_save, sender=models.Profile)
 def send_otp(sender, instance, **kwargs):
@@ -46,7 +48,8 @@ def send_otp(sender, instance, **kwargs):
     
     instance.save()
 
-    print(instance.otp, 'OTP', instance.identifier)
+    if VERBOSE:
+      print(instance.otp, 'OTP', instance.identifier)
     # send otp here
     email_pattern = r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,7}\b'
     regex = re.compile(email_pattern)
@@ -60,8 +63,10 @@ def send_otp(sender, instance, **kwargs):
           fail_silently=False,
         )
       except: 
+        # make a better error here
         print('error')
     else:
-      print('not full match')
+      if VERBOSE:
+        print('not full match')
 
     return Response("Successfully generated OTP", status=status.HTTP_200_OK)

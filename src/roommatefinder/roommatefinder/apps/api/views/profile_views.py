@@ -90,7 +90,7 @@ class ProfileViewSet(ModelViewSet):
       )
     
 
-  @action(detail=False, methods=["post"], url_path=r"actions/create-password")
+  @action(detail=False, methods=["post"], url_path=r"actions/create-password", url_name="create-password")
   def create_password(self, request):
     """Create the password for a :class:`~roommatefinder.apps.api.models.Profile` instance. 
     
@@ -107,13 +107,10 @@ class ProfileViewSet(ModelViewSet):
     repeated_password = data["repeated_password"]
 
     if password != repeated_password:
-      return Response(
-        {"detail": "Your passwords don't match."}, 
-        status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "Your passwords don't match."}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-      profile = models.Profile.objects.get(identifier=request.user.identifier)
+      profile = models.Profile.objects.get(id=request.user.id)
       if not profile.otp_verified:
         return Response(
           {'detail': f'Profile: {profile.id} needs to verify their account via otp before creating passwords.'}, 
