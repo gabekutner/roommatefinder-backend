@@ -17,7 +17,7 @@ class TestProfileModelViewSet(TestCase):
     view = views.profile_views.ProfileViewSet.as_view({'get': 'list'})
     force_authenticate(request, user=self.unauthed_user)
     response = view(request)
-    self.assertEqual(response.status_code, 401)
+    self.assertEqual(response.status_code, 403)
   
   def test_list_authed(self):
     """ Test listing profiles with authentication """
