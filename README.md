@@ -6,6 +6,7 @@
 
 #### Table of Contents
 * [Local Development](#local-development)
+* [CI/CD Tempate](https://medium.com/intelligentmachines/github-actions-end-to-end-ci-cd-pipeline-for-django-5d48d6f00abf)
 
 # Local Development
 These settings should get you setup to work on your own machine 🚀
