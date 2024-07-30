@@ -11,7 +11,8 @@ coverage run --source=roommatefinder.apps.api src/roommatefinder/manage.py test 
 # get coverage report
 COVERAGE_RESULT=`coverage report | grep TOTAL | awk 'N=1 {print $NF}' | sed 's/%//g'`
 if [[ $COVERAGE_RESULT -gt $MIN_COVERAGE ]]; then
-  echo "{coverage_result}={$COVERAGE_RESULT}" >> $GITHUB_OUTPUT
+  # echo ""{coverage_result}={$COVERAGE_RESULT}" >> $GITHUB_OUTPUT"
+  echo "Coverage result: {$COVERAGE_RESULT}"
 else
   echo "Code coverage below allowed threshold ($COVERAGE_RESULT<$MIN_COVERAGE)"
   exit 1
