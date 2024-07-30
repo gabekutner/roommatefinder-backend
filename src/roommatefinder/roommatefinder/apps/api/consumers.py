@@ -9,8 +9,9 @@ from django.db.models import Q, Exists, OuterRef
 from . import models
 from .serializers import extra_serializers
 
-class APIConsumer(WebsocketConsumer):
 
+class APIConsumer(WebsocketConsumer):
+  """ Websocket Consumer for  """
   def connect(self):
     user = self.scope['user']
     if not user.is_authenticated:
