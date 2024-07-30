@@ -28,6 +28,11 @@ These settings should get you setup to work on your own machine 🚀
 
 2. Run `redis-server`, default port is `6379`.
 
+> For this next step you can follow the next steps or use the `commands/dev-init.sh` command. They do the same thing, the script just saves time. Run it without parameters to see required parameters. They are the email for email backend, the four app passwords each as their own parameter, and finally the database stuff.
+```bash
+$ bash commands/dev-init.sh example.com 1234 1234 1234 1234 postgres
+```
+
 3. Create a `venv` in the top direcotry. Install project dependencies.
 ```bash
 python3 -m venv env
