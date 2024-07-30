@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from roommatefinder.apps.api import models, views
@@ -8,8 +9,12 @@ class TestProfileModelViewSet(TestCase):
   def setUp(self):
     """ Setup for the tests """
     self.factory = APIRequestFactory()
+      # bad naming
+
     self.unauthed_user = models.Profile.objects.create(identifier="dave", is_superuser=False, otp_verified=True)
     self.authed_user = models.Profile.objects.create(identifier="gabe", is_superuser=True, otp_verified=True)
+
+  # bad naming
 
   def test_list_unauthed(self):
     """ Test listing profiles without authentication """
@@ -19,6 +24,7 @@ class TestProfileModelViewSet(TestCase):
     response = view(request)
     self.assertEqual(response.status_code, 403)
   
+  # bad naming
   def test_list_authed(self):
     """ Test listing profiles with authentication """
     request = self.factory.get("/")
@@ -30,23 +36,23 @@ class TestProfileModelViewSet(TestCase):
 
   def test_create(self):
     """ Test creating a profile """
-    request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+    request = self.factory.post('/api/v1/profiles/', {'identifier': 'u1234567'}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
     response = view(request)
     self.assertEqual(response.status_code, 201)
-    self.assertEqual(response.data['identifier'], '123')
+    self.assertEqual(response.data['identifier'], 'u1234567')
 
   def test_create_identifier_that_already_exists(self):
     """ Test creating a profile with an identifier that already exists. """
-    models.Profile.objects.create(identifier="123", otp_verified=True)
-    request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+    models.Profile.objects.create(identifier="u1234567", otp_verified=True)
+    request = self.factory.post('/api/v1/profiles/', {'identifier': 'u1234567'}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
     response = view(request)
     self.assertEqual(response.status_code, 400)
 
   def test_verify_otp(self):
-    profile = models.Profile.objects.create(identifier="123")
-    request = self.factory.post('/api/v1/profiles/actions/verify-otp/', {'otp': profile.otp}, format='json')
+    profile = models.Profile.objects.create(identifier="u1234567")
+    request = self.factory.post('/api/v1/profiles/actions/verify-otp/', {'otp': str(profile.otp)}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'verify_otp'})
     force_authenticate(request, user=profile)
     response = view(request)

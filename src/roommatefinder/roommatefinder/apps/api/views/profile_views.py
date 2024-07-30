@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
+from typing import List, Optional
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -78,7 +81,41 @@ class ProfileViewSet(ModelViewSet):
         - On success: Returns the serialized profile data and a 201 Created status.
         - On failure: Returns an error message indicating that a profile with the given identifier already exists, with a 400 Bad Request status.
     """
-    identifier = request.data["identifier"]
+    try:
+      # Ensure an otp code was sent
+      identifier = request.data['identifier']
+      # Ensure identifier is of type string
+      assert type(identifier) == str
+      # Ensure identifier is either an email, phone number, or UID
+      patterns = [
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', 
+        r'^\+?[\d\s.-]{7,15}$',
+        r'^u\d{7}$'
+      ]
+      def match(id: str, patterns: List[str]) -> bool:
+        for pattern in patterns:
+          if re.match(pattern, id):
+            return True
+        return False
+      # Test identifier matches one of the patterns
+      assert match(identifier, patterns)
+    except Exception:
+      return Response(
+        {
+          "detail": "Please provide an identifier as a string. Identifier's can be an email address, a phone number, or a UID.",
+          "example_request_email": {
+            "identifier": "example@gmail.com"
+          },
+          "example_request_phone": {
+            "identifier": "123 123 1234"
+          },
+          "example_request_uid": {
+            "identifier": "u1234567"
+          },
+        }, 
+        status=status.HTTP_404_NOT_FOUND
+      )
+
     try:
       # Attempt to create a new profile with the provided identifier
       profile = models.Profile.objects.create(identifier=identifier)
@@ -107,7 +144,24 @@ class ProfileViewSet(ModelViewSet):
         - On failure: Returns an error message with a 400 Bad Request status.
     """
     user = request.user
-    otp = request.data['otp']
+
+    try:
+      # Ensure an otp code was sent
+      otp = request.data['otp']
+      # Ensure it was of type string
+      assert type(otp) == str
+      # Ensure it was 4 digits
+      assert len(otp) == 4
+    except Exception:
+      return Response(
+        {
+          'detail': 'Please provide a 4-digit otp code as a string.',
+          'example_request': {
+            'otp': '1234'
+          }
+        }, 
+        status=status.HTTP_400_BAD_REQUEST
+      )
 
     try:
       # Necessary query
@@ -119,7 +173,7 @@ class ProfileViewSet(ModelViewSet):
     except models.Profile.DoesNotExist:
       return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
     
-    if str(profile.otp) == str(otp):
+    if profile.otp == otp:
       # OTP is correct, update the profile
       profile.otp = None
       profile.otp_expiry = None
@@ -139,195 +193,221 @@ class ProfileViewSet(ModelViewSet):
     
 
   @action(detail=False, methods=["post"], url_path=r"actions/create-password", url_name="create-password")
-  def create_password(self, request):
-    """Create the password for a :class:`~roommatefinder.apps.api.models.Profile` instance. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
-
-    Required parameters:
-
-    :param password: the password
-    :param repeated_password: the password, again
-
+  def create_password(self, request: Request) -> Response:
     """
-    data = request.data
-    password = data["password"]
-    repeated_password = data["repeated_password"]
+    Create a password for the user's profile.
 
-    if password != repeated_password:
-      return Response({"detail": "Your passwords don't match."}, status=status.HTTP_400_BAD_REQUEST)
-    
+    This action allows users to set their password, provided they have verified their account via OTP.
+    It checks that the password and repeated password match before updating the profile.
+
+    Parameters:
+      request (Request): The incoming HTTP request containing the password details.
+
+    Returns:
+      Response: A Response object indicating the result of the password creation/update.
+        - On success: Returns the updated profile data with a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status.
+    """
+    user = request.user
     try:
-      profile = models.Profile.objects.get(id=request.user.id)
+      # Ensure both passwords were sent
+      password = request.data["password"]
+      repeated_password = request.data["repeated_password"]
+      # Ensure both passwords match
+      assert password == repeated_password
+    except Exception:
+      return Response(
+        {
+          "detail": "Either both passwords were not sent or passwords don't match.",
+          "example_request": {
+            "password": "123",
+            "repeated_password": "123"
+          },
+        }, 
+        status=status.HTTP_400_BAD_REQUEST
+      )
+
+    try:
+      # Get profile out of the queryset
+      ## This works because otp_verified is included in ProfileSerializer
+      profile = self.queryset.get(id=user.id)
+      # Ensure user is otp verified before creating their password.
       if not profile.otp_verified:
         return Response(
           {'detail': f'Profile: {profile.id} needs to verify their account via otp before creating passwords.'}, 
           status=status.HTTP_400_BAD_REQUEST
         )
-      profile.password = make_password(data["password"])
+      # Create the password
+      profile.password = make_password(request.data["password"])
       profile.save()
+      # Serialize
       serializer = profile_serializers.ProfileSerializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_200_OK)
-    except:
+    except Exception as e:
       return Response(
-        {"detail": f"Error creating passwords for Profile: {request.user}."}, 
+        {
+          "detail": f"Error creating passwords for Profile: {request.user}.",
+          "error": str(e)
+        }, 
         status=status.HTTP_400_BAD_REQUEST
       )
           
 
-  def retrieve(self, request, pk=None):
-    """Get method for the :class:`~roommatefinder.apps.api.models.Profile` model. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+  def retrieve(self, request: Request, pk: Optional[int] = None) -> Response:
+    """
+    Retrieve a profile by its primary key (pk).
 
+    This method attempts to fetch a profile based on the provided primary key (pk). 
+    If the profile is not found, it returns a 400 Bad Request response with an error message.
+
+    Parameters:
+      request (Request): The HTTP request object that triggered this action.
+      pk (Optional[int]): The primary key of the profile to retrieve. Defaults to None.
+
+    Returns:
+      Response: 
+        - On success: Returns the profile data serialized with a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status if the profile does not exist.
     """
     try:
-      profile = models.Profile.objects.get(pk=pk)
+      profile = self.queryset.get(pk=pk)
     except ObjectDoesNotExist:
       return Response(
         {"detail": f"Profile: {pk} doesn't exist."}, 
         status=status.HTTP_400_BAD_REQUEST
       )
+    # Serialize result
     serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
 
-  def update(self, request, pk=None):
-    """Update method for the :class:`~roommatefinder.apps.api.models.Profile` model. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+  def update(self, request: Request, pk: Optional[int] = None) -> Response:
+    """
+    Update a user's profile with the provided data.
 
+    This method updates specific fields of a user's profile based on the provided primary key (pk). 
+    It checks if the profile exists and whether the update data is valid before applying the changes.
+
+    Parameters:
+      request (Request): The HTTP request object containing the update data.
+      pk (Optional[int]): The primary key of the profile to be updated. Defaults to None.
+
+    Returns:
+      Response:
+        - On success: Returns the updated profile data with a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status if the profile does not exist or if the update fails.
     """
     profile = request.user
+    # Init serializer
     field_serializer = profile_serializers.UpdateProfileSerializer(data=request.data, many=False)
     if field_serializer.is_valid(raise_exception=True):
       try:
-        profile = models.Profile.objects.get(pk=pk)
+        profile = self.queryset.get(pk=pk)
       except ObjectDoesNotExist:
-        return Response(
-          {"detail": f"Profile: {pk} doesn't exist."}, 
-          status=status.HTTP_400_BAD_REQUEST
-        )
-
-      if "name" in request.data:
-        profile.name = field_serializer.validated_data["name"]
-      if "city" in request.data:
-        profile.city = field_serializer.validated_data["city"]
-      if "state" in request.data:
-        profile.state = field_serializer.validated_data["state"]
-      if "graduation_year" in request.data:
-        profile.graduation_year = field_serializer.validated_data["graduation_year"]
-      if "major" in request.data:
-        profile.major = field_serializer.validated_data["major"]
-      if "description" in request.data:
-        profile.description = field_serializer.validated_data["description"]
-      if "interests" in request.data:
-        profile.interests = field_serializer.validated_data["interests"]
-      if "dorm_building" in request.data:
-        profile.dorm_building = field_serializer.validated_data["dorm_building"]
-      if "thumbnail" in request.data:
-        profile.thumbnail = field_serializer.validated_data["thumbnail"]
+        return Response({"detail": f"Profile: {pk} doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
+      # Update fields if they are present in the request data
+      for field in ['name', 'city', 'state', 'graduation_year', 'major', 'description', 'interests', 'dorm_building', 'thumbnail']:
+        if field in request.data:
+          setattr(profile, field, field_serializer.validated_data[field])
+      # Save profile
       profile.save()
-
-    else:
-      return Response(
-        {'detail': f'Update profile: {profile.id} failed.'}, 
-        status=status.HTTP_400_BAD_REQUEST
-      )
-  
+    # Serialize and return 
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data, status=status.HTTP_200_OK)
   
 
-  def destroy(self, request, pk=None):
-    """ Delete method for the :class:`~roommatefinder.apps.api.models.Profile` model. """
+  def destroy(self, request: Request, pk: Optional[int] = None) -> Response:
+    """
+    Delete a profile by its primary key (pk).
+
+    This method attempts to delete a profile based on the provided primary key (pk). 
+    If the profile does not exist, it returns a 400 Bad Request response with an error message. 
+    If the deletion is successful, it returns a confirmation message with a 200 OK status.
+
+    Parameters:
+      request (Request): The HTTP request object that triggered this action.
+      pk (Optional[int]): The primary key of the profile to be deleted. Defaults to None.
+
+    Returns:
+      Response:
+        - On success: Returns a confirmation message with a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status if the profile does not exist.
+    """
     try:
-      profile = models.Profile.objects.get(pk=pk)
+      profile = self.queryset.get(pk=pk)
     except ObjectDoesNotExist:
-      return Response(
-        {"detail": f"Profile: {pk} doesn't exist."}, 
-        status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": f"Profile: {pk} doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
+    # Delete the retrieved profile
     profile.delete()
-    return Response(
-      {"detail": f"Profile: {pk} deleted successfully."}, 
-      status=status.HTTP_200_OK
-    )
-
-
-  @action(detail=False, methods=["post"], url_path=r"actions/upload-thumbnail")
-  def upload_thumbnail(self, request):
-    profile = request.user
-
-    fields_serializer = profile_serializers.UploadThumbnailSerializer(data=request.data)
-    if fields_serializer.is_valid():
-      profile.thumbnail = fields_serializer.validated_data["thumbnail"]
-      profile.save()
-
-    profile_serializer = profile_serializers.ProfileSerializer(profile)
-    return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
+    return Response({"detail": f"Profile: {pk} deleted successfully."}, status=status.HTTP_200_OK)
   
 
-  @action(detail=False, methods=["post"], url_path=r"actions/create-profile")
+  @action(detail=False, methods=["post"], url_path=r"actions/create-profile", url_name="create-profile")
   def create_profile(self, request):
-    """Create a profile for AuthNavigator the :class:`~roommatefinder.apps.api.models.Profile` model. 
+    """
+    Create or update the profile for the currently authenticated user.
 
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+    This method allows an authenticated user to create or update their profile with the provided data. 
+    It ensures that all required fields are validated before applying changes.
 
-    Required parameters:
+    Parameters:
+      request (Request): The HTTP request object containing the profile data to be created or updated.
 
-    :param name: string, 
-    :param age: integer, 
-    :param sex: string, either "M" or "F"
-    :param thumbnail: file, 
-    :param dorm_building: string, as an integer "1". See `~roommatefinder.settings._base.DORM_CHOICES` for options.
-
-    Optional parameters: 
-
-    :param city: string
-    :param state: string, as the abbreviation. Ex. "CA", "FL"
-    :param graduation_year: integer
-    :param major: string
-    :param interests: [string], as a list of integers in strings ["1", "2"]. See `~roommatefinder.settings._base.POPULAR_CHOICES` for options.
-    :param description: string
-    
+    Returns:
+      Response:
+        - On success: Returns the updated profile data with a 201 Created status.
+        - On failure: Returns an error message with a 400 Bad Request status if the data is invalid.
     """
     profile = request.user
+    # Init serializer
     fields_serializer = profile_serializers.CreateProfileSerializer(data=request.data, many=False)
-    fields_serializer.is_valid(raise_exception=True)
-  
-    profile.name = fields_serializer.validated_data["name"]
-    profile.age = fields_serializer.validated_data["age"]
-    profile.sex = fields_serializer.validated_data["sex"]
-    profile.thumbnail = fields_serializer.validated_data["thumbnail"]
-    profile.dorm_building = fields_serializer.validated_data["dorm_building"]
-
-    if "city" in fields_serializer.validated_data: 
-      profile.city = fields_serializer.validated_data["city"]
-    if "state" in fields_serializer.validated_data:
-      profile.state = fields_serializer.validated_data["state"]
-    if "graduation_year" in fields_serializer.validated_data:
-      profile.graduation_year = fields_serializer.validated_data["graduation_year"]
-    if "major" in fields_serializer.validated_data:
-      profile.major = fields_serializer.validated_data["major"]
-    if "interests" in fields_serializer.validated_data:
-      profile.interests = fields_serializer.validated_data["interests"]
-    if "description" in fields_serializer.validated_data:
-      profile.description = fields_serializer.validated_data["description"]
-
-    profile.has_account = True
-    profile.save()
-
+    if fields_serializer.is_valid(raise_exception=True):
+      # Update profile fields with validated data
+      profile.name = fields_serializer.validated_data["name"]
+      profile.age = fields_serializer.validated_data["age"]
+      profile.sex = fields_serializer.validated_data["sex"]
+      profile.thumbnail = fields_serializer.validated_data["thumbnail"]
+      profile.dorm_building = fields_serializer.validated_data["dorm_building"]
+      # Optionally update additional fields if they are present in the validated data
+      if "city" in fields_serializer.validated_data: 
+        profile.city = fields_serializer.validated_data["city"]
+      if "state" in fields_serializer.validated_data:
+        profile.state = fields_serializer.validated_data["state"]
+      if "graduation_year" in fields_serializer.validated_data:
+        profile.graduation_year = fields_serializer.validated_data["graduation_year"]
+      if "major" in fields_serializer.validated_data:
+        profile.major = fields_serializer.validated_data["major"]
+      if "interests" in fields_serializer.validated_data:
+        profile.interests = fields_serializer.validated_data["interests"]
+      if "description" in fields_serializer.validated_data:
+        profile.description = fields_serializer.validated_data["description"]
+      # Mark the profile as having an account
+      profile.has_account = True
+      # Save profile
+      profile.save()
+    # Serialize and return
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
   
 
   @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles")
-  def swipe_profiles(self, request):
-    """Get a paginated 10 result list of the :class:`~roommatefinder.apps.api.models.Profile` model.
+  def swipe_profiles(self, request: Request) -> Response:
+    """
+    Retrieve a list of profiles for the current user to swipe on.
+
+    This method provides a list of profiles that the current user can swipe on. 
     
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
-    
+    It filters out profiles 
+    that the user has already connected with or that are excluded by the current swiping algorithm. 
+    The results are paginated for efficient handling.
+
+    Parameters:
+      request (Request): The HTTP request object that includes the parameters for filtering and pagination.
+
+    Returns:
+      Response:
+        - On success: Returns a paginated list of profiles that the user can swipe on.
+        - On failure: Returns an error message with a 400 Bad Request status if an error occurs.
     """
     # @! convert over to an algorithm in a separate file
     # get the ModelViewSet queryset
