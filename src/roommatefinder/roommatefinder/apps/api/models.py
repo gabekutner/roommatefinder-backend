@@ -115,31 +115,6 @@ class Photo(CreationModificationDateBase):
     self.image.delete(save=False)
     super().delete()
 
-# class Prompt(CreationModificationDateBase):
-#   """ prompts model """
-#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-#   question = models.CharField(
-#     choices=PROMPTS,
-#     max_length=2,
-#     null=False,
-#     blank=False
-#   )
-#   answer = models.CharField(max_length=250, null=False, blank=False)
-
-# class Quote(CreationModificationDateBase):
-#   """ quotes model """
-#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-#   quote = models.CharField(max_length=250, null=False, blank=False)
-#   cited = models.CharField(max_length=100, null=True, blank=True)
-
-# class Link(CreationModificationDateBase):
-#   """ links model """
-#   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
-#   title = models.CharField(max_length=250, null=False, blank=False)
-#   link = models.CharField(max_length=250, null=False, blank=False)
 
 class RoommateQuiz(CreationModificationDateBase):
   """ roommate matching quiz model """

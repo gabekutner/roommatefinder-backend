@@ -1,21 +1,16 @@
 from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..serializers import photo_serializers
-from .. import models
-from ..utils import model_utils
+from roommatefinder.apps.api.serializers import photo_serializers
+from roommatefinder.apps.api import models
+from roommatefinder.apps.api.utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
 
 
 class ProfileSerializer(serializers.ModelSerializer):
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
-
   photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
-  """ widgets taken out of initial app version """
-  # prompts = extra_serializers.PromptSerializer(source="prompt_set", many=True, read_only=True)
-  # quotes = extra_serializers.QuoteSerializer(source="quote_set", many=True, read_only=True)
-  # links = extra_serializers.LinkSerializer(source="link_set", many=True, read_only=True)
   sex = serializers.CharField(source="get_sex_display", required=True, allow_null=False)
 
   class Meta:
@@ -37,6 +32,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     token = RefreshToken.for_user(profile)
     return str(token)  
     
+
 class CreateProfileSerializer(serializers.Serializer):
   # required
   name = serializers.CharField(required=True, allow_null=False)
@@ -51,11 +47,7 @@ class CreateProfileSerializer(serializers.Serializer):
   major = serializers.CharField(required=False, allow_null=True)
   description = serializers.CharField(required=False, allow_null=True)
   interests = fields.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
-  
-  """ widgets taken out of initial app version """
-  # prompts = extra_serializers.CreatePromptSerializer(source='prompt_set', many=True, required=True)
-  # quotes = extra_serializers.CreateQuoteSerializer(source='quote_set', many=True, required=True)
-  # links = extra_serializers.CreateLinkSerializer(source='link_set', many=True, required=True)
+
 
 class UpdateProfileSerializer(serializers.Serializer):
   name = serializers.CharField(required=False, allow_null=True)
@@ -67,9 +59,3 @@ class UpdateProfileSerializer(serializers.Serializer):
   interests = serializers.MultipleChoiceField(choices=POPULAR_CHOICES, required=False, allow_null=True)
   dorm_building = serializers.ChoiceField(choices=DORM_CHOICES, required=False, allow_null=True)
   thumbnail = serializers.ImageField(required=False, allow_null=True, max_length=None, use_url=True)
-  
-# Extras
-# class UploadThumbnailSerializer(serializers.Serializer):
-#   thumbnail = serializers.ImageField(
-#     required=True, allow_null=False, max_length=None, use_url=True
-#   )
