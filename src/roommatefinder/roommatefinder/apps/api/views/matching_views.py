@@ -2,7 +2,9 @@
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
+
 from .. import models
 from ..serializers.matching_serializers import RoommateQuizSerializer, CreateRoommateQuizSerializer, UpdateRoommateQuiz
 
@@ -10,6 +12,7 @@ from ..serializers.matching_serializers import RoommateQuizSerializer, CreateRoo
 class RoommateQuizViewSet(ModelViewSet):
   queryset = models.RoommateQuiz.objects.all()
   serializer_class = RoommateQuizSerializer
+  permission_classes = [IsAuthenticated]
 
   def list(self, request):
     """ Get all matching quizes. """
