@@ -311,8 +311,6 @@ class ProfileViewSet(ModelViewSet):
           setattr(profile, field, field_serializer.validated_data[field])
       # Save profile
       profile.save()
-    else:
-      return Response({'detail': f'Update profile: {profile.id} failed.'}, status=status.HTTP_400_BAD_REQUEST)
     # Serialize and return 
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data, status=status.HTTP_200_OK)
@@ -344,67 +342,56 @@ class ProfileViewSet(ModelViewSet):
     return Response({"detail": f"Profile: {pk} deleted successfully."}, status=status.HTTP_200_OK)
   
 
-  @action(detail=False, methods=["post"], url_path=r"actions/create-profile")
+  @action(detail=False, methods=["post"], url_path=r"actions/create-profile", url_name="create-profile")
   def create_profile(self, request):
-    """Create a profile for AuthNavigator the :class:`~roommatefinder.apps.api.models.Profile` model. 
+    """
+    Create or update the profile for the currently authenticated user.
 
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
+    This method allows an authenticated user to create or update their profile with the provided data. 
+    It ensures that all required fields are validated before applying changes.
 
-    Required parameters:
+    Parameters:
+      request (Request): The HTTP request object containing the profile data to be created or updated.
 
-    :param name: string, 
-    :param age: integer, 
-    :param sex: string, either "M" or "F"
-    :param thumbnail: file, 
-    :param dorm_building: string, as an integer "1". See `~roommatefinder.settings._base.DORM_CHOICES` for options.
-
-    Optional parameters: 
-
-    :param city: string
-    :param state: string, as the abbreviation. Ex. "CA", "FL"
-    :param graduation_year: integer
-    :param major: string
-    :param interests: [string], as a list of integers in strings ["1", "2"]. See `~roommatefinder.settings._base.POPULAR_CHOICES` for options.
-    :param description: string
-    
+    Returns:
+      Response:
+        - On success: Returns the updated profile data with a 201 Created status.
+        - On failure: Returns an error message with a 400 Bad Request status if the data is invalid.
     """
     profile = request.user
+    # Init serializer
     fields_serializer = profile_serializers.CreateProfileSerializer(data=request.data, many=False)
-    fields_serializer.is_valid(raise_exception=True)
-  
-    profile.name = fields_serializer.validated_data["name"]
-    profile.age = fields_serializer.validated_data["age"]
-    profile.sex = fields_serializer.validated_data["sex"]
-    profile.thumbnail = fields_serializer.validated_data["thumbnail"]
-    profile.dorm_building = fields_serializer.validated_data["dorm_building"]
-
-    if "city" in fields_serializer.validated_data: 
-      profile.city = fields_serializer.validated_data["city"]
-    if "state" in fields_serializer.validated_data:
-      profile.state = fields_serializer.validated_data["state"]
-    if "graduation_year" in fields_serializer.validated_data:
-      profile.graduation_year = fields_serializer.validated_data["graduation_year"]
-    if "major" in fields_serializer.validated_data:
-      profile.major = fields_serializer.validated_data["major"]
-    if "interests" in fields_serializer.validated_data:
-      profile.interests = fields_serializer.validated_data["interests"]
-    if "description" in fields_serializer.validated_data:
-      profile.description = fields_serializer.validated_data["description"]
-
-    profile.has_account = True
-    profile.save()
-
+    if fields_serializer.is_valid(raise_exception=True):
+      # Update profile fields with validated data
+      profile.name = fields_serializer.validated_data["name"]
+      profile.age = fields_serializer.validated_data["age"]
+      profile.sex = fields_serializer.validated_data["sex"]
+      profile.thumbnail = fields_serializer.validated_data["thumbnail"]
+      profile.dorm_building = fields_serializer.validated_data["dorm_building"]
+      # Optionally update additional fields if they are present in the validated data
+      if "city" in fields_serializer.validated_data: 
+        profile.city = fields_serializer.validated_data["city"]
+      if "state" in fields_serializer.validated_data:
+        profile.state = fields_serializer.validated_data["state"]
+      if "graduation_year" in fields_serializer.validated_data:
+        profile.graduation_year = fields_serializer.validated_data["graduation_year"]
+      if "major" in fields_serializer.validated_data:
+        profile.major = fields_serializer.validated_data["major"]
+      if "interests" in fields_serializer.validated_data:
+        profile.interests = fields_serializer.validated_data["interests"]
+      if "description" in fields_serializer.validated_data:
+        profile.description = fields_serializer.validated_data["description"]
+      # Mark the profile as having an account
+      profile.has_account = True
+      # Save profile
+      profile.save()
+    # Serialize and return
     profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
   
 
   @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles")
   def swipe_profiles(self, request):
-    """Get a paginated 10 result list of the :class:`~roommatefinder.apps.api.models.Profile` model.
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.ProfileSerializer` object.
-    
-    """
     # @! convert over to an algorithm in a separate file
     # get the ModelViewSet queryset
     profiles = self.get_queryset()

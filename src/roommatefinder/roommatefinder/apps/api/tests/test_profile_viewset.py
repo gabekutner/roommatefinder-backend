@@ -30,23 +30,23 @@ class TestProfileModelViewSet(TestCase):
 
   def test_create(self):
     """ Test creating a profile """
-    request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+    request = self.factory.post('/api/v1/profiles/', {'identifier': 'u1234567'}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
     response = view(request)
     self.assertEqual(response.status_code, 201)
-    self.assertEqual(response.data['identifier'], '123')
+    self.assertEqual(response.data['identifier'], 'u1234567')
 
   def test_create_identifier_that_already_exists(self):
     """ Test creating a profile with an identifier that already exists. """
-    models.Profile.objects.create(identifier="123", otp_verified=True)
-    request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+    models.Profile.objects.create(identifier="u1234567", otp_verified=True)
+    request = self.factory.post('/api/v1/profiles/', {'identifier': 'u1234567'}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
     response = view(request)
     self.assertEqual(response.status_code, 400)
 
   def test_verify_otp(self):
-    profile = models.Profile.objects.create(identifier="123")
-    request = self.factory.post('/api/v1/profiles/actions/verify-otp/', {'otp': profile.otp}, format='json')
+    profile = models.Profile.objects.create(identifier="u1234567")
+    request = self.factory.post('/api/v1/profiles/actions/verify-otp/', {'otp': str(profile.otp)}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'verify_otp'})
     force_authenticate(request, user=profile)
     response = view(request)
