@@ -42,7 +42,7 @@ source env/bin/activate
 echo "🥽 Created venv"
 
 # Download development requirements
-python3 -m pip install -r "${PROJECTPATH}/requirements/_base.txt"
+python3 -m pip install -r "${PROJECTPATH}/requirements/dev.txt"
 
 # Log
 echo "🐍 Installed project dependencies"
