@@ -1,4 +1,0 @@
-
-
-
-# def algorithm(user, profiles):

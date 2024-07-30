@@ -2,23 +2,6 @@ from rest_framework import serializers
 from .. import models
 from ..serializers import photo_serializers
 
-
-class ChoicesField(serializers.Field):
-  """ custom choices field """
-  def __init__(self, choices, **kwargs):
-    self._choices = choices
-    super(ChoicesField, self).__init__(**kwargs)
-
-  def to_representation(self, obj):
-    if obj in self._choices:
-      return self._choices[obj]
-    return obj
-
-  def to_internal_value(self, data):
-    if data in self._choices:
-      return getattr(self._choices, data)
-    raise serializers.ValidationError(["choice not valid"])
-
 # prompts
 # class PromptSerializer(serializers.ModelSerializer):
 #   class Meta:
@@ -64,13 +47,13 @@ class ChoicesField(serializers.Field):
 #   title = serializers.CharField(required=False, allow_null=True)
 #   link = serializers.CharField(required=False, allow_null=True)
 
-# connections
+
 class ConnectionSerializer(serializers.ModelSerializer):
   class Meta:
-      model = models.Connection
-      fields = ['id', 'sender', 'receiver', 'accepted']
+    model = models.Connection
+    fields = ['id', 'sender', 'receiver', 'accepted']
 
-# swipe
+
 class SwipeProfileSerializer(serializers.ModelSerializer):
   sex = serializers.CharField(
     source="get_sex_display", 
@@ -78,9 +61,6 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
     allow_null=False
   )
   photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
-  # prompts = PromptSerializer(source="prompt_set", many=True, read_only=True)
-  # quotes = QuoteSerializer(source="quote_set", many=True, read_only=True)
-  # links = LinkSerializer(source="link_set", many=True, read_only=True)
   # get status of connection between 
   sent_connections = ConnectionSerializer(many=True)
   received_connections = ConnectionSerializer(many=True)
@@ -104,9 +84,6 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
       "thumbnail",
       "graduation_year",
       "photos",
-      # "prompts",
-      # "quotes",
-      # "links",
       "sent_connections",
       "received_connections",
     ]
