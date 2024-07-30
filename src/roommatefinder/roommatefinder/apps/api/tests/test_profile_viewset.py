@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, force_authenticate
 from roommatefinder.apps.api import models, views
@@ -8,8 +9,12 @@ class TestProfileModelViewSet(TestCase):
   def setUp(self):
     """ Setup for the tests """
     self.factory = APIRequestFactory()
+      # bad naming
+
     self.unauthed_user = models.Profile.objects.create(identifier="dave", is_superuser=False, otp_verified=True)
     self.authed_user = models.Profile.objects.create(identifier="gabe", is_superuser=True, otp_verified=True)
+
+  # bad naming
 
   def test_list_unauthed(self):
     """ Test listing profiles without authentication """
@@ -19,6 +24,7 @@ class TestProfileModelViewSet(TestCase):
     response = view(request)
     self.assertEqual(response.status_code, 403)
   
+  # bad naming
   def test_list_authed(self):
     """ Test listing profiles with authentication """
     request = self.factory.get("/")

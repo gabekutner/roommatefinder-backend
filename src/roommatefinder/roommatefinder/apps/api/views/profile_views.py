@@ -391,7 +391,24 @@ class ProfileViewSet(ModelViewSet):
   
 
   @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles")
-  def swipe_profiles(self, request):
+  def swipe_profiles(self, request: Request) -> Response:
+    """
+    Retrieve a list of profiles for the current user to swipe on.
+
+    This method provides a list of profiles that the current user can swipe on. 
+    
+    It filters out profiles 
+    that the user has already connected with or that are excluded by the current swiping algorithm. 
+    The results are paginated for efficient handling.
+
+    Parameters:
+      request (Request): The HTTP request object that includes the parameters for filtering and pagination.
+
+    Returns:
+      Response:
+        - On success: Returns a paginated list of profiles that the user can swipe on.
+        - On failure: Returns an error message with a 400 Bad Request status if an error occurs.
+    """
     # @! convert over to an algorithm in a separate file
     # get the ModelViewSet queryset
     profiles = self.get_queryset()
