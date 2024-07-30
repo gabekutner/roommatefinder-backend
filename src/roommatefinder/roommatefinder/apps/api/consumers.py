@@ -11,7 +11,7 @@ from .serializers import extra_serializers
 
 
 class APIConsumer(WebsocketConsumer):
-  """ Websocket Consume """
+  """ Websocket Consumer """
   def connect(self):
     user = self.scope['user']
     if not user.is_authenticated:
