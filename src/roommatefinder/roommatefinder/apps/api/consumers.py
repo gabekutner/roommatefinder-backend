@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import base64
 from asgiref.sync import async_to_sync
@@ -6,20 +7,48 @@ from channels.generic.websocket import WebsocketConsumer
 from django.core.files.base import ContentFile
 from django.db.models import Q, Exists, OuterRef
 
-from . import models
-from .serializers import extra_serializers
+from roommatefinder.apps.api import models
+from roommatefinder.apps.api.serializers import extra_serializers
 
 
 class APIConsumer(WebsocketConsumer):
-  """ Websocket Consumer """
+  """
+  WebSocket Consumer for handling WebSocket connections.
+
+  This consumer manages WebSocket connections for authenticated users. It allows 
+  users to search, message other users, and send friend requests and accept them.
+
+  Methods:
+    connect():
+      Handles WebSocket connection requests. Checks user authentication and
+      adds the user to a group if authenticated.
+
+    disconnect(close_code):
+      Handles WebSocket disconnection requests. Removes the user from the group
+      upon disconnection.
+
+  Attributes:
+    _id (str): The unique identifier of the user, set during the connection process.
+  """
   def connect(self):
+    """
+    Handles the WebSocket connection request.
+
+    This method is triggered when a WebSocket connection request is made. It performs
+    the following actions:
+    - Checks if the user is authenticated.
+    - If authenticated, adds the user to a group identified by their user ID.
+    - Accepts the WebSocket connection.
+
+    If the user is not authenticated, the connection is closed.
+    """
     user = self.scope['user']
+    # Close connection attempt if user isn't authenticated
     if not user.is_authenticated:
       self.close()
       return
-
+    # Use the users UUID .id attr for connections
     self._id = str(user.id)
-    # join this user to a group by their id
     async_to_sync(self.channel_layer.group_add)(
 			self._id, self.channel_name
 		)
@@ -27,99 +56,154 @@ class APIConsumer(WebsocketConsumer):
 
 
   def disconnect(self, close_code):
-		# leave room/group
+    """
+    Handles the WebSocket disconnection request.
+
+    This method is triggered when a WebSocket disconnection request is made. It performs
+    the following actions:
+    - Removes the user from the group identified by their user ID.
+
+    Args:
+      close_code (int): The code representing the reason for disconnection.
+    """
     async_to_sync(self.channel_layer.group_discard)(
 			self._id, self.channel_name
 		)
 
 
-  #----------------------
-	#   Handle Requests
-	#----------------------
   def receive(self, text_data):
-    # receive message from websocket
-    data = json.loads(text_data)
-    data_source = data.get('source')
+    """
+    Handles incoming messages from the WebSocket.
 
-    # gearch / filter users
-    if data_source == 'search':
-      self.receive_search(data)
+    This method processes messages over the WebSocket connection. It routes the 
+    message to the appropriate handler based on the 'source' field in the received data.
 
-    # get friend list
-    elif data_source == 'friend.list':
-      self.receive_friend_list(data)
-    
-    # get message list
-    elif data_source == 'message.list':
-      self.receive_message_list(data)
+    Args:
+      text_data (str): The JSON-encoded message received from the WebSocket.
 
-		# message has been sent
-    elif data_source == 'message.send':
-      self.receive_message_send(data)
+    Returns:
+        None
 
-		# user is typing message
-    elif data_source == 'message.type':
-      self.receive_message_type(data)
+    The method handles the following types of messages based on the 'source' field:
+        - 'search': Processes search-related messages by calling `receive_search`.
+        - 'friend.list': Retrieves the friend list by calling `receive_friend_list`.
+        - 'message.list': Retrieves the message list by calling `receive_message_list`.
+        - 'message.send': Handles sending messages by calling `receive_message_send`.
+        - 'message.type': Updates typing status by calling `receive_message_type`.
+        - 'request.connect': Handles friend connection requests by calling `receive_request_connect`.
+        - 'request.accept': Accepts friend requests by calling `receive_request_accept`.
+        - 'request.list': Retrieves the list of friend requests by calling `receive_request_list`.
+        ### Possibly deprecated in first version
+        - 'thumbnail': Processes thumbnail uploads by calling `receive_thumbnail`.
 
-    # make friend request
-    elif data_source == 'request.connect':
-      self.receive_request_connect(data)
+    Raises:
+      JSONDecodeError: If the `text_data` is not valid JSON.
+      KeyError: If the 'source' field is missing in the `text_data`.
+    """
+    try:
+      # Receive message from websocket
+      data = json.loads(text_data)
+      data_source = data.get('source')
 
-    # accept friend request
-    elif data_source == 'request.accept':
-      self.receive_request_accept(data)
+      # Route the message based on the 'source' field
+      if data_source == 'search':
+        self.receive_search(data)
 
-    # get request list
-    elif data_source == 'request.list':
-      self.receive_request_list(data)
+      elif data_source == 'friend.list':
+        self.receive_friend_list(data)
+      
+      elif data_source == 'message.list':
+        self.receive_message_list(data)
 
-    # upload thumbnail
-    elif data_source == 'thumbnail':
-      self.receive_thumbnail(data)
+      elif data_source == 'message.send':
+        self.receive_message_send(data)
+
+      elif data_source == 'message.type':
+        self.receive_message_type(data)
+
+      elif data_source == 'request.connect':
+        self.receive_request_connect(data)
+
+      elif data_source == 'request.accept':
+        self.receive_request_accept(data)
+
+      elif data_source == 'request.list':
+        self.receive_request_list(data)
+
+      elif data_source == 'thumbnail':
+        self.receive_thumbnail(data)
+      
+      else:
+        self.send(text_data=json.dumps({'error': 'Unknown source'}))
+
+    except json.JSONDecodeError:
+      self.send(text_data=json.dumps({'error': 'Invalid JSON data'}))
 
 
-  def receive_message_list(self, data):
+  def receive_message_list(self, data: dict) -> None:
+    """
+    Handles incoming WebSocket messages requesting a list of messages for a specific connection.
+
+    This method processes the `message.list` event by retrieving and serializing messages 
+    for a given connection. It paginates the messages, serializes them, and sends the paginated 
+    result along with the recipient's information back to the requester.
+
+    Parameters:
+      data (dict): A dictionary containing:
+        - 'connectionId': The ID of the connection for which to retrieve messages.
+        - 'page': The current page number for pagination.
+
+    Notes:
+      - If the specified connection does not exist, a log message is printed, and no data is sent.
+      - Messages are retrieved with pagination. The page size is fixed at 15 messages per page.
+      - The recipient of the messages is determined based on the connection details.
+      - The response includes serialized messages, the recipient's information, and the pagination status.
+    """
     user = self.scope['user']
     connectionId = data.get('connectionId')
-    page = data.get('page')
+    # Retrieve the page number from the incoming data, defaulting to 0
+    page = data.get('page', 0)
+    # The number of messages per page
     page_size = 15
+
     try:
       connection = models.Connection.objects.get(id=connectionId)
     except models.Connection.DoesNotExist:
-      print({"detail": "couldn't find connection"})
+      print({"detail": "Couldn't find connection."})
       return
     
-    # get messages
+    # Retrieve and paginate messages for the connection
     messages = models.Message.objects.filter(
       connection=connection
     ).order_by('-created')[page * page_size:(page + 1) * page_size]
-    # serialized message
+
+    # Serialize the messages
     serialized_messages = extra_serializers.MessageSerializer(
       messages,
       context={'user': user}, 
       many=True
     )
-    # get recipient friend
+    # Determine the recipient of the messages
     recipient = connection.sender
     if connection.sender == user:
       recipient = connection.receiver
 
-    # serialize friend
+    # Serialize the recipient's information
     serialized_friend = extra_serializers.UserSerializer(recipient)
 
-    # count the total number of messages for this connection
+    # Count the total number of messages for the connection
     messages_count = models.Message.objects.filter(
       connection=connection
     ).count()
-
+    # Determine if there is a next page of messages
     next_page = page + 1 if messages_count > (page + 1 ) * page_size else None
-
+    # Response data
     data = {
       'messages': serialized_messages.data,
       'next': next_page,
       'friend': serialized_friend.data
     }
-    # send back to the requestor
+    # Send back to the requestor
     self.send_group(str(user.id), 'message.list', data)
 
 
@@ -169,22 +253,38 @@ class APIConsumer(WebsocketConsumer):
     self.send_group(str(recipient.id), 'message.send', data)
 
 
-  def receive_message_type(self, data):
-    user = self.scope['user']
+  def receive_message_type(self, data: dict) -> None:
+    """
+    Handles incoming WebSocket messages indicating that a user is typing.
+
+    This method processes the `message.type` event, which is sent when a user is 
+    typing a message. It extracts the recipient's ID from the incoming data and sends a 
+    notification to the group corresponding to the recipient's ID.
+
+    Parameters:
+      data (dict): A dictionary containing the incoming message data. It should 
+      include an `'id'` key representing the recipient's user ID.
+
+    Notes:
+      - The `self.scope['user']` is used to identify the current user, but it is not directly used in this method.
+      - The `data` dictionary is transformed to only include the `'id'` key before sending the message to the recipient.
+      - The `send_group` method is responsible for sending the notification to the appropriate group.
+    """
+    # user = self.scope['user']
     recipient_id = data.get('id')
     data = {'id': str(recipient_id)}
     self.send_group(str(recipient_id), 'message.type', data)
 
 
-  def receive_friend_list(self, data):
+  def receive_friend_list(self, data: dict):
     user = self.scope['user']
-    # get connections for user
+    # Get connections for user
     connections = models.Connection.objects.filter(
       Q(sender=user) | Q(receiver=user),
       accepted=True,
     )
-    serialized = extra_serializers.FriendSerializer(connections, context={ 'user': user}, many=True)
-    # send data back to user
+    serialized = extra_serializers.FriendSerializer(connections, context={'user': user}, many=True)
+    # Send data back to user
     self.send_group(str(user.id), 'friend.list', serialized.data)
 
 

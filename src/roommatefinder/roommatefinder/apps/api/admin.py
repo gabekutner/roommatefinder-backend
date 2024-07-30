@@ -1,29 +1,24 @@
+# -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import (
-  Profile, 
-  Photo, 
-  Connection, 
-  Message, 
-  RoommateQuiz,
-)
+from roommatefinder.apps.api import models
 
 # Register your models here.
-@admin.register(Profile)
+@admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
   list_display = ["name", "identifier", "id"]
 
-@admin.register(Photo)
+@admin.register(models.Photo)
 class PhotoAdmin(admin.ModelAdmin):
   list_display = ["profile", "image"]
 
-@admin.register(Connection)
+@admin.register(models.Connection)
 class ConnectionAdmin(admin.ModelAdmin):
   list_display = ["sender", "receiver"]
 
-@admin.register(Message)
+@admin.register(models.Message)
 class MessageAdmin(admin.ModelAdmin):
   list_display = ["connection"]
 
-@admin.register(RoommateQuiz)
+@admin.register(models.RoommateQuiz)
 class RoommateQuizAdmin(admin.ModelAdmin):
   list_display = ["profile"]
