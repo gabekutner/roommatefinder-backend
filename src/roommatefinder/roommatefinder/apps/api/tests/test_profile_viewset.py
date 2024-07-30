@@ -4,9 +4,9 @@ from roommatefinder.apps.api import models, views
 
 
 class TestProfileModelViewSet(TestCase):
-    """Test ProfileModelViewSet"""
+    """ Test ProfileModelViewSet """
     def setUp(self):
-      """Setup for the tests"""
+      """ Setup for the tests """
       self.factory = APIRequestFactory()
       self.unauthed_user = models.Profile.objects.create(identifier="dave", is_superuser=False, otp_verified=True)
       self.authed_user = models.Profile.objects.create(identifier="gabe", is_superuser=True, otp_verified=True)

@@ -1,6 +1,5 @@
 from django.test import TestCase
 from channels.testing import WebsocketCommunicator
-# from roommatefinder.asgi import application
 from roommatefinder.apps.api import models
 from roommatefinder.apps.api import consumers
 
@@ -8,8 +7,9 @@ from roommatefinder.apps.api import consumers
 class TestAPIConsumer(TestCase):
   """ Test Websocket Consumer """
   def setUp(self):
-    """Setup for the tests"""
+    """ Setup for the tests """
     self.user = models.Profile.objects.create(identifier="gabe", otp_verified=True)
+
 
   async def test_websocket_connect(self):
     # Create a WebSocket communicator

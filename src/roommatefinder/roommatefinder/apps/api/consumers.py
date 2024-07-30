@@ -11,14 +11,13 @@ from .serializers import extra_serializers
 
 
 class APIConsumer(WebsocketConsumer):
-  """ Websocket Consumer for  """
+  """ Websocket Consume """
   def connect(self):
     user = self.scope['user']
     if not user.is_authenticated:
       self.close()
       return
 
-    # self.id, self._id = str(user.id), user.id
     self._id = str(user.id)
     # join this user to a group by their id
     async_to_sync(self.channel_layer.group_add)(
@@ -26,12 +25,13 @@ class APIConsumer(WebsocketConsumer):
 		)
     self.accept()
 
+
   def disconnect(self, close_code):
 		# leave room/group
     async_to_sync(self.channel_layer.group_discard)(
 			self._id, self.channel_name
 		)
-		
+
 
   #----------------------
 	#   Handle Requests
