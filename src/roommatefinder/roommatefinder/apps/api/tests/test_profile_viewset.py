@@ -26,5 +26,22 @@ class TestProfileModelViewSet(TestCase):
       force_authenticate(request, user=self.authed_user)
       response = view(request)
       self.assertEqual(response.status_code, 200)
-    
+      self.assertEqual(response.data['profile_count'], 2)
+
+    def test_create(self):
+      """ Test creating a profile """
+      request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+      view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
+      response = view(request)
+      self.assertEqual(response.status_code, 201)
+      self.assertEqual(response.data['identifier'], '123')
+
+    def test_create_identifier_that_already_exists(self):
+      """ Test creating a profile with an identifier that already exists. """
+      models.Profile.objects.create(identifier="123", otp_verified=True)
+      request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+      view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
+      response = view(request)
+      self.assertEqual(response.status_code, 400)
+
     

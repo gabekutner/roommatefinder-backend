@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
 from .. import models, pagination
-from ..utils import exec
 from ..serializers import profile_serializers, swipe_serializers
 
 
@@ -58,10 +57,7 @@ class ProfileViewSet(ModelViewSet):
       serializer = profile_serializers.ProfileSerializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     except:
-      return Response(
-        {"detail": "A profile with this identifier already exists."}, 
-        status=status.HTTP_400_BAD_REQUEST
-      )
+      return Response({"detail": "A profile with this identifier already exists."}, status=status.HTTP_400_BAD_REQUEST)
     
 
   @action(detail=False, methods=["post"], url_path=r"actions/verify-otp")
@@ -145,8 +141,6 @@ class ProfileViewSet(ModelViewSet):
         {"detail": f"Profile: {pk} doesn't exist."}, 
         status=status.HTTP_400_BAD_REQUEST
       )
-
-    exec.only_admin_and_user(profile.id, request)
     serializer = profile_serializers.ProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
@@ -207,8 +201,6 @@ class ProfileViewSet(ModelViewSet):
         {"detail": f"Profile: {pk} doesn't exist."}, 
         status=status.HTTP_400_BAD_REQUEST
       )
-    # only admin and user
-    exec.only_admin_and_user(profile.id, request)
     profile.delete()
     return Response(
       {"detail": f"Profile: {pk} deleted successfully."}, 
@@ -338,7 +330,6 @@ class ProfileViewSet(ModelViewSet):
         status=status.HTTP_400_BAD_REQUEST
       )
 
-    exec.only_admin_and_user(profile.id, request)
     serializer = swipe_serializers.SwipeProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
