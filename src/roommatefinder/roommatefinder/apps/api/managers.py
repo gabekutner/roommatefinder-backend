@@ -2,7 +2,9 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.db.models.functions import Coalesce
-from django.db.models import Case, When, IntegerField, Value
+from django.db.models import Case, When, IntegerField, Value, Q
+
+from roommatefinder.apps.api import models
 
 
 class CustomUserManager(BaseUserManager):
@@ -89,6 +91,21 @@ class CustomUserManager(BaseUserManager):
     user_interests = set(user_profile.interests)
     # Base queryset, exclude current user
     profiles = self.get_queryset().exclude(id=user_profile.id)
+    # Only get accounts with an account set up
+    profiles = profiles.filter(has_account=True)
+    # Get connections involving the user
+    connections = models.Connection.objects.filter(
+        Q(sender=user_profile.id) | Q(receiver=user_profile.id),
+        accepted=True
+    )
+    # Remove connections from the results
+    excluded_ids = connections.values_list('sender', 'receiver')
+    excluded_ids = set(id for sublist in excluded_ids for id in sublist)
+    
+    # Exclude current user and their connections
+    if not excluded_ids:
+      excluded_ids = {user_profile.id}
+    profiles = profiles.exclude(id__in=excluded_ids)
 
     # Annotate similarity scores
     profiles = profiles.annotate(

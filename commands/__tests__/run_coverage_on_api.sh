@@ -6,7 +6,8 @@ echo "Starting ${GITHUB_WORKFLOW}:${GITHUB_ACTION}"
 source project.config
 
 coverage erase
-coverage run --source=roommatefinder.apps.api src/roommatefinder/manage.py test roommatefinder.apps.api --settings=roommatefinder.settings.test
+# updated 07/30 : ignore the routing.py file - no executable code
+coverage run --omit="*/routing.py" --source=roommatefinder.apps.api src/roommatefinder/manage.py test roommatefinder.apps.api --settings=roommatefinder.settings.test
 
 # get coverage report
 COVERAGE_RESULT=`coverage report | grep TOTAL | awk 'N=1 {print $NF}' | sed 's/%//g'`
