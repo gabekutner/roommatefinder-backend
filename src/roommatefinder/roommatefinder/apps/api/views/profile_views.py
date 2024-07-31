@@ -390,7 +390,7 @@ class ProfileViewSet(ModelViewSet):
     return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
   
 
-  @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles")
+  @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles", url_name="swipe-profiles")
   def swipe_profiles(self, request: Request) -> Response:
     """
     Retrieve a list of profiles for the current user to swipe on.
@@ -409,106 +409,95 @@ class ProfileViewSet(ModelViewSet):
         - On success: Returns a paginated list of profiles that the user can swipe on.
         - On failure: Returns an error message with a 400 Bad Request status if an error occurs.
     """
-    # @! convert over to an algorithm in a separate file
-    # get the ModelViewSet queryset
-    profiles = self.get_queryset()
-    profiles = profiles.filter(has_account=True)
-    
-    connections = models.Connection.objects.filter(
-      Q(sender=request.user.id) | Q(receiver=request.user.id),
-      accepted=True
-    )
-    # remove connections from a result
-    excluded_ids = connections.values_list('sender', 'receiver')
-    excluded_ids = set([id for sublist in excluded_ids for id in sublist])
-    
-    # remove current user for result by default
-    if not bool(excluded_ids):
-      excluded_ids = set([request.user.id])
-
-    profiles = profiles.exclude(id__in=excluded_ids)
-
+    profiles = models.Profile.objects.rank_profiles(user_profile=request.user)
     # Apply pagination
     paginator = pagination.StandardResultsSetPagination()
     paginated_profiles = paginator.paginate_queryset(profiles, request, view=self)
-    
     # Serialize the paginated profiles
     serializer = swipe_serializers.SwipeProfileSerializer(paginated_profiles, many=True)
     return paginator.get_paginated_response(serializer.data)
 
   
-  @action(detail=True, methods=["get"], url_path=r"actions/swipe-profile")
-  def swipe_profile(self, request, pk=None):
-    """Get a single :class:`~roommatefinder.apps.api.models.Profile` instance as a class:`~roommatefinder.apps.api.serialiers.profile_serializers.SwipeProfileSerializer` object.
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.profile_serializers.ProfileSerializer` object.
-
-    Required parameters:
-
-    :param pk: The id of the profile to get
-
+  @action(detail=True, methods=["get"], url_path=r"actions/swipe-profile", url_name="swipe-profile")
+  def swipe_profile(self, request: Request, pk=None) -> Response:
     """
-    # /api/v1/profiles/{pk}/actions/swipe-profile/
-    try:
-      profile = models.Profile.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-      return Response(
-        {"detail": f"Profile: {pk} doesn't exist."}, 
-        status=status.HTTP_400_BAD_REQUEST
-      )
+    Retrieve a specific profile's details to facilitate swiping actions.
+    
+    This endpoint allows the client to obtain the details of a profile identified by `pk`.
+    It is used to fetch and view a profile's information, typically used in swipe-based
+    user interfaces where profiles are presented one at a time.
 
+    URL Path:
+        /api/v1/profiles/{pk}/actions/swipe-profile/
+
+    Parameters:
+        request (Request): The HTTP request object.
+        pk (int, optional): The primary key of the profile to retrieve. 
+
+    Returns:
+        Response: A response containing the serialized profile data or an error message if the profile does not exist.
+
+    HTTP Status Codes:
+        - 200 OK: The profile was found and returned successfully.
+        - 404 Not Found: The profile with the given `pk` does not exist.
+    """
+    try:
+      profile = self.queryset.filter(pk=pk)
+    except ObjectDoesNotExist:
+      return Response({"detail": f"Profile: {pk} doesn't exist."}, status=status.HTTP_404_NOT_FOUND)
+    # Serialize and return
     serializer = swipe_serializers.SwipeProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
   #! @not in v 1.0.0
-  @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
-  def block_profile(self, request, pk=None):
-    """ block a profile """
-    current_profile = request.user
-    try:
-      blocked_profile = models.Profile.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-      return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-    current_profile.block_profile(blocked_profile)
-    return Response({"detail": f"successfully blocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
+  # @action(detail=True, methods=["post"], url_path=r"actions/block-profile")
+  # def block_profile(self, request, pk=None):
+  #   """ block a profile """
+  #   current_profile = request.user
+  #   try:
+  #     blocked_profile = models.Profile.objects.get(pk=pk)
+  #   except ObjectDoesNotExist:
+  #     return Response({"detail": "profile does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+  #   current_profile.block_profile(blocked_profile)
+  #   return Response({"detail": f"successfully blocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
   
   #! @not in v 1.0.0
-  @action(detail=True, methods=["post"], url_path=r"actions/unblock-profile")
-  def unblock_profile(self, request, pk=None):
-    """ unblock a profile """
-    profile = request.user
-    try:
-      blocked_profile = models.Profile.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-      return Response({"detail": "profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
-    profile.blocked_profiles.remove(blocked_profile)
-    return Response({"detail": f"successfully unblocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
+  # @action(detail=True, methods=["post"], url_path=r"actions/unblock-profile")
+  # def unblock_profile(self, request, pk=None):
+  #   """ unblock a profile """
+  #   profile = request.user
+  #   try:
+  #     blocked_profile = models.Profile.objects.get(pk=pk)
+  #   except ObjectDoesNotExist:
+  #     return Response({"detail": "profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
+  #   profile.blocked_profiles.remove(blocked_profile)
+  #   return Response({"detail": f"successfully unblocked {blocked_profile.id}"}, status=status.HTTP_200_OK)
   
   #! @not in v 1.0.0
-  @action(detail=False, methods=["get"], url_path=r"actions/get-blocked-profiles")
-  def get_blocked_profiles(self, request):
-    """ get all blocked profiles """
-    current_profile = request.user
-    blocked_profiles = current_profile.blocked_profiles.all()
-    serializer = swipe_serializers.SwipeProfileSerializer(blocked_profiles, many=True)
-    return Response({"count": blocked_profiles.count(), "results": serializer.data})
+  # @action(detail=False, methods=["get"], url_path=r"actions/get-blocked-profiles")
+  # def get_blocked_profiles(self, request):
+  #   """ get all blocked profiles """
+  #   current_profile = request.user
+  #   blocked_profiles = current_profile.blocked_profiles.all()
+  #   serializer = swipe_serializers.SwipeProfileSerializer(blocked_profiles, many=True)
+  #   return Response({"count": blocked_profiles.count(), "results": serializer.data})
 
   #! @not in v 1.0.0
-  @action(detail=False, methods=["post"], url_path=r"actions/reset-password")
-  def reset_password(self, request):
-    """ reset password """
-    current_profile = request.user
-    data = request.data
-    password = data["password"]
-    repeated_password = data["repeated_password"]
+  # @action(detail=False, methods=["post"], url_path=r"actions/reset-password")
+  # def reset_password(self, request):
+  #   """ reset password """
+  #   current_profile = request.user
+  #   data = request.data
+  #   password = data["password"]
+  #   repeated_password = data["repeated_password"]
 
-    if password == repeated_password:
-      current_profile.password = make_password(password)
-      current_profile.save()
-      return Response({"detail": "your password has been reset"}, status=status.HTTP_200_OK)
+  #   if password == repeated_password:
+  #     current_profile.password = make_password(password)
+  #     current_profile.save()
+  #     return Response({"detail": "your password has been reset"}, status=status.HTTP_200_OK)
 
-    return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
+  #   return Response({"detail": "your passwords don't match"}, status=status.HTTP_400_BAD_REQUEST)
   
 
   @action(detail=False, methods=["post"], url_path=r"actions/pause-profile")
