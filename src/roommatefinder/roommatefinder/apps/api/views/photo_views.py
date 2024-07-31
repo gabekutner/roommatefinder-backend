@@ -4,8 +4,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from .. import models
-from ..serializers import photo_serializers, profile_serializers
+
+from roommatefinder.apps.api import models
+from roommatefinder.apps.api.serializers import photo_serializers, profile_serializers
 
 
 class PhotoViewSet(ModelViewSet):
@@ -17,7 +18,6 @@ class PhotoViewSet(ModelViewSet):
     # add many=True if the data is of type list
     if isinstance(kwargs.get("data", {}), list):
       kwargs["many"] = True
-
     return super(PhotoViewSet, self).get_serializer(*args, **kwargs)
 
 
