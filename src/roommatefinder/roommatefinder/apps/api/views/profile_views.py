@@ -113,7 +113,7 @@ class ProfileViewSet(ModelViewSet):
             "identifier": "u1234567"
           },
         }, 
-        status=status.HTTP_404_NOT_FOUND
+        status=status.HTTP_400_BAD_REQUEST
       )
 
     try:
@@ -123,7 +123,7 @@ class ProfileViewSet(ModelViewSet):
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     except:
       # Return an error response if a profile with the given identifier already exists
-      return Response({"detail": "A profile with this identifier already exists."}, status=status.HTTP_400_BAD_REQUEST)
+      return Response({"detail": "A profile with this identifier already exists."}, status=status.HTTP_403_FORBIDDEN)
     
 
   @action(detail=False, methods=["post"], url_path=r"actions/verify-otp", url_name="otp-verify")

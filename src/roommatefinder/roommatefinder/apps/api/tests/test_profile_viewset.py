@@ -48,6 +48,13 @@ class TestProfileModelViewSet(TestCase):
     request = self.factory.post('/api/v1/profiles/', {'identifier': 'u1234567'}, format='json')
     view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
     response = view(request)
+    self.assertEqual(response.status_code, 403)
+
+  def test_create_identifier_with_faulty_identifier(self):
+    """ Test creating a profile with an identifier that's not a uid, phone, or email """
+    request = self.factory.post('/api/v1/profiles/', {'identifier': '123'}, format='json')
+    view = views.profile_views.ProfileViewSet.as_view({'post': 'create'})
+    response = view(request)
     self.assertEqual(response.status_code, 400)
 
   def test_verify_otp(self):
