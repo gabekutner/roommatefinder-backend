@@ -13,20 +13,19 @@ from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
 
 
 def upload_thumbnail(instance, filename):
-  """Defines where to upload a ``Profile`` thumbnail."""
+  """ Defines where to upload a thumbnail. """
   path = f'thumbnails/{instance.id}'
   extension = filename.split('.')[-1]
   if extension:
     path = path + '.' + extension
   return path
 
+
 # Create your models here.
 class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
-  """ profile model """
   SEX_CHOICES = Choices(("M", "Male"), ("F", "Female"))
   
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  # email, phone, uid
   identifier = models.CharField(max_length=200, unique=True)
   name = models.CharField(max_length=200, null=True)
   password = models.CharField(max_length=200)
@@ -40,14 +39,12 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   interests = MultiSelectField(choices=POPULAR_CHOICES, max_choices=5, max_length=1000)
   graduation_year = models.PositiveIntegerField(null=True, blank=True)
 
-  # otp
   otp = models.CharField(max_length=6, null=True, blank=True)
   otp_expiry = models.DateTimeField(blank=True, null=True)
   max_otp_try = models.CharField(max_length=2, default=3)
   otp_max_out = models.DateTimeField(blank=True, null=True)
   otp_verified = models.BooleanField(default=False)
 
-  # background
   is_staff = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
   has_account = models.BooleanField(default=False)
@@ -73,40 +70,14 @@ class Profile(AbstractBaseUser, PermissionsMixin, CreationModificationDateBase):
   USERNAME_FIELD = "identifier"
   # required for creating user
   REQUIRED_FIELDS = []
-
+  # custom profile creation + swiping algorithm 
   objects = CustomUserManager()
-  
-  @property
-  def progress(self):
-    attrs = self.__dict__
-    attrs_to_delete = (
-      '_state', 'last_login', 'is_superuser',
-      'created', 'modified', 'id',
-      'password', 'is_staff', 'is_active',
-      'has_account',
-    )
-    for attr in attrs_to_delete:
-      attrs.pop(attr, None)
-
-    progress = 0
-    count = attrs.keys().__len__()
-    for key in attrs.keys():
-      if attrs[key] == None:
-        progress += 1
-
-    return 100 - int((progress / count) * 100)
-
-  def block_profile(self, blocked_profile):
-    """ block a profile """
-    # remove connection, messages, and ... that should be it
-    self.blocked_profiles.add(blocked_profile)
 
   def delete(self):
     super().delete()
 
 
 class Photo(CreationModificationDateBase):
-  """ photo model """    
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   profile = models.ForeignKey(Profile, default=None, on_delete=models.CASCADE)
   image = models.ImageField(null=True, blank=True)
@@ -117,7 +88,6 @@ class Photo(CreationModificationDateBase):
 
 
 class RoommateQuiz(CreationModificationDateBase):
-  """ roommate matching quiz model """
   profile = models.OneToOneField(
     Profile,
     on_delete=models.CASCADE,
@@ -165,8 +135,8 @@ class RoommateQuiz(CreationModificationDateBase):
   wake_up_time = models.CharField(max_length=100, null=False, blank=True, default="")
   sharing_policy = models.CharField(max_length=100, null=False, blank=True, default="")
 
+
 class Connection(CreationModificationDateBase): 
-  """ connection model """
   sender = models.ForeignKey(
     Profile,
     related_name='sent_connections',
@@ -178,15 +148,12 @@ class Connection(CreationModificationDateBase):
     on_delete=models.CASCADE
   )
   accepted = models.BooleanField(default=False)
-  # new data point - display_match:bool , default = false
-  # if model is being updated than display_match=True
-  display_match = models.BooleanField(default=False)
   
   def __str__(self):
 	  return str(self.sender.id) + ' -> ' + str(self.receiver.id)
 
+
 class Message(CreationModificationDateBase):
-  """ message model """
   connection = models.ForeignKey(
 		Connection,
 		related_name='messages',

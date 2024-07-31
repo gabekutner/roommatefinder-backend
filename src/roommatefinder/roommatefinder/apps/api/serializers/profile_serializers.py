@@ -20,7 +20,7 @@ class ProfileSerializer(serializers.ModelSerializer):
               'identifier', 'name', 'age',
               'major', 'city', 'state', 'description',
               'dorm_building', 'interests', 'has_account',
-              'thumbnail', 'progress', 'graduation_year', 
+              'thumbnail', 'graduation_year', 
               'pause_profile', 'otp_verified']
   
   # refresh the token everytime the user is called

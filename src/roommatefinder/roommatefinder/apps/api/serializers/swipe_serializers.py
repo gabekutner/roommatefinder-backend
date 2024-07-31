@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 from rest_framework import serializers
 
-from .. import models
-from . import photo_serializers, extra_serializers
+from roommatefinder.apps.api import models
+from roommatefinder.apps.api.serializers import photo_serializers, extra_serializers
 
 
 class SwipeProfileSerializer(serializers.ModelSerializer):
@@ -18,10 +19,20 @@ class SwipeProfileSerializer(serializers.ModelSerializer):
   class Meta:
     model = models.Profile
     fields = [
-      "id", "identifier", "name",
-      "age", "sex",
-      "city", "state", "major",
-      "dorm_building", "description", "interests", 
-      "thumbnail", "graduation_year", "photos",
-      "sent_connections", "received_connections",
+      "id", 
+      "identifier", 
+      "name",
+      "age", 
+      "sex",
+      "city",
+      "state", 
+      "major",
+      "dorm_building", 
+      "description", 
+      "interests", 
+      "thumbnail", 
+      "graduation_year", 
+      "photos",
+      "sent_connections", 
+      "received_connections"
     ]
