@@ -10,10 +10,9 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q
 
-from .. import models, pagination
-from ..serializers import profile_serializers, swipe_serializers
+from roommatefinder.apps.api import models, pagination
+from roommatefinder.apps.api.serializers import profile_serializers, swipe_serializers
 
 
 class ProfileViewSet(ModelViewSet):
@@ -24,7 +23,7 @@ class ProfileViewSet(ModelViewSet):
     ModelViewSet (rest_framework.viewsets)
 
   Attributes:
-    queryset (QuerySet): The queryset to be used for this viewset.
+    queryset (QuerySet): A Profile queryset.
     serializer_class (Type[profile_serializers.ProfileSerializer]): The serializer class to be used.
     permission_classes (list): List of permission classes for access control.
   """
@@ -57,7 +56,7 @@ class ProfileViewSet(ModelViewSet):
     """
     # Check if the user is a superuser
     if not request.user.is_superuser:
-      return Response({"detail": "Unauthorizd access"}, status=status.HTTP_403_FORBIDDEN)
+      return Response({"detail": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
 
     serializer = profile_serializers.ProfileSerializer(self.queryset, many=True)
     # Prepare the response data
@@ -102,16 +101,9 @@ class ProfileViewSet(ModelViewSet):
     except Exception:
       return Response(
         {
-          "detail": "Please provide an identifier as a string. Identifier's can be an email address, a phone number, or a UID.",
-          "example_request_email": {
-            "identifier": "example@gmail.com"
-          },
-          "example_request_phone": {
-            "identifier": "123 123 1234"
-          },
-          "example_request_uid": {
-            "identifier": "u1234567"
-          },
+          "identifier": [
+            "This field is required."
+          ]
         }, 
         status=status.HTTP_400_BAD_REQUEST
       )
@@ -155,10 +147,9 @@ class ProfileViewSet(ModelViewSet):
     except Exception:
       return Response(
         {
-          'detail': 'Please provide a 4-digit otp code as a string.',
-          'example_request': {
-            'otp': '1234'
-          }
+          "otp": [
+            "This field is required."
+          ]
         }, 
         status=status.HTTP_400_BAD_REQUEST
       )

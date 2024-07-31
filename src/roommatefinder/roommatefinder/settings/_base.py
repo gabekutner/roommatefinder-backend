@@ -232,9 +232,10 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 # no static files are hosting on the api, remove in production
-STATICFILES_DIRS = [
-  os.path.join(BASE_DIR, 'roommatefinder', 'site_static'),
-]
+
+# STATICFILES_DIRS = [
+#   os.path.join(BASE_DIR, 'roommatefinder', 'site_static'),
+# ]
 
 timestamp = get_git_changeset_timestamp(BASE_DIR)
 STATIC_URL = f'/static/{timestamp}/'

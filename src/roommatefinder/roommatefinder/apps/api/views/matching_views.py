@@ -1,78 +1,132 @@
 # -*- coding: utf-8 -*-
+from typing import Optional
+
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.request import Request
 
-from .. import models
-from ..serializers.matching_serializers import RoommateQuizSerializer, CreateRoommateQuizSerializer, UpdateRoommateQuiz
+from roommatefinder.apps.api import models
+from roommatefinder.apps.api.serializers import matching_serializers
 
 
 class RoommateQuizViewSet(ModelViewSet):
+  """
+  ViewSet for managing matching quizs.
+
+  Inherits from:
+    ModelViewSet (rest_framework.viewsets)
+
+  Attributes:
+    queryset (QuerySet): A RoommateQuiz queryset.
+    serializer_class (Type[matching_serializers.RoomateQuizSerializer])
+    permission_classes (list): List of permission classes for access control.
+  """
   queryset = models.RoommateQuiz.objects.all()
-  serializer_class = RoommateQuizSerializer
+  serializer_class = matching_serializers.RoommateQuizSerializer
   permission_classes = [IsAuthenticated]
 
-  def list(self, request):
-    """ Get all matching quizes. """
-    serializer = RoommateQuizSerializer(self.queryset, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-  def retrieve(self, request, pk=None):
-    """Get method for the :class:`~roommatefinder.apps.api.models.RoommateQuiz` model. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.matching_serializers.RoommateQuizSerializer` object.
-
+  def list(self, request: Request) -> Response:
     """
-    quiz = self.queryset.filter(profile=pk)
-    serializer = RoommateQuizSerializer(quiz, many=True)
+    List all matching quizs. Only accessible by superusers.
+
+    Parameters:
+      request (Request): The incoming HTTP request.
+
+    Returns:
+      Response: A Response object containing the profile data or an unauthorized error message.
+    """
+     # Check if the user is a superuser
+    if not request.user.is_superuser:
+      return Response({"detail": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+    
+    serializer = matching_serializers.RoommateQuizSerializer(self.queryset, many=True)
+    # Prepare the response data
+    response_data = {
+      "message": "Hello admin.",
+      "profile_count": self.queryset.count(),
+      "profiles": serializer.data
+    }
+    return Response(response_data, status=status.HTTP_200_OK)
+
+
+  def retrieve(self, request: Request, pk: Optional[int] = None) -> Response:
+    """
+    Retrieve a matching quiz by the id of the profile who associated with it.
+
+    This method attempts to fetch a matching quiz based on the provided primary key (pk). 
+    If the quiz is not found, it returns a 400 Bad Request response with an error message.
+
+    Parameters:
+      request (Request): The HTTP request object that triggered this action.
+      pk (Optional[int]): The primary key of the quiz to retrieve. Defaults to None.
+
+    Returns:
+      Response: 
+        - On success: Returns the quiz data serialized with a 200 OK status.
+        - On failure: Returns an error message with a 400 Bad Request status if the quiz does not exist.
+    """
+    try:
+      quiz = self.queryset.get(profile=pk)
+    except ObjectDoesNotExist:
+      return Response(
+        {
+          "detail": f"Quiz: {pk} doesn't exist."
+        }, 
+        status=status.HTTP_400_BAD_REQUEST
+      )
+    # Serialize result
+    serializer = matching_serializers.RoommateQuizSerializer(quiz, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-  def create(self, request):
-    """Create method for the :class:`~roommatefinder.apps.api.models.Profile` model. 
-    
-    Returns a :class:`~roommatefinder.apps.api.serializers.profile_serializers.ProfileSerializer` object.
+  def create(self, request: Request) -> Response:
+    """
+    Create a new quiz for the authenticated user.
 
-    Required parameters:
+    Parameters:
+      request (Request): The incoming HTTP request containing profile data.
 
-      :param social_battery: integer
-      :param clean_room: string
-      :param noise_level: integer
-      :param guest_policy: string
-      :param in_room: integer
-      :param hot_cold: integer
-      :param bed_time: string
-      :param wake_up_time: string
-      :param sharing_policy: string
-
+    Returns:
+      Response: A Response object indicating the result of the profile creation.
+        - On success: Returns the serialized quiz data and a 201 Created status.
+        - On failure: Returns an error message indicating that the quiz creation failed. 
     """
     profile = request.user
-    field_serializer = CreateRoommateQuizSerializer(data=request.data, many=False)
+    # Init serializer
+    field_serializer = matching_serializers.CreateRoommateQuizSerializer(data=request.data, many=False)
     if field_serializer.is_valid(raise_exception=True):
+      # Create profile fields with validated data
       quiz = models.RoommateQuiz.objects.create(profile=profile, **field_serializer.validated_data)
     else:
       return Response(
         {'detail': f'Create matching quiz for Profile: {profile.id} failed.'}, 
         status=status.HTTP_400_BAD_REQUEST
       )
-    
-    matching_serializer = RoommateQuizSerializer(quiz)
+    # Serialize and return
+    matching_serializer = matching_serializers.RoommateQuizSerializer(quiz)
     return Response(matching_serializer.data, status=status.HTTP_201_CREATED)
 
 
-  def update(self, request, pk=None):
-    """Update method for the :class:`~roommatefinder.apps.api.models.RoommateQuiz` model. 
-
-    Returns a :class:`~roommatefinder.apps.api.serializers.matching_serializers.RoommateQuizSerializer` object.
-
+  def update(self, request: Request, pk=None) -> Response:
     """
-    field_serializer = UpdateRoommateQuiz(data=request.data)
+    Update a quiz for the authenticated user.
+
+    Parameters:
+      request (Request): The incoming HTTP request containing profile data.
+
+    Returns:
+      Response: A Response object indicating the result of the profile creation.
+        - On success: Returns the serialized profile data and a 201 Created status.
+        - On failure: Returns an error message indicating that a profile with the given identifier already exists, with a 400 Bad Request status.
+    """
+    field_serializer = matching_serializers.UpdateRoommateQuiz(data=request.data)
     if field_serializer.is_valid(raise_exception=True):
       try:
-        quiz = models.RoommateQuiz.objects.get(pk=pk)
+        quiz = self.queryset.get(pk=pk)
       except ObjectDoesNotExist:
         return Response({"detail": f"Profile: {pk} doesn't exist."}, status=status.HTTP_400_BAD_REQUEST)
       
@@ -101,7 +155,7 @@ class RoommateQuizViewSet(ModelViewSet):
         status=status.HTTP_400_BAD_REQUEST
       )
   
-    quiz_serializer = RoommateQuizSerializer(quiz)
+    quiz_serializer = matching_serializers.RoommateQuizSerializer(quiz)
     return Response(quiz_serializer.data, status=status.HTTP_200_OK)
 
 

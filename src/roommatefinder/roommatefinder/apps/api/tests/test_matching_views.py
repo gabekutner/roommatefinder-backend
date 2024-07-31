@@ -14,7 +14,7 @@ class TestMatchingViews(TestCase):
   def test_list_auth(self):
     request = self.factory.get("/")
     view = views.matching_views.RoommateQuizViewSet.as_view({'get': 'list'})
-    force_authenticate(request, user=self.user)
+    force_authenticate(request, user=self.superuser)
     response = view(request)
     self.assertEqual(response.status_code, 200)
   
