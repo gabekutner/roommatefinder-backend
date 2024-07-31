@@ -53,10 +53,8 @@ class PhotoViewSet(ModelViewSet):
     for image in images:
       modified_data = modify_input_for_multiple_files(image)
       file_serializer = photo_serializers.CreatePhotoSerializer(data=modified_data)
-      if file_serializer.is_valid():
-        models.Photo.objects.create(
-          profile=profile, image=image
-        )
+      if file_serializer.is_valid(raise_exception=True):
+        models.Photo.objects.create(profile=profile, image=image)
       else:
         return Response({"detail": "Invalid data."}, status=status.HTTP_400_BAD_REQUEST)
       
