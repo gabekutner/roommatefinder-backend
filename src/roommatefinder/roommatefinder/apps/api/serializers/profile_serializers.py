@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -5,6 +6,29 @@ from roommatefinder.apps.api.serializers import photo_serializers
 from roommatefinder.apps.api import models
 from roommatefinder.apps.api.utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
+
+
+class BaseProfileSerializer(serializers.ModelSerializer):
+  """
+  Base Profile Serializer class, access to all data points.
+  """
+  token = serializers.SerializerMethodField(read_only=True)
+  refresh_token = serializers.SerializerMethodField(read_only=True)
+
+  class Meta:
+    model = models.Profile
+    exclude = ('password', )
+
+  def get_token(self, profile):
+    """
+    Refresh the token everytime the user is called
+    """
+    token = RefreshToken.for_user(profile)
+    return str(token.access_token)
+
+  def get_refresh_token(self, profile):
+    token = RefreshToken.for_user(profile)
+    return str(token)  
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -23,8 +47,10 @@ class ProfileSerializer(serializers.ModelSerializer):
               'thumbnail', 'graduation_year', 
               'pause_profile', 'otp_verified']
   
-  # refresh the token everytime the user is called
   def get_token(self, profile):
+    """
+    Refresh the token everytime the user is called
+    """
     token = RefreshToken.for_user(profile)
     return str(token.access_token)
 
