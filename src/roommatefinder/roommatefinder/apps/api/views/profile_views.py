@@ -27,9 +27,10 @@ class ProfileViewSet(ModelViewSet):
     serializer_class (Type[profile_serializers.ProfileSerializer]): The serializer class to be used.
     permission_classes (list): List of permission classes for access control.
   """
-  queryset = models.Profile.objects.all()
-  serializer_class = profile_serializers.ProfileSerializer
+  queryset = models.Profile.objects.all() # Default queryset
+  serializer_class = profile_serializers.BaseProfileSerializer
   permission_classes = [IsAuthenticated]
+
 
   def get_permissions(self):
     """
@@ -52,20 +53,22 @@ class ProfileViewSet(ModelViewSet):
       request (Request): The incoming HTTP request.
 
     Returns:
-      Response: A Response object containing the profile data or an unauthorized error message.
+      Response: A Response object with user data serialized with BaseProfileSerializer.  
     """
     # Check if the user is a superuser
     if not request.user.is_superuser:
       return Response({"detail": "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+    
+    serializer = self.get_serializer(self.queryset, many=True)
 
-    serializer = profile_serializers.ProfileSerializer(self.queryset, many=True)
-    # Prepare the response data
-    response_data = {
-      "message": "Hello admin.",
-      "profile_count": self.queryset.count(),
-      "profiles": serializer.data
-    }
-    return Response(response_data, status=status.HTTP_200_OK)
+    return Response(
+      {
+        "message": "Hello admin.",
+        "profile_count": self.queryset.count(),
+        "profiles": serializer.data,
+      },
+      status=status.HTTP_200_OK
+    )
     
 
   def create(self, request: Request) -> Response:
@@ -76,7 +79,7 @@ class ProfileViewSet(ModelViewSet):
       request (Request): The incoming HTTP request containing profile data.
 
     Returns:
-      Response: A Response object indicating the result of the profile creation.
+      Response: A Response object serialized with BaseProfileSerializer.
         - On success: Returns the serialized profile data and a 201 Created status.
         - On failure: Returns an error message indicating that a profile with the given identifier already exists, with a 400 Bad Request status.
     """
@@ -111,7 +114,7 @@ class ProfileViewSet(ModelViewSet):
     try:
       # Attempt to create a new profile with the provided identifier
       profile = models.Profile.objects.create(identifier=identifier)
-      serializer = profile_serializers.ProfileSerializer(profile, many=False)
+      serializer = self.get_serializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     except:
       # Return an error response if a profile with the given identifier already exists
@@ -131,7 +134,7 @@ class ProfileViewSet(ModelViewSet):
       request (Request): The incoming HTTP request containing the OTP.
 
     Returns:
-      Response: A Response object indicating the result of the OTP verification.
+      Response: A Response object with user data serialized with BaseProfileSerializer.  
         - On success: Returns the updated profile data and a 200 OK status.
         - On failure: Returns an error message with a 400 Bad Request status.
     """
@@ -155,12 +158,8 @@ class ProfileViewSet(ModelViewSet):
       )
 
     try:
-      # Necessary query
-      ## if you use >>> self.queryset.filter(id=user.id)
-      ## an error is raised that there is no attribute profile.otp
-      ## because profile_serializers.ProfileSerializer does not have the 
-      ## otp related fields other than otp_verified
-      profile = models.Profile.objects.get(id=user.id)
+      # 8/2/24 : changed unnecessary query 
+      profile = self.queryset.get(id=user.id)
     except models.Profile.DoesNotExist:
       return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
     
@@ -172,8 +171,7 @@ class ProfileViewSet(ModelViewSet):
       profile.otp_max_out = None
       profile.otp_verified = True
       profile.save()
-      # Serialize the updated profile
-      serializer = profile_serializers.ProfileSerializer(profile, many=False)
+      serializer = self.get_serializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_200_OK)
     else:
       # OTP is incorrect
@@ -220,7 +218,6 @@ class ProfileViewSet(ModelViewSet):
 
     try:
       # Get profile out of the queryset
-      ## This works because otp_verified is included in ProfileSerializer
       profile = self.queryset.get(id=user.id)
       # Ensure user is otp verified before creating their password.
       if not profile.otp_verified:
@@ -231,8 +228,7 @@ class ProfileViewSet(ModelViewSet):
       # Create the password
       profile.password = make_password(request.data["password"])
       profile.save()
-      # Serialize
-      serializer = profile_serializers.ProfileSerializer(profile, many=False)
+      serializer = self.get_serializer(profile, many=False)
       return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
       return Response(
@@ -255,8 +251,8 @@ class ProfileViewSet(ModelViewSet):
       request (Request): The HTTP request object that triggered this action.
       pk (Optional[int]): The primary key of the profile to retrieve. Defaults to None.
 
-    Returns:
-      Response: 
+    Returns: A Response object with user data serialized with BaseProfileSerializer.  
+      Response:
         - On success: Returns the profile data serialized with a 200 OK status.
         - On failure: Returns an error message with a 400 Bad Request status if the profile does not exist.
     """
@@ -267,8 +263,7 @@ class ProfileViewSet(ModelViewSet):
         {"detail": f"Profile: {pk} doesn't exist."}, 
         status=status.HTTP_400_BAD_REQUEST
       )
-    # Serialize result
-    serializer = profile_serializers.ProfileSerializer(profile, many=False)
+    serializer = self.get_serializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
   
 
@@ -283,7 +278,7 @@ class ProfileViewSet(ModelViewSet):
       request (Request): The HTTP request object containing the update data.
       pk (Optional[int]): The primary key of the profile to be updated. Defaults to None.
 
-    Returns:
+    Returns: A Response object with user data serialized with BaseProfileSerializer.  
       Response:
         - On success: Returns the updated profile data with a 200 OK status.
         - On failure: Returns an error message with a 400 Bad Request status if the profile does not exist or if the update fails.
@@ -302,9 +297,9 @@ class ProfileViewSet(ModelViewSet):
           setattr(profile, field, field_serializer.validated_data[field])
       # Save profile
       profile.save()
-    # Serialize and return 
-    profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
-    return Response(profile_serializer.data, status=status.HTTP_200_OK)
+
+    serializer = self.get_serializer(profile, many=False)
+    return Response(serializer.data, status=status.HTTP_200_OK)
   
 
   def destroy(self, request: Request, pk: Optional[int] = None) -> Response:
@@ -344,7 +339,7 @@ class ProfileViewSet(ModelViewSet):
     Parameters:
       request (Request): The HTTP request object containing the profile data to be created or updated.
 
-    Returns:
+    Returns: A Response object with user data serialized with BaseProfileSerializer.  
       Response:
         - On success: Returns the updated profile data with a 201 Created status.
         - On failure: Returns an error message with a 400 Bad Request status if the data is invalid.
@@ -376,9 +371,9 @@ class ProfileViewSet(ModelViewSet):
       profile.has_account = True
       # Save profile
       profile.save()
-    # Serialize and return
-    profile_serializer = profile_serializers.ProfileSerializer(profile, many=False)
-    return Response(profile_serializer.data, status=status.HTTP_201_CREATED)
+
+    serializer = self.get_serializer(profile, many=False)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
   
 
   @action(detail=False, methods=["get"], url_path=r"actions/swipe-profiles", url_name="swipe-profiles")
