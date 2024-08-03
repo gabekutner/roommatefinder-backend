@@ -4,12 +4,18 @@ from roommatefinder.apps.api import models
 
 
 class ConnectionSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = models.Connection
-    fields = ['id', 'sender', 'receiver', 'accepted']
+	"""
+	Serializer Class for the Connection model
+	"""
+	class Meta:
+		model = models.Connection
+		fields = ['id', 'sender', 'receiver', 'accepted']
 
 
 class UserSerializer(serializers.ModelSerializer):
+	"""
+	Serializer Class for the Profile model, used for socket connection 
+	"""
 	class Meta:
 		model = models.Profile
 		fields = [
@@ -20,27 +26,33 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SearchSerializer(UserSerializer):
-  status = serializers.SerializerMethodField()
-  class Meta:
-    model = models.Profile
-    fields = [
+	"""
+	Serializer class for Search items 
+	"""
+	status = serializers.SerializerMethodField()
+	class Meta:
+		model = models.Profile
+		fields = [
       'id',
       'name',
 			'thumbnail',
       'status'
     ]
 
-  def get_status(self, obj):
-    if obj.pending_them:
-      return 'pending-them'
-    elif obj.pending_me:
-      return 'pending-me'
-    elif obj.connected:
-      return 'connected'
-    return 'no-connection'
+	def get_status(self, obj):
+		if obj.pending_them:
+			return 'pending-them'	
+		elif obj.pending_me:
+			return 'pending-me'	
+		elif obj.connected:
+			return 'connected'
+		return 'no-connection'
     
 
 class RequestSerializer(serializers.ModelSerializer):
+	"""
+	Serializer class for the Request model
+	"""
 	sender = UserSerializer()
 	receiver = UserSerializer()
 	class Meta:
@@ -50,11 +62,13 @@ class RequestSerializer(serializers.ModelSerializer):
 			'sender',
 			'receiver',
 			'created',
-      'display_match'
 		]
 
 
 class FriendSerializer(serializers.ModelSerializer):
+	"""
+	Serializer class for an accepted connection
+	"""
 	friend = serializers.SerializerMethodField()
 	preview = serializers.SerializerMethodField()
 	updated = serializers.SerializerMethodField()
@@ -75,6 +89,7 @@ class FriendSerializer(serializers.ModelSerializer):
 		elif self.context['user'] == obj.receiver:
 			return UserSerializer(obj.sender).data
 		else:
+			# @! create more specific error
 			print('Error: No user found in friendserializer')
 
 	def get_preview(self, obj):
@@ -92,6 +107,9 @@ class FriendSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
+	"""
+	Serializer class for the Message model
+	"""
 	is_me = serializers.SerializerMethodField()
 	class Meta:
 		model = models.Message
