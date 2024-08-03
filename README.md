@@ -1,13 +1,15 @@
 <div align="center">
-  <h1>
-    RoommateFinder API
-  </h1>
+  <img src=".github/dormparty-red-app.png" height="200" alt="Dorm Party Icon">
+  <h1>Dorm Party</h1>
 </div>
 
 #### Table of Contents
 * [Project Description](#project-description)
 * [Local Development](#local-development)
 * [Running Tests](#running-tests)
+* [Github Workflows](#github-workflows)
+* [Contributing Workflows](#contributing)
+
 
 ### Additional Reading
 * [Code of Conduct](CODE_OF_CONDUCT.md)
@@ -106,3 +108,28 @@ bash commands/__tests__/manual_coverage.sh
 ``` 
 
 Keep in mind this simply runs tests on the `api` app, so most config files like `manage.py`, or the `wsgi` / `asgi files ` are not part of either of the above reports.
+
+# Github Workflows
+The repository currently has only two github workflows:
+
+* Run tests on the api app (where all of the code related to the service is)
+* Test the api app meets a code coverage minimum (defined in `project.config`)
+
+All code should pass both tests before going merging with the `main` branch. Excpetions won't be made.
+
+# Contributing
+Thanks for taking the time, first of all! Second, contributing is really simple. Follow the installation steps and create a pull request. As far as finding issues to work on, issues with the `FirstIssue` label are good for starters. 
+
+Find that here: https://github.com/gabekutner/roommatefinder-backend/issues?q=is%3Aopen+is%3Aissue+label%3AFirstIssue
+
+
+
+
+
+
+
+
+
+
+
+
