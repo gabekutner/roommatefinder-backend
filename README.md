@@ -1,7 +1,6 @@
 <div align="center">
-  <h1>
-    RoommateFinder API
-  </h1>
+  <img src=".github/dormparty-red-app.png" height="200" alt="Dorm Party Icon">
+  <h1>Dorm Party</h1>
 </div>
 
 #### Table of Contents
