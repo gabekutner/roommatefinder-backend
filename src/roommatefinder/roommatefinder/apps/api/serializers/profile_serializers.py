@@ -38,6 +38,17 @@ class BaseProfileSerializer(serializers.ModelSerializer):
       return matching_serializers.RoommateQuizSerializer(roommate_quiz).data
     except models.RoommateQuiz.DoesNotExist:
       return None  
+    
+
+class SwipeProfileSerializer(BaseProfileSerializer):
+  """
+  Serializer for a profile on the swipe deck.
+  """
+  token = None
+  refresh_token = None
+  
+  class Meta(BaseProfileSerializer.Meta):
+    exclude = ('password', 'otp', 'otp_expiry', 'max_otp_try', 'otp_max_out', 'otp_verified', 'user_permissions')
 
 
 class ProfileSerializer(serializers.ModelSerializer):
