@@ -9,17 +9,20 @@
 * [Running Tests](#running-tests)
 * [Github Workflows](#github-workflows)
 * [Contributing Workflows](#contributing)
-
+* [Contact](#contact)
 
 ### Additional Reading
-* [Code of Conduct](CODE_OF_CONDUCT.md)
-* [Contributor License Agreement](contributing/CLA.md)
+* [API Overview and Folder Structure](conributing/API.md)
+* [App Flow](conributing/FLOW.md)
+
 
 # Project Description
-RoommateFinder API is the backend for the RoommateFinder mobile app. 
+This repository is the backend for the Dorm Party mobile app. 
 > Here's the link to the frontend repository: https://github.com/gabekutner/roommatefinder-mobile
 
-These two repositories are going to be published as a mobile app for finding freshmen dorm roommates at the University of Utah. 
+The Dorm Party app will be published in Spring 2025 for freshmen at the University of Utah. 
+
+## API
 
 The api itself has three main endpoints:
 
@@ -44,22 +47,18 @@ To run this api you need a `postgres` database running on port `5432` and a `red
 2. Install `redis` : `brew install redis`
 3. Install `docker` : `brew install docker`
 
-> I run use docker to run the postgres image instead of postgres.
+> I run postgres using the docker image.
 
 ## Setup Dev Environment
 
 1. Pull the `postgres` image and run a container on port 5432.
 ```bash
->>> docker pull postgres
->>> docker run -e POSTGRES_PASSWORD=<password here> -p 5432:5432 postgres
+docker pull postgres
+
+docker run -e POSTGRES_PASSWORD=<password here> -p 5432:5432 postgres
 ```
 
 2. Run `redis-server`, default port is `6379`.
-
-> For this next step you can follow the next steps or use the `commands/dev-init.sh` command. They do the same thing, the script just saves time. Run it without parameters to see required parameters. They are the email for email backend, the four app passwords each as their own parameter, and finally the database stuff.
-```bash
-$ bash commands/dev-init.sh example.com 1234 1234 1234 1234 postgres
-```
 
 3. Create a `venv` in the top direcotry. Install project dependencies.
 ```bash
@@ -122,7 +121,8 @@ Thanks for taking the time, first of all! Second, contributing is really simple.
 
 Find that here: https://github.com/gabekutner/roommatefinder-backend/issues?q=is%3Aopen+is%3Aissue+label%3AFirstIssue
 
-
+# Contact
+If you run into an issue, have a question, or anything else create a discussion or issue and @ me. I'm very active and will see your post the same day you post it.
 
 
 
