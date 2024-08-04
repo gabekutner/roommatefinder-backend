@@ -400,7 +400,7 @@ class ProfileViewSet(ModelViewSet):
     paginator = pagination.StandardResultsSetPagination()
     paginated_profiles = paginator.paginate_queryset(profiles, request, view=self)
     # Serialize the paginated profiles
-    serializer = swipe_serializers.SwipeProfileSerializer(paginated_profiles, many=True)
+    serializer = profile_serializers.SwipeProfileSerializer(paginated_profiles, many=True)
     return paginator.get_paginated_response(serializer.data)
 
   
@@ -428,11 +428,11 @@ class ProfileViewSet(ModelViewSet):
         - 404 Not Found: The profile with the given `pk` does not exist.
     """
     try:
-      profile = self.queryset.filter(pk=pk)
+      profile = self.queryset.get(pk=pk)
     except ObjectDoesNotExist:
       return Response({"detail": f"Profile: {pk} doesn't exist."}, status=status.HTTP_404_NOT_FOUND)
     # Serialize and return
-    serializer = swipe_serializers.SwipeProfileSerializer(profile, many=False)
+    serializer = profile_serializers.SwipeProfileSerializer(profile, many=False)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

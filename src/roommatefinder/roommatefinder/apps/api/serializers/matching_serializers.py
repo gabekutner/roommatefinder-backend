@@ -13,7 +13,7 @@ class CreateRoommateQuizSerializer(serializers.Serializer):
   clean_room = serializers.CharField(required=True, allow_null=False)
   noise_level = serializers.IntegerField(required=True, allow_null=False)
   guest_policy = serializers.CharField(required=True, allow_null=False)
-  in_room = serializers.IntegerField(required=True, allow_null=False)
+  in_room = serializers.CharField(required=True, allow_null=False)
   hot_cold = serializers.IntegerField(required=True, allow_null=False)
   bed_time = serializers.CharField(required=True, allow_null=False)
   wake_up_time = serializers.CharField(required=True, allow_null=False)

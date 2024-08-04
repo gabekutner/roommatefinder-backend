@@ -2,7 +2,7 @@
 from rest_framework import serializers, fields
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from roommatefinder.apps.api.serializers import photo_serializers
+from roommatefinder.apps.api.serializers import photo_serializers, matching_serializers
 from roommatefinder.apps.api import models
 from roommatefinder.apps.api.utils import model_utils
 from roommatefinder.settings._base import POPULAR_CHOICES, DORM_CHOICES
@@ -14,7 +14,9 @@ class BaseProfileSerializer(serializers.ModelSerializer):
   """
   token = serializers.SerializerMethodField(read_only=True)
   refresh_token = serializers.SerializerMethodField(read_only=True)
-
+  photos = photo_serializers.PhotoSerializer(source="photo_set", many=True, read_only=True)
+  roommate_quiz = serializers.SerializerMethodField(read_only=True)
+  
   class Meta:
     model = models.Profile
     exclude = ('password', )
@@ -28,7 +30,25 @@ class BaseProfileSerializer(serializers.ModelSerializer):
 
   def get_refresh_token(self, profile):
     token = RefreshToken.for_user(profile)
-    return str(token)  
+    return str(token)
+
+  def get_roommate_quiz(self, obj):
+    try:
+      roommate_quiz = models.RoommateQuiz.objects.get(profile=obj)
+      return matching_serializers.RoommateQuizSerializer(roommate_quiz).data
+    except models.RoommateQuiz.DoesNotExist:
+      return None  
+    
+
+class SwipeProfileSerializer(BaseProfileSerializer):
+  """
+  Serializer for a profile on the swipe deck.
+  """
+  token = None
+  refresh_token = None
+  
+  class Meta(BaseProfileSerializer.Meta):
+    exclude = ('password', 'otp', 'otp_expiry', 'max_otp_try', 'otp_max_out', 'otp_verified', 'user_permissions')
 
 
 class ProfileSerializer(serializers.ModelSerializer):

@@ -102,7 +102,7 @@ class RoommateQuiz(CreationModificationDateBase):
     ],
     default=10
   )
-  clean_room = models.CharField(max_length=100, null=False, blank=True, default="")
+  clean_room = models.CharField(max_length=1000, null=False, blank=True, default="")
   noise_level = models.IntegerField(
     null=False, 
     blank=False,
@@ -112,16 +112,8 @@ class RoommateQuiz(CreationModificationDateBase):
     ],
     default=10
   )
-  guest_policy = models.CharField(max_length=100, null=False, blank=True, default="")
-  in_room = models.IntegerField(
-    null=False, 
-    blank=False,
-    validators=[
-      MinValueValidator(0),
-      MaxValueValidator(20)
-    ],
-    default=10
-  )
+  guest_policy = models.CharField(max_length=1000, null=False, blank=True, default="")
+  in_room = models.CharField(max_length=1000, null=False, blank=True, default="")
   hot_cold = models.IntegerField(
     null=False, 
     blank=False,
@@ -131,9 +123,9 @@ class RoommateQuiz(CreationModificationDateBase):
     ],
     default=10
   )
-  bed_time = models.CharField(max_length=100, null=False, blank=True, default="")
-  wake_up_time = models.CharField(max_length=100, null=False, blank=True, default="")
-  sharing_policy = models.CharField(max_length=100, null=False, blank=True, default="")
+  bed_time = models.CharField(max_length=1000, null=False, blank=True, default="")
+  wake_up_time = models.CharField(max_length=1000, null=False, blank=True, default="")
+  sharing_policy = models.CharField(max_length=1000, null=False, blank=True, default="")
 
 
 class Connection(CreationModificationDateBase): 

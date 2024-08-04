@@ -119,7 +119,7 @@ All code should pass both tests before going merging with the `main` branch. Exc
 # Contributing
 Thanks for taking the time, first of all! Second, contributing is really simple. Follow the installation steps and create a pull request. As far as finding issues to work on, issues with the `FirstIssue` label are good for starters. 
 
-Find that here: https://github.com/gabekutner/roommatefinder-backend/issues?q=is%3Aopen+is%3Aissue+label%3AFirstIssue
+Find that here: https://github.com/gabekutner/roommatefinder-backend/labels/FirstIssue
 
 # Contact
 If you run into an issue, have a question, or anything else create a discussion or issue and @ me. I'm very active and will see your post the same day you post it.
