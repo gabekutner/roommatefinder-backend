@@ -32,7 +32,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     # Call the parent class's validate method to get the default token data
     data = super().validate(attrs)
     # Serialize the user profile data
-    serializer = profile_serializers.ProfileSerializer(self.user).data
+    serializer = profile_serializers.BaseProfileSerializer(self.user).data
     # Add the serialized profile data to the token response
     for key, value in serializer.items():
       data[key] = value
