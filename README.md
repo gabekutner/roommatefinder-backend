@@ -24,7 +24,7 @@ The Dorm Party app will be published in Spring 2025 for freshmen at the Universi
 # Local Development
 ### 🍴 Fork and Clone the Repo
 
-First, yu need to fork the `roommatefinder-backend` repo. You can do this by clicking the Fork button on the top right corner of the repo. If you are new to forking, please watch this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q) to get started.
+First, you need to fork the `roommatefinder-backend` repo. You can do this by clicking the Fork button on the top right corner of the repo. If you are new to forking, please watch this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q) to get started.
 
 Once forked, you can clone the repo by clicking the `Clone or Download` button on the top right corner of the forked repo. 
 

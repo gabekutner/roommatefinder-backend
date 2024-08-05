@@ -118,15 +118,26 @@ REST_FRAMEWORK = {
 }
 
 # redis channels here ...
-CHANNEL_LAYERS = {
-  'default': {
-    'BACKEND': 'channels_redis.core.RedisChannelLayer',
-    'CONFIG': {
-      # runs locally, port 6379
-      'hosts': [('127.0.0.1', 6379)]
+if str_to_bool(os.getenv('USE_SECRETS', 'true')):
+  CHANNEL_LAYERS = {
+    'default': {
+      'BACKEND': 'channels_redis.core.RedisChannelLayer',
+      'CONFIG': {
+        # runs locally, port 6379
+        'hosts': [('127.0.0.1', 6379)] 
+      }
     }
   }
-}
+else:
+  CHANNEL_LAYERS = {
+    'default': {
+      'BACKEND': 'channels_redis.core.RedisChannelLayer',
+      'CONFIG': {
+        'hosts': [os.getenv("REDIS_URL")] 
+      }
+    }
+  }
+  
 
 # SIMPLE JWT TO CREATE JSON ACCESS TOKENS
 SIMPLE_JWT = {
