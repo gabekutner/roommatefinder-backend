@@ -46,6 +46,14 @@ def get_secret(setting, secrets=secrets):
     error_msg = f'Set the {setting} secret variable'
     raise ImproperlyConfigured(error_msg)
   
+# Utility function to parse boolean environment variables
+def str_to_bool(value):
+    if value.lower() in ('true', '1'):
+        return True
+    elif value.lower() in ('false', '0'):
+        return False
+    raise ValueError(f"Invalid boolean value: {value}")
+  
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
   
@@ -59,7 +67,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.getenv('USE_SECRETS'):
+if str_to_bool(os.getenv('USE_SECRETS', 'true')):
   SECRET_KEY = get_secret('SECRET_KEY')
 else:
   SECRET_KEY = os.getenv('SECRET_KEY')
@@ -344,7 +352,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
-if os.getenv('USE_SECRET'):
+if str_to_bool(os.getenv('USE_SECRETS', 'true')):
   EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
   EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 else:
