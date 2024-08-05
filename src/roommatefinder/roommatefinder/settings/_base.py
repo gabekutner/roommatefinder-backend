@@ -15,6 +15,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import sys
 import json
+from dotenv import load_dotenv
 from datetime import timedelta
 
 from django.utils.translation import gettext_lazy as _
@@ -25,22 +26,25 @@ from roommatefinder.apps.core.versioning import get_git_changeset_timestamp
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+env_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path=env_path)
+
 EXTERNAL_BASE = os.path.join(BASE_DIR, "externals")
 EXTERNAL_LIBS_PATH = os.path.join(EXTERNAL_BASE, "libs")
 EXTERNAL_APPS_PATH = os.path.join(EXTERNAL_BASE, "apps")
 sys.path = ["", EXTERNAL_LIBS_PATH, EXTERNAL_APPS_PATH] + sys.path
 
 
-with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
-  secrets = json.loads(f.read())
+# with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
+#   secrets = json.loads(f.read())
 
-def get_secret(setting, secrets=secrets):
-  """Get the secret variable or return explicit exception."""
-  try:
-    return secrets[setting]
-  except KeyError:
-    error_msg = f'Set the {setting} secret variable'
-    raise ImproperlyConfigured(error_msg)
+# def get_secret(setting, secrets=secrets):
+#   """Get the secret variable or return explicit exception."""
+#   try:
+#     return secrets[setting]
+#   except KeyError:
+#     error_msg = f'Set the {setting} secret variable'
+#     raise ImproperlyConfigured(error_msg)
   
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -55,10 +59,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret("SECRET_KEY")
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
   "*", # all for now
@@ -185,11 +189,11 @@ ASGI_APPLICATION = "roommatefinder.asgi.application"
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': get_secret('DATABASE_NAME'),
-    'USER': get_secret('DATABASE_USER'),
-    'PASSWORD': get_secret('DATABASE_PASSWORD'),
-    'HOST': get_secret('DATABASE_HOST'),
-    'PORT': get_secret('DATABASE_PORT'),
+    'NAME': os.getenv('DATABASE_NAME'),
+    'USER': os.getenv('DATABASE_USER'),
+    'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+    'HOST': os.getenv('DATABASE_HOST'),
+    'PORT': os.getenv('DATABASE_PORT'),
   }
 }
 
@@ -334,13 +338,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # for future email account: https://youtu.be/tN2k08Gucto?si=2WCMjnvLrN6mld4w
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = get_secret("EMAIL_HOST")
-EMAIL_PORT = get_secret("EMAIL_PORT")
-EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWOR")
+
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-
-# sms - look around for different options
-# TWILIO_PASSWORD = get_secret("TWILIO_PASSWORD")
-# TWILIO_RECOVERY_CODE = get_secret("TWILIO_RECOVERY_CODE")
