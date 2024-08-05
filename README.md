@@ -35,7 +35,7 @@ To run the development server, make sure you have you have docker installed and 
 
 Before running the docker commands create a `.env.dev` file in the root directory and fill out the empty values. Keep in mind, if you change anything that is already set, you'll have to find where the variable is used and ensure it doesn't break the code. 
 
-Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md).
+Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md). Also, change the `USE_SECRETS` value to False.
 
 ```.env
 SECRET_KEY=""
@@ -52,6 +52,8 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
 EMAIL_HOST_USER=""
 EMAIL_HOST_PASSWORD=""
+
+USE_SECRETS=True
 ```
 
 After this, you're ready to run the docker actions. First, create the docker container.
