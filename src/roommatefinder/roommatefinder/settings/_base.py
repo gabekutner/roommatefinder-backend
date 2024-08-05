@@ -198,17 +198,28 @@ ASGI_APPLICATION = "roommatefinder.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-  'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': os.getenv('DATABASE_NAME'),
-    'USER': os.getenv('DATABASE_USER'),
-    'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-    'HOST': os.getenv('DATABASE_HOST'),
-    'PORT': os.getenv('DATABASE_PORT'),
+if str_to_bool(os.getenv('USE_SECRETS', 'true')):
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django.db.backends.postgresql_psycopg2',
+      'NAME': get_secret('DATABASE_NAME'),
+      'USER': get_secret('DATABASE_USER'),
+      'PASSWORD': get_secret('DATABASE_PASSWORD'),
+      'HOST': get_secret('DATABASE_HOST'),
+      'PORT': get_secret('DATABASE_PORT'),
+    }
   }
-}
-
+else:
+  DATABASES = {
+    'default': {
+      'ENGINE': 'django.db.backends.postgresql_psycopg2',
+      'NAME': os.getenv('DATABASE_NAME'),
+      'USER': os.getenv('DATABASE_USER'),
+      'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+      'HOST': os.getenv('DATABASE_HOST'),
+      'PORT': os.getenv('DATABASE_PORT'),
+    }
+  }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
