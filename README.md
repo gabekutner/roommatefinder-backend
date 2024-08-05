@@ -86,6 +86,8 @@ docker-compose up
 
 To see the api and to connect to it from the mobile app, go to your Wi-Fi settings and find your IP address. If your IP is `10.0.0.49`, then you can find the api at this address: `http://10.0.0.49:8000/`.
 
+> When you publish your code to GitHub come back to the `.env.dev` file and reset the file. Remove the values for SECRET_KEY, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, and set USE_SECRETS to true.
+
 These instructions should get you set up ready to work on Dorm Party 🎉
 
 # Running Tests
