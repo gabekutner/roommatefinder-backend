@@ -34,18 +34,6 @@ EXTERNAL_LIBS_PATH = os.path.join(EXTERNAL_BASE, "libs")
 EXTERNAL_APPS_PATH = os.path.join(EXTERNAL_BASE, "apps")
 sys.path = ["", EXTERNAL_LIBS_PATH, EXTERNAL_APPS_PATH] + sys.path
 
-
-with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
-  secrets = json.loads(f.read())
-
-def get_secret(setting, secrets=secrets):
-  """Get the secret variable or return explicit exception."""
-  try:
-    return secrets[setting]
-  except KeyError:
-    error_msg = f'Set the {setting} secret variable'
-    raise ImproperlyConfigured(error_msg)
-  
 # Utility function to parse boolean environment variables
 def str_to_bool(value):
     if value.lower() in ('true', '1'):
@@ -53,6 +41,18 @@ def str_to_bool(value):
     elif value.lower() in ('false', '0'):
         return False
     raise ValueError(f"Invalid boolean value: {value}")
+
+if str_to_bool(os.getenv('USE_SECRETS', 'true')):
+  with open(os.path.join(os.path.dirname(__file__), 'sample_secrets.json'), 'r') as f:
+    secrets = json.loads(f.read())
+
+  def get_secret(setting, secrets=secrets):
+    """Get the secret variable or return explicit exception."""
+    try:
+      return secrets[setting]
+    except KeyError:
+      error_msg = f'Set the {setting} secret variable'
+      raise ImproperlyConfigured(error_msg)
   
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
