@@ -37,7 +37,7 @@ Before running the docker commands create a `.env.dev` file in the root director
 
 Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md). Also, change the `USE_SECRETS` value to False.
 
-```.env
+```.env.dev
 SECRET_KEY=""
 DEBUG=True
 DJANGO_SETTINGS_MODULE=roommatefinder.settings.dev
@@ -52,8 +52,12 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
 EMAIL_HOST_USER=""
 EMAIL_HOST_PASSWORD=""
-
 USE_SECRETS=True
+```
+
+Then create an empty `json` file in `src/roommatefinder/roommatefinder`. Call it `sample_secrets.json`.
+```json
+{}
 ```
 
 After this, you're ready to run the docker actions. First, create the docker container.
