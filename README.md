@@ -24,7 +24,7 @@ The Dorm Party app will be published in Spring 2025 for freshmen at the Universi
 # Local Development
 ### 🍴 Fork and Clone the Repo
 
-First, yu need to fork the `roommatefinder-backend` repo. You can do this by clicking the Fork button on the top right corner of the repo. If you are new to forking, please watch this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q) to get started.
+First, you need to fork the `roommatefinder-backend` repo. You can do this by clicking the Fork button on the top right corner of the repo. If you are new to forking, please watch this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q) to get started.
 
 Once forked, you can clone the repo by clicking the `Clone or Download` button on the top right corner of the forked repo. 
 
@@ -33,9 +33,7 @@ Please change the directory after cloning the repository using the `cd <folder-n
 ### ⬇️ Running the Development Server
 To run the development server, make sure you have you have docker installed and setup on your machine. If you don't have docker read [this](https://docs.docker.com/desktop/).
 
-Before running the docker commands create a `.env.dev` file in the root directory and fill out the empty values. Keep in mind, if you change anything that is already set, you'll have to find where the variable is used and ensure it doesn't break the code. 
-
-Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md). Also, change the `USE_SECRETS` value to False.
+Before running the docker commands edit the `.env.dev` file in the root directory. Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md). And change USE_SECRETS to false.
 
 ```.env.dev
 SECRET_KEY=""
@@ -66,13 +64,13 @@ After this, you're ready to run the docker actions. First, create the docker con
 docker-compose build
 ```
 
-Then, before you run the container apply migrations.
+Then, apply migrations.
 
 ```bash
 docker-compose run web python3 roommatefinder/manage.py migrate
 ```
 
-And create a superuser so that you can manage the database from `admin` panel. The identifier and password you choose are what you'll log in with when you look up that endpoint.
+And create a superuser so that you can manage the database from `admin` panel. The identifier and password you choose are what you'll log in with when you look up the admin endpoint.
 
 ```bash
 docker-compose run web python3 roommatefinder/manage.py createsuperuser
@@ -85,6 +83,8 @@ docker-compose up
 ```
 
 To see the api and to connect to it from the mobile app, go to your Wi-Fi settings and find your IP address. If your IP is `10.0.0.49`, then you can find the api at this address: `http://10.0.0.49:8000/`.
+
+> When you publish your code to GitHub come back to the `.env.dev` file and reset the file. Remove the values for SECRET_KEY, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, and set USE_SECRETS to true.
 
 These instructions should get you set up ready to work on Dorm Party 🎉
 
