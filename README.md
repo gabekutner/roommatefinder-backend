@@ -53,9 +53,9 @@ EMAIL_HOST_PASSWORD=""
 USE_SECRETS=True
 ```
 
-Then create an empty `json` file in `src/roommatefinder/roommatefinder`. Call it `sample_secrets.json`.
-```json
-{}
+Then create an empty `json` file in `src/roommatefinder/roommatefinder`. Call it `sample_secrets.json`. Just put `{}` in the file.
+```bash
+touch src/roommatefinder/roommatefinder/settings/sample_secrets.json
 ```
 
 After this, you're ready to run the docker actions. First, create the docker container.
