@@ -3,114 +3,140 @@
   <h1>Dorm Party</h1>
 </div>
 
+An app where incoming college freshmen can find dorm roommates.
+<br>
+<br>
+**This is just the backend of the app, if you're looking for the frontend: https://github.com/gabekutner/roommatefinder-frontend**
+
 #### Table of Contents
-* [Project Description](#project-description)
-* [Local Development](#local-development)
+* [Technologies Used](#technologies-used)
+* [Getting Started](#getting-started)
 * [Running Tests](#running-tests)
-<!-- * [Contributing Workflows](#contributing)
-* [Contact](#contact) -->
 
-### Additional Reading
-* [API Details](contributing/API.md)
-* [App Flow](contributing/FLOW.md)
+# Technologies Used
+* 🐍 [Django Rest Framework](https://www.django-rest-framework.org/)
+* 🔴 [Redis](https://redis.io/)
+* 🐘 [Postgres](https://www.postgresql.org/)
+* 🐋 [Docker](https://www.docker.com/)
+* [Daphne](https://github.com/django/daphne)
+* [Django Channels](https://channels.readthedocs.io/en/latest/index.html)
+* [Django Channels JWT Middleware](https://pypi.org/project/django-channels-jwt-auth-middleware/)
 
+> Check out the live app! [Dorm Party Demo](https://gabekutner.github.io/roommatefinder-mobile/)
 
-# Project Description
-This repository is the backend api for the Dorm Party mobile app. 
-> Here's the link to the frontend repository: https://github.com/gabekutner/roommatefinder-mobile
-
-The Dorm Party app will be published in Spring 2025 for freshmen at the University of Utah. 
-
-# Local Development
+# Getting Started
 ### 🍴 Fork and Clone the Repo
 
-First, you need to fork the `roommatefinder-backend` repo. You can do this by clicking the Fork button on the top right corner of the repo. If you are new to forking, please watch this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q) to get started.
+1. **Fork the Repo:** Click the "Fork" button on the top right of this repository. If you're new to forking, check out this [YouTube Guide](https://www.youtube.com/watch?v=h8suY-Osn8Q).
 
-Once forked, you can clone the repo by clicking the `Clone or Download` button on the top right corner of the forked repo. 
+2. **Clone Your Fork:** Click the Clone or Download button on the top right of your forked repo and clone it:
 
-Please change the directory after cloning the repository using the `cd <folder-name>` command.
+  ```bash
+    git clone https://github.com/your-username/roommatefinder-backend.git
+  ```
+
+3. **Navigate to the Directory**:
+   
+  ```bash
+    cd roommatefinder-backend
+  ```
 
 ### ⬇️ Running the Development Server
-To run the development server, make sure you have you have docker installed and setup on your machine. If you don't have docker read [this](https://docs.docker.com/desktop/).
 
-Before running the docker commands edit the `.env.dev` file in the root directory. Here's a useful [website](https://djecrety.ir/) for generating your SECRET_KEY. For more on the `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` see [API Details](contributing/API.md). And change USE_SECRETS to false.
+1. **Install Docker**:
+   
+   Make sure Docker is installed and set up on your machine. If you don't have Docker, read [this guide](https://docs.docker.com/desktop/) for installation instructions.
 
-```.env.dev
-SECRET_KEY=""
-DEBUG=True
-DJANGO_SETTINGS_MODULE=roommatefinder.settings.dev
-DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
-REDIS_URL=redis://redis:6379/0
-DATABASE_NAME="postgres"
-DATABASE_USER="postgres"
-DATABASE_PASSWORD="postgres123"
-DATABASE_HOST="db"
-DATABASE_PORT=5432
-EMAIL_HOST="smtp.gmail.com"
-EMAIL_PORT=587
-EMAIL_HOST_USER=""
-EMAIL_HOST_PASSWORD=""
-USE_SECRETS=True
-```
+2. **Configure Environment Variables**:
 
-Then create an empty `json` file in `src/roommatefinder/roommatefinder`. Call it `sample_secrets.json`. Just put `{}` in the file.
-```bash
-touch src/roommatefinder/roommatefinder/settings/sample_secrets.json
-```
+   Edit the `.env.dev` file in the root directory. You can generate a `SECRET_KEY` used this [website](https://djecrety.ir/). Set `USE_SECRETS` to `false`.
+     * The `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` are for sending OTP verifications code by email to the user. **In development, you do not need to set these variables unless you want to send emails.** To see the otp codes, go to the Django admin site (http://localhost:8000/admin/) and go the Profile model and see the otp code for the user. If you do want to work with the emails, put your email in the `EMAIL_HOST_USER` and generate an app password. See [this tutorial](https://www.youtube.com/watch?v=lSURGX0JHbA) if you don't know how to do this.
+  
+   Example `.env.dev` file:
 
-After this, you're ready to run the docker actions. First, create the docker container.
+   ```ini
+    SECRET_KEY=""
+    DEBUG=True
+    DJANGO_SETTINGS_MODULE=roommatefinder.settings.dev
+    DATABASE_URL=postgres://myuser:mypassword@db:5432/mydatabase
+    REDIS_URL=redis://redis:6379/0
+    DATABASE_NAME="postgres"
+    DATABASE_USER="postgres"
+    DATABASE_PASSWORD="postgres123"
+    DATABASE_HOST="db"
+    DATABASE_PORT=5432
+    EMAIL_HOST="smtp.gmail.com"
+    EMAIL_PORT=587
+    EMAIL_HOST_USER=""
+    EMAIL_HOST_PASSWORD=""
+    USE_SECRETS=False
+   ```
 
-```bash
-docker-compose build
-```
+3. **Create a Sample Secrets File**:
 
-Then, apply migrations.
+   Create an empty `json` file in `src/roommatefinder/roommatefinder/settings` named `sample_secrets.json` with `{}` as its content.
 
-```bash
-docker-compose run web python3 roommatefinder/manage.py migrate
-```
+   ```bash
+    touch src/roommatefinder/roommatefinder/settings/sample_secrets.json
+   ```
 
-And create a superuser so that you can manage the database from `admin` panel. The identifier and password you choose are what you'll log in with when you look up the admin endpoint.
+4. **Build the Docker Container**:
 
-```bash
-docker-compose run web python3 roommatefinder/manage.py createsuperuser
-```
+   ```bash
+    docker-compose build
+   ```
 
-Finally, run the docker container. 
+5. **Apply Migrations**:
 
-```bash
-docker-compose up
-```
+   ```bash
+    docker-compose run web python3 roommatefinder/manage.py migrate
+   ```
 
-To see the api and to connect to it from the mobile app, go to your Wi-Fi settings and find your IP address. If your IP is `10.0.0.49`, then you can find the api at this address: `http://10.0.0.49:8000/`.
+6. **Create a Superuser**:
 
-> When you publish your code to GitHub come back to the `.env.dev` file and reset the file. Remove the values for SECRET_KEY, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, and set USE_SECRETS to true.
+    This superuser will allow you to access the admin panel. Use the credentials you choose to log in.
+  
+    ```bash
+      docker-compose run web python3 roommatefinder/manage.py createsuperuser
+    ```
 
+7. **Run the Docker Container**:
+
+  ```bash
+    docker-compose up
+  ```
+
+8. **Access the API**:
+
+   Find your IP address in your Wi-Fi settings. If your IP is `10.0.0.49`, the API will be available at: `http://10.0.0.49:8000/`.
+
+   > **Important**: Before publishing your code to GitHub, revert the `.env.dev` file by removing the values for `SECRET_KEY`, `EMAIL_HOST_USER`, and `EMAIL_HOST_PASSWORD`, and set `USE_SECRETS` to `true`.
+
+<br>
 These instructions should get you set up ready to work on Dorm Party 🎉
 
+
 # Running Tests
-Running tests is really pretty simple, I keep bash scripts for doing this in the `commands` folder in the root directory. 
+To run tests, follow these steps:
 
-First, make sure you have `coverage` installed manually or you can pip install `test.txt` in the requirements folder.
+1. **Install Coverage**:
 
-Then run, 
+  Ensure you have `coverage` installed. You can either install it manually or use `pip` to install from `test.txt` in the requirements folder.
 
-```bash
-bash commands/__tests__/run_tests_on_api.sh
-```
+2. **Run tests**:
 
-To see how much of the repository those tests cover run,
+   Execute the following script to run tests on the API:
 
-```bash
-bash commands/__tests__/manual_coverage.sh
-``` 
+   ```bash
+     bash commands/__tests__/run_tests_on_api.sh
+   ```
 
-Keep in mind this only runs tests on the `api` app, so files like `manage.py`, or the `wsgi` / `asgi files ` are not part of either of the above reports.
+3. **Run Test Coverage**:
 
-<!-- # Contributing
-Thanks for taking the time, first of all! Second, contributing is really simple. Follow the installation steps and create a pull request. As far as finding issues to work on, issues with the `FirstIssue` label are good for starters. 
+   To see how much of the repository is covered by tests, run:\
 
-Find that here: https://github.com/gabekutner/roommatefinder-backend/labels/FirstIssue
+   ```bash
+     bash commands/__tests__/manual_coverage.sh
+   ```
 
-# Contact
-If you run into an issue, have a question, or anything else  -->
+> Note: This coverage report only includes the `api` app. Files like `manage.py`, and `wsgi` / `asgi` files are not part of the report.
