@@ -12,6 +12,7 @@ An app where incoming college freshmen can find dorm roommates.
 * [Technologies Used](#technologies-used)
 * [Getting Started](#getting-started)
 * [Running Tests](#running-tests)
+* [Project Structure](#project-structure)
 
 # Technologies Used
 * 🐍 [Django Rest Framework](https://www.django-rest-framework.org/)
@@ -50,7 +51,7 @@ An app where incoming college freshmen can find dorm roommates.
 2. **Configure Environment Variables**:
 
    Edit the `.env.dev` file in the root directory. You can generate a `SECRET_KEY` used this [website](https://djecrety.ir/). Set `USE_SECRETS` to `false`.
-     * The `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` are for sending OTP verifications code by email to the user. **In development, you do not need to set these variables unless you want to send emails.** To see the otp codes, go to the Django admin site (http://localhost:8000/admin/) and go the Profile model and see the otp code for the user. If you do want to work with the emails, put your email in the `EMAIL_HOST_USER` and generate an app password. See [this tutorial](https://www.youtube.com/watch?v=lSURGX0JHbA) if you don't know how to do this.
+     * The `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` are used for sending OTP verification codes via email. **In development, you can skip setting these variables unless you want to send emails.** To view OTP codes, access the Django admin panel (http://localhost:8000/admin/) and check the Profile model. If you want to work with emails, set `EMAIL_HOST_USER` with your email and generate an app password. See [this tutorial](https://www.youtube.com/watch?v=lSURGX0JHbA) for guidance.
   
    Example `.env.dev` file:
 
@@ -140,3 +141,22 @@ To run tests, follow these steps:
    ```
 
 > Note: This coverage report only includes the `api` app. Files like `manage.py`, and `wsgi` / `asgi` files are not part of the report.
+
+# Project Structure
+
+Most of the code is in the `src/roommatefinder/roommatefinder` folder. 
+
+* **apps** : Where the `api` is defined and other `core` functionality.
+* **settings** : App settings.
+
+The `api` app is where all the endpoints and main functionality of the backend is defined.
+
+* **internal** : Internal admin endpoints. Unaccessible by not admin users.
+* **serializers** : Django Rest serializers used in the `views` folder.
+* **tests** : Unit tests. One test file for every file in the `api` folder.
+* **utils** : Utility functions for the app.
+* **views** : API endpoints and backend logic!
+
+* **managers.py** : A custom Profile User manager. Where the algorithm is defined.
+* **consumers.py** : The consumer class for all Websocket connections.
+* **models.py** : Models for all data.
