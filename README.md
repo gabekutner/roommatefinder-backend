@@ -6,7 +6,7 @@
 An app where incoming college freshmen can find dorm roommates.
 <br>
 <br>
-**This is just the backend of the app, if you're looking for the frontend: https://github.com/gabekutner/roommatefinder-frontend**
+**This is just the backend of the app, if you're looking for the frontend: https://github.com/gabekutner/roommatefinder-mobile**
 
 #### Table of Contents
 * [Technologies Used](#technologies-used)
