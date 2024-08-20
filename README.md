@@ -78,7 +78,7 @@ An app where incoming college freshmen can find dorm roommates.
    Create an empty `json` file in `src/roommatefinder/roommatefinder/settings` named `sample_secrets.json` with `{}` as its content.
 
    ```bash
-    touch src/roommatefinder/roommatefinder/settings/sample_secrets.json
+    echo "{}" > src/roommatefinder/roommatefinder/settings/sample_secrets.json
    ```
 
 4. **Build the Docker Container**:
